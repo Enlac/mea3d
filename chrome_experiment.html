@@ -1,0 +1,201 @@
+<!-- Author: Mustafa Acer -->
+<html>
+<head><title>GearCraft - A Chrome Experiment</title>
+<style>
+body {
+  background-color: black;
+  color: white;
+}
+legend {
+  font-size:9pt;
+  font-weight:bold;
+}
+h1 {
+  font-size:2em;
+  margin: 5 5 5 5;
+  font-family:sans-serif;
+}
+h1 a {
+  color: #ffffaa;
+  font-weight:normal;
+  text-decoration: none;   
+}
+h1 a:hover {
+  text-decoration: underline;  
+}
+fieldset {
+  margin:  0 3 10 3;
+  padding: 3 3 3 3;
+}
+legend {
+  color: white;
+}
+#sceneDiv { 
+  border: 1px solid white;
+}
+#errorDiv {
+  color: white;
+  font-size: 20px;
+  display:none;
+  width: 40%;
+  height:40%;
+  position: absolute;
+  top: 100px;
+  left: 20%;
+  margin: auto;
+  background-color: #555;
+}
+#errorDiv a {
+  color: #ffffaa;
+}
+table {
+  font-size:9pt;
+  font-family:Tahoma;
+  cell-spacing: 0;
+  width:100%;
+}
+table a {
+  color: #ff1;
+  text-decoration:none;
+}
+table a:hover {
+  text-decoration:underline;
+}
+h2 {
+  font-weight:bold;
+  font-size:11pt;
+  padding: 2 2 2 2;
+  margin: 2 2 2 2;
+}
+.hilite {
+  background-color: #222;
+}
+.btn {
+  width: 100px;
+  height: 50px;
+  font-size: 12pt;
+  font-weight: bold;
+}
+</style>
+</head>
+
+<body leftmargin=0 topmargin=0 style='font-family:Tahoma'>
+<div style="width:80%; margin:0 auto">
+  <center>
+    <h1>GearCraft</h1>
+    <table>
+      <tr>
+        <td valign=top>
+          <div id="sceneDiv" style="width:800px; height:600px"></div>
+        </td>
+        <td valign=top>
+          <fieldset><legend>Animation</legend>
+            <center>
+              <input class="btn" type="button" id="btnStartAnim" value="Start">
+              <input class="btn" type="button" id="btnStopAnim"  value="Stop" style="display:none">
+           </center>
+          </fieldset>
+          <fieldset><legend>Stats</legend>
+            <table style="font-size:9pt; font-family:Tahoma;width:100%" cellspacing=0>
+                <col width=100 /><col width=50 />
+                <tr><td><b>FPS:</b></td>       <td><span id="framesPerSecond"></td></tr>
+                <tr class="hilite"><td><b>Vertices:</b></td>  <td><span id="numVertices"></td></tr>
+                <tr><td><b>Polygons:</b></td>  <td><span id="numFaces"></td></tr>
+                <tr class="hilite"><td><b>Frames:</b></td>    <td><span id="numFramesRendered"></td></tr>
+            </table>
+          </fieldset>
+          <fieldset><legend>Controls</legend>
+            <table style='font-size:9pt; font-family:Tahoma' cellspacing=0>
+              <tr><th>W,A,S,D,Q,E &amp; Arrow keys</td><td>Move around</td></tr>
+              <tr class="hilite"><th>1,2,3,4,5</td>  <td>Toggle lights</td></tr>
+              <tr><th>R</td>          <td>Change render mode</td></tr>
+              <tr class="hilite"><th>B</td>          <td>Toggle backface culling</td></tr>
+              <tr><th>M</td>          <td>Toggle mouse navigation</td></tr>
+              <tr class="hilite"><th>Mouse wheel</td><td>Zoom in/out</td></tr>
+            </table>
+          </fieldset>
+          <fieldset><legend>About</legend>
+            <table>
+              <tr>
+                <td colspan=2 align=center><h2>GearCraft</h2>
+                A Chrome experiment demonstrating HTML5 canvas element. GearCraft
+                is built upon my custom 3D JavaScript engine which supports 
+                transformations, lighting, polygon meshes and even raytracing.                
+                </td>
+              </tr>
+              <tr><td>Author:</td>  <td><a href="http://www.mustafaacer.com">Mustafa Acer</a></td></tr>
+            </table>
+          </fieldset>
+        </td>
+      </tr>
+    </table>
+  </center>
+</div>
+<div id="errorDiv">
+  <center>Sorry, your browser doesn't support HTML5 <code>canvas</code> element :(<br>
+  <br><br>
+  You can compare browsers at <a href="http://www.browserscope.org/" target="_blank">
+  Browserscope</a> and choose a new one!
+  </center>
+</div>
+<script src="src/renderer2d.js"></script>
+
+<script src="src/utils.js"></script>
+<script src="src/logger.js"></script>
+<script src="src/colorrgba.js"></script>
+<script src="src/vector.js"></script>
+<script src="src/line.js"></script>
+<script src="src/matrix4.js"></script>
+<script src="src/transformation.js"></script>
+<script src="src/math3d.js"></script>
+<script src="src/camera.js"></script>
+<script src="src/viewport.js"></script>
+
+<script src="src/vertex.js"></script>
+<script src="src/polygon.js"></script>
+<script src="src/material.js"></script>
+<script src="src/texture.js"></script>
+<script src="src/light.js"></script>
+<script src="src/mesh.js"></script>
+<script src="src/model3d.js"></script>
+
+<script src="src/keycodes.js"></script>
+<script src="src/scene.js"></script>
+<script src="src/renderer.js"></script>
+<script src="src/fps.js"></script>
+<script src="models/quake/gear.3d.js"></script>
+<script src="models/model_airplane.3d.js"></script>
+<script src="models/model_skybox.3d.js"></script>
+
+<script src="apps/chrome_experiment.js"></script>
+<script>
+  var app = new mea3D.ChromeExperiment();
+  app.init(
+    {
+      rendererOptions:{
+        width:  800,
+        height: 600,
+        enableMouseNavigation:true,        
+        cameraDirection: new Vector3(0.8,0,1).norm(),
+        cameraPosition:  new Vector3(-50,25,-50),
+        clearColor:      new ColorRGBA(0.1, 0.1, 0.2)
+      }
+    }
+  );
+</script>
+<script type="text/javascript">
+
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-165235-12']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+
+</script>
+</body>
+</html>
+
