@@ -50,8 +50,9 @@ mea3D.MouseHandler.prototype = {
     this.app.renderer.update();
 
     // TEST: Mouse hit test:
-    this.getMouseSelection(screenX, screenY);
-    
+    if (this.getMouseSelection) {
+      this.getMouseSelection(screenX, screenY);
+    }
     return false;
   },
 };
