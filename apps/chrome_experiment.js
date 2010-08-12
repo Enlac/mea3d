@@ -293,7 +293,7 @@ mea3D.ChromeExperiment.prototype = {
       }
     }, false);
     
-    document.onmousemove = function(ev) {
+    /*document.onmousemove = function(ev) {
       if (me.renderer.options.enableMouseNavigation) {
         if (ev.pageX && ev.pageY) {
           var ret = me.renderer.onMouseMove(
@@ -303,7 +303,10 @@ mea3D.ChromeExperiment.prototype = {
           return ret;
         }
       }
-    };
+    };*/
+    var mouseHandler = new mea3D.MouseHandler(me);
+    mouseHandler.bindEvents();
+    
     
     if (de("btnStartAnim")) {
       de("btnStartAnim").onclick = function(ev) {
