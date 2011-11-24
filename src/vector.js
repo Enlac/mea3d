@@ -1,24 +1,25 @@
 // Author: Mustafa Acer
+if (typeof mea3D=="undefined") mea3D = {};
 
 /**
 * @constructor
 */
-function Vector2(x,y) {
+mea3D.Vector2 = function(x,y) {
   this.x = x? x:0;
   this.y = y? y:0;
 }
-Vector2.prototype = {
+mea3D.Vector2.prototype = {
   toString:function() {
     return "(" + this.x.toFixed(3) + "," + this.y.toFixed(3) + ")";
   },
   scale:function(d) {
-    return new Vector2(this.x*d, this.y*d);
+    return new mea3D.Vector2(this.x*d, this.y*d);
   },
   add:function(v) {
-    return new Vector2(this.x + v.x, this.y + v.y);
+    return new mea3D.Vector2(this.x + v.x, this.y + v.y);
   },
   subt:function(v) {
-    return new Vector2(this.x - v.x, this.y - v.y);
+    return new mea3D.Vector2(this.x - v.x, this.y - v.y);
   },
   dot:function(v) {
     return this.x*v.x + this.y*v.y;
@@ -32,7 +33,7 @@ Vector2.prototype = {
 /**
 * @constructor
 */
-function Vector3(x,y,z, w) {
+mea3D.Vector3 = function(x,y,z, w) {
   this.x = (x) ? x:0;
   this.y = (y) ? y:0;
   this.z = (z) ? z:0;
@@ -40,7 +41,7 @@ function Vector3(x,y,z, w) {
   
 }
 
-Vector3.prototype = {
+mea3D.Vector3.prototype = {
   toString:function() {
     return "(" + this.x.toFixed(3) + "," + 
     this.y.toFixed(3) + "," + 
@@ -57,23 +58,23 @@ Vector3.prototype = {
     return true;
   },
   copy:function() {
-    return new Vector3(this.x, this.y, this.z, this.w);
+    return new mea3D.Vector3(this.x, this.y, this.z, this.w);
   },
   
   scale:function(s) {
-    return new Vector3(this.x*s, this.y*s, this.z*s);
+    return new mea3D.Vector3(this.x*s, this.y*s, this.z*s);
   },
   scale3:function(sx,sy,sz) {
-    return new Vector3(this.x*sx, this.y*sy, this.z*sz);
+    return new mea3D.Vector3(this.x*sx, this.y*sy, this.z*sz);
   },
   add:function(v) {
-    return new Vector3(
+    return new mea3D.Vector3(
       this.x + v.x,
       this.y + v.y,
       this.z + v.z);
   },
   subt:function(v) {
-    return new Vector3(
+    return new mea3D.Vector3(
       this.x - v.x,
       this.y - v.y,
       this.z - v.z);
@@ -93,7 +94,8 @@ Vector3.prototype = {
     return this.x*v.x + this.y*v.y + this.z*v.z;
   },
   cross:function(v) {
-    return new Vector3( this.y*v.z - this.z*v.y,
+    return new mea3D.Vector3(
+                        this.y*v.z - this.z*v.y,
                         this.z*v.x - this.x*v.z,
                         this.x*v.y - this.y*v.x);
   }
@@ -101,4 +103,5 @@ Vector3.prototype = {
 
 
 // Export Vector3 object to make closure compiler happy:
-if (!window["Vector3"]) window["Vector3"] = Vector3;
+if (!window["mea3D"])             window["mea3D"] = mea3D;
+if (!window["mea3D"]["Vector3"])  window["mea3D"]["Vector3"] = mea3D.Vector3;

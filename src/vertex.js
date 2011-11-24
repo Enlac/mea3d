@@ -1,15 +1,16 @@
 // Author: Mustafa Acer
+if (typeof mea3D=="undefined") mea3D = {};
 
 /**
 * @constructor
 */
-function Vertex(x,y,z, nx,ny,nz, color) {
-  this.pos = new Vector3(0,0,0);
+mea3D.Vertex = function(x,y,z, nx,ny,nz, color) {
+  this.pos = new mea3D.Vector3(0,0,0);
   this.pos.x = x;
   this.pos.y = y;
   this.pos.z = z;
   
-  this.normal = new Vector3(0,0,0);
+  this.normal = new mea3D.Vector3(0,0,0);
   if (nx) this.normal.x = nx;
   if (ny) this.normal.y = ny;
   if (nz) this.normal.z = nz;
@@ -18,10 +19,11 @@ function Vertex(x,y,z, nx,ny,nz, color) {
   this.color = (color)?color:"#fff";
 }
 
-Vertex.fromVector = function(vector) {
-  return new Vertex(
+mea3D.Vertex.fromVector = function(vector) {
+  return new mea3D.Vertex(
     vector.x,
     vector.y,
     vector.z
   );
 };
+

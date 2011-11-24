@@ -31,12 +31,12 @@ mea3D.ChromeExperiment.prototype = {
     }
     
     // Closure compiler breaks rendering options so we set these here:
-    this.renderer.clearColor = new ColorRGBA(0.1, 0.1, 0.2);
-    this.renderer.camera.eyePos = new Vector3(-50,25,-50);
-    this.renderer.camera.eyeDir = new Vector3(0.8,0,1).norm();
+    this.renderer.clearColor = new mea3D.ColorRGBA(0.1, 0.1, 0.2);
+    this.renderer.camera.eyePos = new mea3D.Vector3(-50,25,-50);
+    this.renderer.camera.eyeDir = new mea3D.Vector3(0.8,0,1).norm();
     
-    this.sceneOffsetX = mea3D.getPageOffsetLeft(this.renderer.canvas);
-    this.sceneOffsetY = mea3D.getPageOffsetTop(this.renderer.canvas);
+    this.sceneOffsetX = mea3D.Utils.getPageOffsetLeft(this.renderer.canvas);
+    this.sceneOffsetY = mea3D.Utils.getPageOffsetTop(this.renderer.canvas);
       
     this.buildScene();
     this.renderer.update();
@@ -53,31 +53,31 @@ mea3D.ChromeExperiment.prototype = {
     
     // Airplane model
     var airplane = new mea3D.Model3D("airplane", airplaneModelTemplate,
-      new Transformation(new Vector3(-44,25,-40))
+      new mea3D.Transformation(new mea3D.Vector3(-44,25,-40))
     );
     scene.addModel(airplane);
     
     // Gears    
     var gearModel = new mea3D.Model3D("gearModel", null);
     var gearMaterials = [
-      new mea3D.Material(0, null, new ColorRGBA(1,1,0.3), new ColorRGBA(0.3, 0.1, 0.1)),
-      new mea3D.Material(0, null, new ColorRGBA(0.3,0.3,1), new ColorRGBA(0.3, 0.1, 0.1)),
-      new mea3D.Material(0, null, new ColorRGBA(1,0.3,0.3), new ColorRGBA(0.3, 0.1, 0.1))
+      new mea3D.Material(0, null, new mea3D.ColorRGBA(1,1,0.3), new mea3D.ColorRGBA(0.3, 0.1, 0.1)),
+      new mea3D.Material(0, null, new mea3D.ColorRGBA(0.3,0.3,1), new mea3D.ColorRGBA(0.3, 0.1, 0.1)),
+      new mea3D.Material(0, null, new mea3D.ColorRGBA(1,0.3,0.3), new mea3D.ColorRGBA(0.3, 0.1, 0.1))
     ];
     gearMaterials[0].enableEmitColor = true;
     gearMaterials[1].enableEmitColor = true;
     gearMaterials[2].enableEmitColor = true;
     var gearMesh1 = mea3D.Mesh.createFromTemplate(
       gearModel, "gearMesh1", gearMeshTemplate, [gearMaterials[0]], 
-      new Transformation(new Vector3(0, 20, 0), new Vector3(6, 6, 6), new Vector3(0,0,0.2))
+      new mea3D.Transformation(new mea3D.Vector3(0, 20, 0), new mea3D.Vector3(6, 6, 6), new mea3D.Vector3(0,0,0.2))
     );
     var gearMesh2 = mea3D.Mesh.createFromTemplate(
       gearModel, "gearMesh2", gearMeshTemplate, [gearMaterials[1]],
-      new Transformation(new Vector3(-27, 32, 0),  new Vector3(10.5, 10.5, 4))
+      new mea3D.Transformation(new mea3D.Vector3(-27, 32, 0),  new mea3D.Vector3(10.5, 10.5, 4))
     );
     var gearMesh3 = mea3D.Mesh.createFromTemplate(
       gearModel, "gearMesh3", gearMeshTemplate, [gearMaterials[2]],
-      new Transformation(new Vector3(27, 32, 0), new Vector3(10.5, 10.5, 4))
+      new mea3D.Transformation(new mea3D.Vector3(27, 32, 0), new mea3D.Vector3(10.5, 10.5, 4))
     );
     gearModel.addMesh(gearMesh1);
     gearModel.addMesh(gearMesh2);
@@ -93,12 +93,12 @@ mea3D.ChromeExperiment.prototype = {
     //scene.addModel(new mea3D.Model3D("skybox", skyBoxModelTemplate));
     
     // Light setup
-    scene.ambientColor = new ColorRGBA(0.1, 0.1, 0.1); // ambient color
+    scene.ambientColor = new mea3D.ColorRGBA(0.1, 0.1, 0.1); // ambient color
     scene.addLight(               // add a white light to the center
       new mea3D.Light(
         mea3D.LightType.POINT, 
-        new ColorRGBA(0.8, 0.8, 0.8), 
-        new Vector3(-40,35,-45),       // light position
+        new mea3D.ColorRGBA(0.8, 0.8, 0.8), 
+        new mea3D.Vector3(-40,35,-45),       // light position
         null,                      // point lights dont have directions
         1000000,                   // range
         {att0:0, att1:0.00, att2:0.003} // attenuation factors (see DirectX SDK, Attenuation and Spotlight Factor)
@@ -107,16 +107,16 @@ mea3D.ChromeExperiment.prototype = {
     /*scene.addLight(
       new mea3D.Light(
         mea3D.LightType.DIRECTIONAL,
-        new ColorRGBA(0.4, 0.4, 0.4),
+        new mea3D.ColorRGBA(0.4, 0.4, 0.4),
         null,                         // directional lights dont have a position
-        new Vector3(0,-1,-1)          // light direction
+        new mea3D.Vector3(0,-1,-1)          // light direction
       )
     );*/    
     scene.addLight(               // add a green light to the right
       new mea3D.Light(
         mea3D.LightType.POINT, 
-        new ColorRGBA(0.8, 0, 0), 
-        new Vector3(-20,15,-20),   // light position
+        new mea3D.ColorRGBA(0.8, 0, 0), 
+        new mea3D.Vector3(-20,15,-20),   // light position
         null,                      // point lights dont have directions
         1000000,                   // range
         {att0:0, att1:0.00, att2:0.002} // attenuation factors (see DirectX SDK, Attenuation and Spotlight Factor)
@@ -125,8 +125,8 @@ mea3D.ChromeExperiment.prototype = {
     scene.addLight(                // add a green light to the left
       new mea3D.Light(
         mea3D.LightType.POINT, 
-        new ColorRGBA(0, 0.8, 0), 
-        new Vector3(20,15,-20),    // light position
+        new mea3D.ColorRGBA(0, 0.8, 0), 
+        new mea3D.Vector3(20,15,-20),    // light position
         null,                      // point lights dont have directions
         1000000,                   // range
         {att0:0, att1:0.00, att2:0.002} // attenuation factors (see DirectX SDK, Attenuation and Spotlight Factor)
@@ -135,8 +135,8 @@ mea3D.ChromeExperiment.prototype = {
     scene.addLight(                // add a blue light to the back
       new mea3D.Light(
         mea3D.LightType.POINT, 
-        new ColorRGBA(0, 0.0, 0.8), 
-        new Vector3(0,20,20),      // light position
+        new mea3D.ColorRGBA(0, 0.0, 0.8), 
+        new mea3D.Vector3(0,20,20),      // light position
         null,                      // point lights dont have directions
         1000000,                   // range
         {att0:0, att1:0.00, att2:0.002} // attenuation factors (see DirectX SDK, Attenuation and Spotlight Factor)
@@ -353,7 +353,7 @@ mea3D.ChromeExperiment.prototype = {
     var fpsCalculator = new mea3D.FPSCalculator();
     
     // Reset camera's up vector:
-    this.renderer.camera.upVector = new Vector3(0,1,0);
+    this.renderer.camera.upVector = new mea3D.Vector3(0,1,0);
     // Turn on plane's light:
     this.renderer.scene.lights[0].enabled = true;
     
@@ -361,8 +361,8 @@ mea3D.ChromeExperiment.prototype = {
       angle += (Math.PI/25);
       var s = Math.sin(angle);
       var c = Math.cos(angle);
-      var planePos = new Vector3(35*s, 32+2*s, 35*c);
-      var planeDir = new Vector3(0, angle-Math.PI/2, Math.PI/10);
+      var planePos = new mea3D.Vector3(35*s, 32+2*s, 35*c);
+      var planeDir = new mea3D.Vector3(0, angle-Math.PI/2, Math.PI/10);
       
       // Update the light which follows the plane
       me.renderer.scene.lights[0].position = planePos;
@@ -383,11 +383,11 @@ mea3D.ChromeExperiment.prototype = {
       var s2 = Math.sin(angle/10.0);      
       var c2 = Math.cos(angle/10.0);
       var cameraRadius = 70 + s2 * 20;
-      me.renderer.camera.eyePos = new Vector3(cameraRadius*c2, 50+20*s2, cameraRadius*s2);
+      me.renderer.camera.eyePos = new mea3D.Vector3(cameraRadius*c2, 50+20*s2, cameraRadius*s2);
       me.renderer.camera.eyeDir = planePos.scale(0.3).subt(me.renderer.camera.eyePos).norm();
       // Ride on the plane:      
-      //me.renderer.camera.eyePos = planePos.add(new Vector3(0,3,0));      
-      //me.renderer.camera.eyeDir = planePos.cross(new Vector3(0,1,0)).scale(-1);
+      //me.renderer.camera.eyePos = planePos.add(new mea3D.Vector3(0,3,0));      
+      //me.renderer.camera.eyeDir = planePos.cross(new mea3D.Vector3(0,1,0)).scale(-1);
       
       // Toggle lights
       var currentTime = new Date();

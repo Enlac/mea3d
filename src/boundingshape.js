@@ -39,3 +39,4 @@ mea3D.BoundingShape.prototype = {
     return newShape;
   }
 };
+

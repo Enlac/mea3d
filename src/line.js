@@ -1,13 +1,15 @@
 // Author: Mustafa Acer
+if (typeof mea3D=="undefined") mea3D = {};
 
 /**
 * @constructor
 */
-function Line3(v1, v2) {
+mea3D.Line3 = function(v1, v2) {
   this.v1 = v1;
   this.v2 = v2;
 }
-Line3.prototype = {
+
+mea3D.Line3.prototype = {
   toString:function() {
     return this.v1.toString() + "," + this.v2.toString();
   },

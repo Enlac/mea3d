@@ -10,7 +10,7 @@ mea3D.Scene = function() {
   this.skyBox = null; // Skybox is the model which will always be drawn first
   
   this.lights = [];
-  this.ambientColor = new ColorRGBA(0, 0, 0);
+  this.ambientColor = new mea3D.ColorRGBA(0, 0, 0);
   this.boundingShapes = [];
 }
 

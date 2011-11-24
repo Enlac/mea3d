@@ -1,16 +1,17 @@
 // Author: Mustafa Acer
+if (typeof mea3D=="undefined") mea3D = {};
 
 /**
 * @constructor
 */
-function Transformation(position, scaling, rotation) {
-  this.position = position ? position : new Vector3(0,0,0);
-  this.rotation = rotation ? rotation : new Vector3(0,0,0);
-  this.scaling  = scaling  ? scaling  : new Vector3(1,1,1);
+mea3D.Transformation = function(position, scaling, rotation) {
+  this.position = position ? position : new mea3D.Vector3(0,0,0);
+  this.rotation = rotation ? rotation : new mea3D.Vector3(0,0,0);
+  this.scaling  = scaling  ? scaling  : new mea3D.Vector3(1,1,1);
   this.update();
 }
 
-Transformation.prototype = {
+mea3D.Transformation.prototype = {
   toString:function() {
     return  "position: " + this.position.toString() +
             "rotation: " + this.rotation.toString() +
@@ -18,7 +19,7 @@ Transformation.prototype = {
   },
  
   copy:function() {
-    var trans = new Transformation(
+    var trans = new mea3D.Transformation(
       this.position.copy(),
       this.scaling.copy(),
       this.rotation.copy()
@@ -43,7 +44,7 @@ Transformation.prototype = {
   },
   
   combine:function(childTransformation) {
-    var trans = new Transformation();
+    var trans = new mea3D.Transformation();
     trans.position = this.position.add(childTransformation.position);
     trans.rotation = this.rotation.copy(); //.add(childTransformation.rotation);
     // TODO: Add a "scale by vector" function to Vector3 class to encapsulate this:

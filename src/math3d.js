@@ -5,10 +5,10 @@ mea3D.Math = {
 
   // 4D Matrices
   getScaleMatrix4:function(sx,sy,sz) {
-    return new Matrix4( [[sx,0,0,0], [0,sy,0,0], [0,0,sz,0], [0,0,0,1]] );
+    return new mea3D.Matrix4( [[sx,0,0,0], [0,sy,0,0], [0,0,sz,0], [0,0,0,1]] );
   },
   getTranslationMatrix4:function(tx,ty,tz) {
-    return new Matrix4( 
+    return new mea3D.Matrix4( 
       [[1,0,0,0],
        [0,1,0,0],
        [0,0,1,0],
@@ -30,7 +30,7 @@ mea3D.Math = {
   getMatrixRotationX4:function(angle) {
     var s = Math.sin(angle);
     var c = Math.cos(angle);
-    return new Matrix4(
+    return new mea3D.Matrix4(
     [ [1, 0, 0,  0],
       [0, c,  s, 0],
       [0, -s, c, 0],
@@ -40,7 +40,7 @@ mea3D.Math = {
   getMatrixRotationY4:function(angle) {
     var s = Math.sin(angle);
     var c = Math.cos(angle);
-    return new Matrix4(
+    return new mea3D.Matrix4(
     [ [c, 0, -s, 0],
       [0, 1,  0, 0],
       [s, 0, c,  0],
@@ -50,7 +50,7 @@ mea3D.Math = {
   getMatrixRotationZ4:function(angle) {
     var s = Math.sin(angle);
     var c = Math.cos(angle);
-    return new Matrix4(
+    return new mea3D.Matrix4(
     [ [c,  s, 0, 0],
       [-s, c, 0, 0],
       [0, 0, 1,  0],      
@@ -58,9 +58,9 @@ mea3D.Math = {
     ]);
   },
   
-  // Expanded 4x4 matrix multiplication. This might perform a little better than Matrix4.mult(m)
+  // Expanded 4x4 matrix multiplication. This might perform a little better than mea3D.Matrix4.mult(m)
   mult4:function(a,b) {
-    var c = new Matrix4();
+    var c = new mea3D.Matrix4();
     c.vals[0][0] = a.vals[0][0] * b.vals[0][0] + a.vals[0][1] * b.vals[1][0] + a.vals[0][2] * b.vals[2][0] + a.vals[0][3] * b.vals[3][0];
     c.vals[0][1] = a.vals[0][0] * b.vals[0][1] + a.vals[0][1] * b.vals[1][1] + a.vals[0][2] * b.vals[2][1] + a.vals[0][3] * b.vals[3][1];
     c.vals[0][2] = a.vals[0][0] * b.vals[0][2] + a.vals[0][1] * b.vals[1][2] + a.vals[0][2] * b.vals[2][2] + a.vals[0][3] * b.vals[3][2];
@@ -85,7 +85,7 @@ mea3D.Math = {
     var w = 1.0/Math.tan(fovHor*0.5);
     var h = 1.0/Math.tan(fovVer*0.5);
     var q = zFar/ (zFar-zNear);
-    var matrix = new Matrix4();
+    var matrix = new mea3D.Matrix4();
     matrix.vals[0][0] = w;
     matrix.vals[1][1] = h;
     matrix.vals[2][2] = q;
@@ -103,7 +103,7 @@ mea3D.Math = {
     var dotY  = -yAxis.dot(eyePos);
     var dotZ  = -zAxis.dot(eyePos);
     
-    return new Matrix4(
+    return new mea3D.Matrix4(
       [ [xAxis.x, yAxis.x, zAxis.x, 0],
         [xAxis.y, yAxis.y, zAxis.y, 0],
         [xAxis.z, yAxis.z, zAxis.z, 0],
@@ -111,7 +111,7 @@ mea3D.Math = {
       ]);
   },
   getScreenProjectionMatrix4:function(x, y, width, height, zMin, zMax) {
-    return new Matrix4(
+    return new mea3D.Matrix4(
       [ [ width*0.5, 0, 0, 0],
         [ 0, -height*0.5, 0, 0],
         [ 0, 0, zMax-zMin, 0],
@@ -124,7 +124,7 @@ mea3D.Math = {
   },
   
   transformPoint:function(p, t) { // matrix, point
-    var vec = new Vector3(0,0,0);
+    var vec = new mea3D.Vector3(0,0,0);
     vec.x = t.vals[0][0]*p.x + t.vals[1][0]*p.y + t.vals[2][0]*p.z + t.vals[3][0];
     vec.y = t.vals[0][1]*p.x + t.vals[1][1]*p.y + t.vals[2][1]*p.z + t.vals[3][1];
     vec.z = t.vals[0][2]*p.x + t.vals[1][2]*p.y + t.vals[2][2]*p.z + t.vals[3][2];
@@ -133,13 +133,13 @@ mea3D.Math = {
 
   getFaceCenter:function(v1,v2,v3,v4) {
     if (v4) { // 4 point polygon
-      return new Vector3(
+      return new mea3D.Vector3(
         (v1.x + v2.x + v3.x + v4.x)/4.0,
         (v1.y + v2.y + v3.y + v4.y)/4.0,
         (v1.z + v2.z + v3.z + v4.z)/4.0
       );
     } else { // triangle
-      return new Vector3(
+      return new mea3D.Vector3(
         (v1.x + v2.x + v3.x)/3.0,
         (v1.y + v2.y + v3.y)/3.0,
         (v1.z + v2.z + v3.z)/3.0
@@ -168,21 +168,21 @@ mea3D.Math = {
   mouseCoordsToDirectionVector:function(x,y) {
     var z2 = 1-(x*x+y*y);
     var z = (z2>0) ? Math.sqrt(z2) : 0;
-    return new Vector3(x,-y,z).norm();
+    return new mea3D.Vector3(x,-y,z).norm();
   },
   
   getRotationMatrixFromOrientation:function(dir) {
 
-    var x_dir = new Vector3(0.0,0.0,1.0);
-    var y_dir = new Vector3();
+    var x_dir = new mea3D.Vector3(0.0,0.0,1.0);
+    var y_dir = new mea3D.Vector3();
     var d = dir.z;
 
     if (d>-0.999999999 && d<0.999999999){ // to avoid problems with normalize in special cases
       x_dir = x_dir.subt(dir).scale(d).norm();
       y_dir = dir.cross(x_dir);
     } else {
-      x_dir = new Vector3(dir.z, 0, -dir.x);
-      y_dir = new Vector3(0,1,0);
+      x_dir = new mea3D.Vector3(dir.z, 0, -dir.x);
+      y_dir = new mea3D.Vector3(0,1,0);
     };
 
 
@@ -192,7 +192,7 @@ mea3D.Math = {
     // this is matrix i use which may give starting point. 
     // this is for arrow that points in z direction (for arrow that points in x direction you may try swapping dir and x_dir)
       
-    return new Matrix4( [
+    return new mea3D.Matrix4( [
       [x_dir.x, x_dir.y, x_dir.z, 0.0], 
       [y_dir.x, y_dir.y, y_dir.z, 0.0],
       [dir.x,   dir.y,   dir.z,   0.0],
@@ -301,9 +301,9 @@ mea3D.Math = {
     if (typeof skipPolygon=="undefined") skipPolygon = -1;
     
     // Vector creation is expensive. Do them here:
-    var intersectionPoint = new Vector3(0,0,0);
-    var w = new Vector3(0,0,0);
-    var distanceVector = new Vector3(0,0,0);
+    var intersectionPoint = new mea3D.Vector3(0,0,0);
+    var w = new mea3D.Vector3(0,0,0);
+    var distanceVector = new mea3D.Vector3(0,0,0);
     var u,v, dot_uv, dot_wv, dot_wu, dot_uu, dot_vv;
     var center, normal, v1;
     var polygon;
@@ -442,7 +442,7 @@ mea3D.Math = {
   
   computeLighting:function(pointOnPolygon, polygonNormal, polygonMaterial, lights, ambientColor) {
 
-    var computedColor = new ColorRGBA(0,0,0);    
+    var computedColor = new mea3D.ColorRGBA(0,0,0);    
     // Sum up all lights in the scene
     for (var i=0; i<lights.length; i++) {
     
@@ -501,7 +501,7 @@ mea3D.Math = {
     var z = vector.z;    
     var sin = Math.sin(angle);
     var cos = Math.cos(angle);    
-    var rotated = new Vector3(0,0,0);
+    var rotated = new mea3D.Vector3(0,0,0);
     var dot = vector.dot(axis);
     var lenAxis = axis.mag();    
     rotated.x = u * dot + (x*(v*v + w*w) - u*(v*y+w*z))*cos + lenAxis*(-w*y + v*z)*sin;

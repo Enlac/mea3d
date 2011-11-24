@@ -13,7 +13,7 @@ mea3D.Model3D = function(name, modelTemplate, transformation) {
   }*/
   
   this.name = name;
-  this.transformation = transformation ? transformation : new Transformation();
+  this.transformation = transformation ? transformation : new mea3D.Transformation();
   
   this.numFaces = 0;
   this.numVertices = 0;

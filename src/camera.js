@@ -26,9 +26,9 @@ mea3D.Camera.prototype = {
   
   reset:function() {
   
-    this.eyePos   = new Vector3(0,0,0);  // camera position
-    this.eyeDir   = new Vector3(0,0,1);  // camera direction      
-    this.upVector = new Vector3(0,1,0);  // camera up vector      
+    this.eyePos   = new mea3D.Vector3(0,0,0);  // camera position
+    this.eyeDir   = new mea3D.Vector3(0,0,1);  // camera direction      
+    this.upVector = new mea3D.Vector3(0,1,0);  // camera up vector      
     this.update();
   },
   
@@ -61,7 +61,7 @@ mea3D.Camera.prototype = {
     this.eyePos = this.eyePos.add(this.upVector.scale(delta));
   },
   moveTo:function(pos) {
-    this.eyePos = new Vector3(pos.x, pos.y, pos.z);
+    this.eyePos = new mea3D.Vector3(pos.x, pos.y, pos.z);
   },
   /*
   moveByMouse:function(x,y) {
@@ -92,3 +92,4 @@ mea3D.Camera.prototype = {
     this.lookAt = this.eyePos.add(this.eyeDir);
   }
 };
+

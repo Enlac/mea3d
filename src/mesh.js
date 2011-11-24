@@ -19,9 +19,9 @@ mea3D.Mesh = function(parent, params) {
   
   this.name     = params.name;
   this.material = params.meshMaterial;
-  this.transformation = params.transformation ? params.transformation:new Transformation();
+  this.transformation = params.transformation ? params.transformation:new mea3D.Transformation();
   // Calculated transformation from parents:
-  this.finalTransformation = new Transformation();  // TODO: We only use the matrix of the final transformation. Make it fully used.
+  this.finalTransformation = new mea3D.Transformation();  // TODO: We only use the matrix of the final transformation. Make it fully used.
   this.numFaces = 0;
   this.numVertices = 0;
 }
@@ -99,7 +99,7 @@ mea3D.Mesh.prototype = {
     // Build the vertices
     this.vertices = new Array(vertices.length/3);
     for (var i=0; i<vertices.length; i+=3) {
-      this.vertices[i/3] = new Vector3(vertices[i], vertices[i+1], vertices[i+2]);
+      this.vertices[i/3] = new mea3D.Vector3(vertices[i], vertices[i+1], vertices[i+2]);
     }
     this.numVertices = this.vertices.length;
         
@@ -107,8 +107,8 @@ mea3D.Mesh.prototype = {
     this.worldTransformedVertices = new Array(this.numVertices);
     this.projectedVertices = new Array(this.numVertices);    
     for (var i=0; i<this.numVertices; i++) {
-      this.projectedVertices[i] = new Vector3(0,0,0);
-      this.worldTransformedVertices[i] = new Vector3(0,0,0);
+      this.projectedVertices[i] = new mea3D.Vector3(0,0,0);
+      this.worldTransformedVertices[i] = new mea3D.Vector3(0,0,0);
     }
     // Transform the vertices
     this.worldTransformVertices();
@@ -134,9 +134,9 @@ mea3D.Mesh.prototype = {
       var i1 = faceIndices[i][0]
       var i2 = faceIndices[i][1];
       var i3 = faceIndices[i][2];
-      var vertex1 = new Vertex(this.vertices[i1].x, this.vertices[i1].y, this.vertices[i1].z);
-      var vertex2 = new Vertex(this.vertices[i2].x, this.vertices[i2].y, this.vertices[i2].z);
-      var vertex3 = new Vertex(this.vertices[i3].x, this.vertices[i3].y, this.vertices[i3].z);
+      var vertex1 = new mea3D.Vertex(this.vertices[i1].x, this.vertices[i1].y, this.vertices[i1].z);
+      var vertex2 = new mea3D.Vertex(this.vertices[i2].x, this.vertices[i2].y, this.vertices[i2].z);
+      var vertex3 = new mea3D.Vertex(this.vertices[i3].x, this.vertices[i3].y, this.vertices[i3].z);
       
       var faceMaterial = null;
       if (faceMaterialIndices) {
@@ -147,17 +147,17 @@ mea3D.Mesh.prototype = {
      }
      if (!faceMaterial) {
        // if still null, assign the default material:
-       faceMaterial = new mea3D.Material(0,null, new ColorRGBA(0.6, 0.6, 0.6));
+       faceMaterial = new mea3D.Material(0,null, new mea3D.ColorRGBA(0.6, 0.6, 0.6));
      }
         
       if (vertexCount==4) {
         // Quad
         var i4 = faceIndices[i][3];
         this.faceIndices.push([i1, i2, i3, i4]);
-        var vertex4 = new Vertex(this.vertices[i4].x, this.vertices[i4].y, this.vertices[i4].z);        
+        var vertex4 = new mea3D.Vertex(this.vertices[i4].x, this.vertices[i4].y, this.vertices[i4].z);        
         
         this.polygons.push(
-          new Polygon(
+          new mea3D.Polygon(
             mea3D.RenderableType.POLYGON,
             vertex1, vertex2, vertex3, vertex4,
             { // Transformed vertices:
@@ -181,7 +181,7 @@ mea3D.Mesh.prototype = {
         // Triangle
         this.faceIndices.push([i1, i2, i3]);
         this.polygons.push(
-          new Polygon(
+          new mea3D.Polygon(
             mea3D.RenderableType.POLYGON,
             vertex1, vertex2, vertex3, null,
             { // Transformed vertices:
@@ -214,7 +214,7 @@ mea3D.Mesh.prototype = {
       this.vertices[i].y *= this.transformation.scaling.y;
       this.vertices[i].z *= this.transformation.scaling.z;
     }
-    this.transformation.scaling = new Vector3(1,1,1);
+    this.transformation.scaling = new mea3D.Vector3(1,1,1);
     this.updateTransformation();
   },*/
   
@@ -307,7 +307,7 @@ mea3D.Mesh.prototype = {
     if (this.type==mea3D.MeshType.MESH_SURFACE ||
         this.type=="surface") {
       Logging.log("Bounding surface radius: " + this.radius);      
-      return {radius:this.radius, position:new Vector3(0,0,0)};
+      return {radius:this.radius, position:new mea3D.Vector3(0,0,0)};
     }
     
     if (typeof this.type=="undefined" ||
@@ -344,7 +344,7 @@ mea3D.Mesh.prototype = {
         if (v4) usedVertices.push(v4);
       }
       
-      var centerOfGravity = new Vector3(0,0,0);
+      var centerOfGravity = new mea3D.Vector3(0,0,0);
       if (usedVertices && usedVertices.length>0) {
       
         for (var i=0; i<usedVertices.length; i++) {
@@ -374,7 +374,7 @@ mea3D.Mesh.prototype = {
       return {radius:radius, position: centerOfGravity};
     }; // type==POLYGON
     
-    return {radius:0, position: new Vector3(0,0,0)};
+    return {radius:0, position: new mea3D.Vector3(0,0,0)};
   },
   
   calculateBoundingShape:function() {

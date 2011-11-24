@@ -54,7 +54,7 @@ mea3D.Renderer2D.prototype = {
   fillText:function() {  
   },
   fillRect:function(x,y,w,h) {
-    var color = new ColorRGBA(255,255,0);
+    var color = new mea3D.ColorRGBA(255,255,0);
     var x0 = x;
     var x1 = x+w;
     var y0 = y;
@@ -69,7 +69,7 @@ mea3D.Renderer2D.prototype = {
   },
   draw:function() {
     this.context.putImageData(this.imageData,0,0);
-    this.setPixel(100,100, new ColorRGBA(255,0,0));
+    this.setPixel(100,100, new mea3D.ColorRGBA(255,0,0));
   }
 };
 

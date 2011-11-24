@@ -10,7 +10,7 @@ mea3D.RenderableType = {
 /**
 * @constructor
 */
-function Polygon(
+mea3D.Polygon = function(
   type,
   vertex1, vertex2, vertex3, vertex4, 
   transformedVertices,
@@ -33,10 +33,10 @@ function Polygon(
     this.transformedVertices = transformedVertices;
   } else {
     this.transformedVertices = {};
-    this.transformedVertices.v1 = new Vector3(0,0,0);
-    this.transformedVertices.v2 = new Vector3(0,0,0);
-    this.transformedVertices.v3 = new Vector3(0,0,0);
-    this.transformedVertices.v4 = new Vector3(0,0,0);
+    this.transformedVertices.v1 = new mea3D.Vector3(0,0,0);
+    this.transformedVertices.v2 = new mea3D.Vector3(0,0,0);
+    this.transformedVertices.v3 = new mea3D.Vector3(0,0,0);
+    this.transformedVertices.v4 = new mea3D.Vector3(0,0,0);
   }
   
   // 2D projected vertices for this polygon
@@ -44,10 +44,10 @@ function Polygon(
     this.projectedVertices = projectedVertices;
   } else {
     this.projectedVertices = {};
-    this.projectedVertices.v1 = new Vector3(0,0,0);
-    this.projectedVertices.v2 = new Vector3(0,0,0);
-    this.projectedVertices.v3 = new Vector3(0,0,0);
-    this.projectedVertices.v4 = new Vector3(0,0,0);
+    this.projectedVertices.v1 = new mea3D.Vector3(0,0,0);
+    this.projectedVertices.v2 = new mea3D.Vector3(0,0,0);
+    this.projectedVertices.v3 = new mea3D.Vector3(0,0,0);
+    this.projectedVertices.v4 = new mea3D.Vector3(0,0,0);
   }
   this.material = material; // the original material
   
@@ -55,7 +55,7 @@ function Polygon(
   this.calculateEdges();
 }
 
-Polygon.prototype = {
+mea3D.Polygon.prototype = {
 
   toString:function() {
     if (this.v4) {

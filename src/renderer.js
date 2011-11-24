@@ -20,12 +20,12 @@ mea3D.Renderer = function(container, options) {
     width:          800,                        // viewport height
     height:         600,                        // viewport width
     backfaceCulling:true,                       // backface culling
-    clearColor:     new ColorRGBA(0,0,0),       // color with which we clean the screen
+    clearColor:     new mea3D.ColorRGBA(0,0,0),       // color with which we clean the screen
     renderMode:     mea3D.RenderModes.RENDER_FACES,  // render mode
     enableMouseNavigation:true,                // should enable mouse navigation?
-    cameraPosition:  new Vector3(0,0,0),       // initial camera position
-    cameraDirection: new Vector3(0,0,1),       // initial camera direction
-    cameraUpVector:  new Vector3(0,1,0),       // initial camera up vector
+    cameraPosition:  new mea3D.Vector3(0,0,0),       // initial camera position
+    cameraDirection: new mea3D.Vector3(0,0,1),       // initial camera direction
+    cameraUpVector:  new mea3D.Vector3(0,1,0),       // initial camera up vector
     
     fovHorizontal:   Math.PI/3,                 // horizontal field of view
     aspectRatio:     this.width/this.height,    // viewport aspect ratio
@@ -60,8 +60,8 @@ mea3D.Renderer = function(container, options) {
   this.initiated = false;
   this.init();    
   this.reset();
-  this.currentStrokeColor = new ColorRGBA();
-  this.currentFillColor = new ColorRGBA();
+  this.currentStrokeColor = new mea3D.ColorRGBA();
+  this.currentFillColor = new mea3D.ColorRGBA();
 
 };
 
@@ -103,7 +103,7 @@ mea3D.Renderer.prototype = {
       return false;
     }
     // Transformations:
-    this.worldTransform = new Matrix4(); // identity
+    this.worldTransform = new mea3D.Matrix4(); // identity
     this.updateProjectionMatrix();
     this.updateTransformMatrix(); 
 
@@ -202,8 +202,8 @@ mea3D.Renderer.prototype = {
     //Logging.log("Z 2: " + z2, LOG_ERROR);
 
     this.drawLine2D(p1.x, p1.y, p2.x, p2.y, color, lineWidth);
-    this.drawRect(p1.x-3,p1.y-3, 6,6, new ColorRGBA(1,0,0));
-    this.drawRect(p2.x-3,p2.y-3, 6,6, new ColorRGBA(0,1,1));
+    this.drawRect(p1.x-3,p1.y-3, 6,6, new mea3D.ColorRGBA(1,0,0));
+    this.drawRect(p2.x-3,p2.y-3, 6,6, new mea3D.ColorRGBA(0,1,1));
         
     /*this.drawLine2D(z1.x, z1.y, z2.x, z2.y, "#0F0");
     this.drawRect(z1.x-3, z1.y-3, 6,6, "#ff0");
@@ -349,7 +349,7 @@ mea3D.Renderer.prototype = {
     projected.x = ((projected.x * this.viewport.width)  / 2.0) + this.viewport.width/2;
     projected.y = -((projected.y * this.viewport.height)/ 2.0) + this.viewport.height/2;    
 
-    var radiusVector = mesh.finalTransformation.position.add(new Vector3(0, mesh.radius, 0));
+    var radiusVector = mesh.finalTransformation.position.add(new mea3D.Vector3(0, mesh.radius, 0));
     var projectedRadius = mea3D.Math.transformPoint(radiusVector, this.matrixTransform);
     projectedRadius.x /= projectedRadius.z;
     projectedRadius.y /= projectedRadius.z;
@@ -357,7 +357,7 @@ mea3D.Renderer.prototype = {
     projectedRadius.x =  ((projectedRadius.x * this.viewport.width) / 2.0) + this.viewport.width/2;
     projectedRadius.y = -((projectedRadius.y * this.viewport.height)/ 2.0) + this.viewport.height/2;    
     
-    var projectedRadius = new Vector2(projected.x-projectedRadius.x, projected.y-projectedRadius.y);      
+    var projectedRadius = new mea3D.Vector2(projected.x-projectedRadius.x, projected.y-projectedRadius.y);      
     var radius = projectedRadius.mag();
     
     // Draw a circle with the projected position and radius.
@@ -367,7 +367,7 @@ mea3D.Renderer.prototype = {
         // TODO: FIX THIS IMMEDIATELY:
         //radius:radius*mesh.parent.transformation.scaling.x * mesh.transformation.scaling.x, // <<== Not only x should be here
         radius: radius,
-        color:new ColorRGBA(1,1,0),
+        color:new mea3D.ColorRGBA(1,1,0),
         type: mea3D.RenderableType.SURFACE,
         projectedCenter:projected
       }
@@ -387,7 +387,7 @@ mea3D.Renderer.prototype = {
     projected.y = -((projected.y * this.viewport.height)/ 2.0) + this.viewport.height/2;    
     
     // TODO: Fix!
-    var radiusVector = mesh.finalTransformation.position.add(new Vector3(0, mesh.fontSize*mesh.finalTransformation.scaling.x, 0));
+    var radiusVector = mesh.finalTransformation.position.add(new mea3D.Vector3(0, mesh.fontSize*mesh.finalTransformation.scaling.x, 0));
     var projectedRadius = mea3D.Math.transformPoint(radiusVector, this.matrixTransform);
     projectedRadius.x /= projectedRadius.z;
     projectedRadius.y /= projectedRadius.z;
@@ -395,7 +395,7 @@ mea3D.Renderer.prototype = {
     projectedRadius.x = ((projectedRadius.x * this.viewport.width)  /2.0) + this.viewport.width/2;
     projectedRadius.y = -((projectedRadius.y * this.viewport.height)/2.0) + this.viewport.height/2;    
     
-    var projectedRadius = new Vector2(projected.x-projectedRadius.x, projected.y-projectedRadius.y);      
+    var projectedRadius = new mea3D.Vector2(projected.x-projectedRadius.x, projected.y-projectedRadius.y);      
     var radius = projectedRadius.mag();
          
     this.renderBuffer.push(
@@ -461,8 +461,8 @@ mea3D.Renderer.prototype = {
       if (this.options.backfaceCulling) {
         var a1 = p1.subt(p2);
         var a2 = p1.subt(p3);
-        var b1 = new Vector3(a1.x, a1.y, 0);
-        var b2 = new Vector3(a2.x, a2.y, 0);
+        var b1 = new mea3D.Vector3(a1.x, a1.y, 0);
+        var b2 = new mea3D.Vector3(a2.x, a2.y, 0);
         var cross = b1.cross(b2);
         if (cross.z<0)
          continue;
@@ -502,8 +502,8 @@ mea3D.Renderer.prototype = {
     h = h || 10;
     var halfWidth = this.viewport.width/2;
     var halfHeight = this.viewport.height/2;
-    this.drawLine2D(halfWidth-w, halfHeight, halfWidth+w, halfHeight,  new ColorRGBA(1,1,0));
-    this.drawLine2D(halfWidth, halfHeight-h, halfWidth, halfHeight+10, new ColorRGBA(1,1,0));
+    this.drawLine2D(halfWidth-w, halfHeight, halfWidth+w, halfHeight,  new mea3D.ColorRGBA(1,1,0));
+    this.drawLine2D(halfWidth, halfHeight-h, halfWidth, halfHeight+10, new mea3D.ColorRGBA(1,1,0));
   },
   
   sortFunction:function(a,b) {
@@ -529,7 +529,7 @@ mea3D.Renderer.prototype = {
       switch(polygon.type) {
                 
         case mea3D.RenderableType.POLYGON:
-           // 2D Polygon
+           // 2D mea3D.Polygon
           this.renderPolygon(
             polygon.projectedVertices.v1,
             polygon.projectedVertices.v2,
@@ -569,12 +569,12 @@ mea3D.Renderer.prototype = {
 
   renderAxes:function() {
     // Draw axes
-    this.drawLine(new Vector3(0,0,0), new Vector3(4,0,0), new ColorRGBA(0,1,1));     // x axis
-    this.drawLine(new Vector3(0,0,0), new Vector3(0,0,4), new ColorRGBA(1,1,0));     // z axis
-    this.drawLine(new Vector3(0,0,0), new Vector3(0,4,0), new ColorRGBA(1,0,1));     // y axis
-    this.renderText("+X", new Vector3(5,0,0), new ColorRGBA(1,1,1));
-    this.renderText("+Z", new Vector3(0,0,5));
-    this.renderText("+Y", new Vector3(0,5,0));
+    this.drawLine(new mea3D.Vector3(0,0,0), new mea3D.Vector3(4,0,0), new mea3D.ColorRGBA(0,1,1));     // x axis
+    this.drawLine(new mea3D.Vector3(0,0,0), new mea3D.Vector3(0,0,4), new mea3D.ColorRGBA(1,1,0));     // z axis
+    this.drawLine(new mea3D.Vector3(0,0,0), new mea3D.Vector3(0,4,0), new mea3D.ColorRGBA(1,0,1));     // y axis
+    this.renderText("+X", new mea3D.Vector3(5,0,0), new mea3D.ColorRGBA(1,1,1));
+    this.renderText("+Z", new mea3D.Vector3(0,0,5));
+    this.renderText("+Y", new mea3D.Vector3(0,5,0));
     
   },
   
@@ -646,7 +646,7 @@ mea3D.Renderer.prototype = {
     var halfHeight= this.viewport.height/2;
     var x = (screenX - halfWidth) /halfWidth;
     var y = (screenY - halfHeight)/halfHeight;
-    return new Vector2(x,y);
+    return new mea3D.Vector2(x,y);
   },
   /*
   // Input handling

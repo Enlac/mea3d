@@ -54,7 +54,7 @@ mea3D.Renderer2D.prototype = {
   fillText:function() {  
   },
   fillRect:function(x,y,w,h) {
-    var color = new ColorRGBA(255,255,0);
+    var color = new mea3D.ColorRGBA(255,255,0);
     var x0 = x;
     var x1 = x+w;
     var y0 = y;
@@ -69,7 +69,7 @@ mea3D.Renderer2D.prototype = {
   },
   draw:function() {
     this.context.putImageData(this.imageData,0,0);
-    this.setPixel(100,100, new ColorRGBA(255,0,0));
+    this.setPixel(100,100, new mea3D.ColorRGBA(255,0,0));
   }
 };
 
@@ -95,27 +95,30 @@ mea3D.getOptions = function(options, defaultOptions) {
   return calculatedOptions;
 };
 
-// Utility to parse 400x300 type strings
-mea3D.getXYValues = function(str) {
-
-  if (!str) return {x:-1, y:-1};
-  
-  var arr = str.split("x");
-  var x = parseInt(arr[0]);
-  var y = parseInt(arr[1]);
-  return {x:x, y:y};
-};
-
-// From Google JavaScripts:
-mea3D.getPageOffsetTop = function(a){
-  return a.offsetTop + (a.offsetParent ? mea3D.getPageOffsetTop(a.offsetParent):0)
-};
-mea3D.getPageOffsetLeft = function(a){
-  return a.offsetLeft + (a.offsetParent ? mea3D.getPageOffsetLeft(a.offsetParent):0)
-};
 
 mea3D.Utils = {
 
+  // From Google JavaScripts:
+  getPageOffsetTop:function(a){
+    return a.offsetTop + (a.offsetParent ? mea3D.Utils.getPageOffsetTop(a.offsetParent):0);
+  },
+  // From Google JavaScripts:
+  getPageOffsetLeft:function(a){
+    return a.offsetLeft + (a.offsetParent ? mea3D.Utils.getPageOffsetLeft(a.offsetParent):0);
+  },
+
+  // Utility to parse 400x300 type strings
+  getXYValues:function(str) {
+  
+    if (!str) return {x:-1, y:-1};
+    
+    var arr = str.split("x");
+    var x = parseInt(arr[0]);
+    var y = parseInt(arr[1]);
+    return {x:x, y:y};
+  },
+
+  // getElementsByTagName implementation for IE, not recursive
   getElementsByTagName:function(domElement, tagName) {
     tagName = tagName.toUpperCase();
     var child = domElement.firstChild;
@@ -208,11 +211,12 @@ var Logging = {
   }
 };
 // Author: Mustafa Acer
+if (typeof mea3D=="undefined") mea3D = {};
 
 /**
 * @constructor
 */
-function ColorRGBA(red, green, blue, alpha) {
+mea3D.ColorRGBA = function(red, green, blue, alpha) {
   this.r = red;
   this.g = green;
   this.b = blue;
@@ -221,11 +225,11 @@ function ColorRGBA(red, green, blue, alpha) {
 }
 
 // Static method
-ColorRGBA.createFromValues = function(array) {
-  return new ColorRGBA(array[0], array[1], array[2], array[3]);
+mea3D.ColorRGBA.createFromValues = function(array) {
+  return new mea3D.ColorRGBA(array[0], array[1], array[2], array[3]);
 };
 
-ColorRGBA.prototype = {
+mea3D.ColorRGBA.prototype = {
 
   // TODO: Make the color values integer. Float may not be good.
   toString:function() {
@@ -241,11 +245,11 @@ ColorRGBA.prototype = {
   },
   
   copy:function() {
-    return new ColorRGBA(this.r, this.g, this.b, this.a);
+    return new mea3D.ColorRGBA(this.r, this.g, this.b, this.a);
   },
   
   scale:function(scaleR, scaleG, scaleB){
-    return new ColorRGBA(
+    return new mea3D.ColorRGBA(
       this.r*scaleR,
       this.g*scaleG,
       this.b*scaleB
@@ -253,7 +257,7 @@ ColorRGBA.prototype = {
   },
   
   addColor:function(color) {
-    return new ColorRGBA(
+    return new mea3D.ColorRGBA(
       this.r + color.r,
       this.g + color.g,
       this.b + color.b,
@@ -261,7 +265,7 @@ ColorRGBA.prototype = {
   },
   
   add:function(r,g,b,a) {
-    return new ColorRGBA(
+    return new mea3D.ColorRGBA(
       this.r + r,
       this.g + g,
       this.b + b,
@@ -270,7 +274,7 @@ ColorRGBA.prototype = {
   
   divide:function(denominator) {
     if (denominator==0) return null;
-    return new ColorRGBA(
+    return new mea3D.ColorRGBA(
       this.r/denominator,
       this.g/denominator,
       this.b/denominator,
@@ -279,29 +283,31 @@ ColorRGBA.prototype = {
 };
 
 // Export Vector3 object to make closure compiler happy:
-if (!window["ColorRGBA"]) window["ColorRGBA"] = ColorRGBA;
-//if (!mea3D["Vector3"]) mea3D["Vector3"] = mea3D.Color;
+if (!window["mea3D"])                 window["mea3D"] = mea3D;
+if (!window["mea3D"]["ColorRGBA"])    window["mea3D"]["ColorRGBA"] = mea3D.ColorRGBA;
+
 // Author: Mustafa Acer
+if (typeof mea3D=="undefined") mea3D = {};
 
 /**
 * @constructor
 */
-function Vector2(x,y) {
+mea3D.Vector2 = function(x,y) {
   this.x = x? x:0;
   this.y = y? y:0;
 }
-Vector2.prototype = {
+mea3D.Vector2.prototype = {
   toString:function() {
     return "(" + this.x.toFixed(3) + "," + this.y.toFixed(3) + ")";
   },
   scale:function(d) {
-    return new Vector2(this.x*d, this.y*d);
+    return new mea3D.Vector2(this.x*d, this.y*d);
   },
   add:function(v) {
-    return new Vector2(this.x + v.x, this.y + v.y);
+    return new mea3D.Vector2(this.x + v.x, this.y + v.y);
   },
   subt:function(v) {
-    return new Vector2(this.x - v.x, this.y - v.y);
+    return new mea3D.Vector2(this.x - v.x, this.y - v.y);
   },
   dot:function(v) {
     return this.x*v.x + this.y*v.y;
@@ -315,7 +321,7 @@ Vector2.prototype = {
 /**
 * @constructor
 */
-function Vector3(x,y,z, w) {
+mea3D.Vector3 = function(x,y,z, w) {
   this.x = (x) ? x:0;
   this.y = (y) ? y:0;
   this.z = (z) ? z:0;
@@ -323,7 +329,7 @@ function Vector3(x,y,z, w) {
   
 }
 
-Vector3.prototype = {
+mea3D.Vector3.prototype = {
   toString:function() {
     return "(" + this.x.toFixed(3) + "," + 
     this.y.toFixed(3) + "," + 
@@ -340,23 +346,23 @@ Vector3.prototype = {
     return true;
   },
   copy:function() {
-    return new Vector3(this.x, this.y, this.z, this.w);
+    return new mea3D.Vector3(this.x, this.y, this.z, this.w);
   },
   
   scale:function(s) {
-    return new Vector3(this.x*s, this.y*s, this.z*s);
+    return new mea3D.Vector3(this.x*s, this.y*s, this.z*s);
   },
   scale3:function(sx,sy,sz) {
-    return new Vector3(this.x*sx, this.y*sy, this.z*sz);
+    return new mea3D.Vector3(this.x*sx, this.y*sy, this.z*sz);
   },
   add:function(v) {
-    return new Vector3(
+    return new mea3D.Vector3(
       this.x + v.x,
       this.y + v.y,
       this.z + v.z);
   },
   subt:function(v) {
-    return new Vector3(
+    return new mea3D.Vector3(
       this.x - v.x,
       this.y - v.y,
       this.z - v.z);
@@ -376,7 +382,8 @@ Vector3.prototype = {
     return this.x*v.x + this.y*v.y + this.z*v.z;
   },
   cross:function(v) {
-    return new Vector3( this.y*v.z - this.z*v.y,
+    return new mea3D.Vector3(
+                        this.y*v.z - this.z*v.y,
                         this.z*v.x - this.x*v.z,
                         this.x*v.y - this.y*v.x);
   }
@@ -384,17 +391,20 @@ Vector3.prototype = {
 
 
 // Export Vector3 object to make closure compiler happy:
-if (!window["Vector3"]) window["Vector3"] = Vector3;
+if (!window["mea3D"])             window["mea3D"] = mea3D;
+if (!window["mea3D"]["Vector3"])  window["mea3D"]["Vector3"] = mea3D.Vector3;
 // Author: Mustafa Acer
+if (typeof mea3D=="undefined") mea3D = {};
 
 /**
 * @constructor
 */
-function Line3(v1, v2) {
+mea3D.Line3 = function(v1, v2) {
   this.v1 = v1;
   this.v2 = v2;
 }
-Line3.prototype = {
+
+mea3D.Line3.prototype = {
   toString:function() {
     return this.v1.toString() + "," + this.v2.toString();
   },
@@ -410,11 +420,12 @@ Line3.prototype = {
 };
 
 // Author: Mustafa Acer
+if (typeof mea3D=="undefined") mea3D = {};
 
 /**
 * @constructor
 */
-function Matrix4(vals) {
+mea3D.Matrix4 = function(vals) {
   if (!vals) {
     this.vals = [[1,0,0,0],[0,1,0,0],[0,0,1,0],[0,0,0,1]];
   } else {
@@ -422,7 +433,7 @@ function Matrix4(vals) {
   }
 }
 
-Matrix4.prototype = {
+mea3D.Matrix4.prototype = {
   toString:function() {
     var str = "\n";
     for (var r=0; r<4; r++) {
@@ -456,7 +467,7 @@ Matrix4.prototype = {
         vals[r][c] = d * this.vals[r][c];
       }
     }
-    return new Matrix4(vals);
+    return new mea3D.Matrix4(vals);
   },
   
   mult:function(matrix4) {
@@ -468,11 +479,11 @@ Matrix4.prototype = {
         }
       }
     }
-    return new Matrix4(vals);    
+    return new mea3D.Matrix4(vals);    
   },
   
   multVector3:function(vector3) {
-    var vec = new Vector3(0,0,0);
+    var vec = new mea3D.Vector3(0,0,0);
     vec.x = this.vals[0][0]*vector3.x + this.vals[0][1]*vector3.y + this.vals[0][2]*vector3.z + this.vals[0][3]*vector3.w;
     vec.y = this.vals[1][0]*vector3.x + this.vals[1][1]*vector3.y + this.vals[1][2]*vector3.z + this.vals[1][3]*vector3.w;
     vec.z = this.vals[2][0]*vector3.x + this.vals[2][1]*vector3.y + this.vals[2][2]*vector3.z + this.vals[2][3]*vector3.w;
@@ -487,7 +498,7 @@ Matrix4.prototype = {
         vals[r][c] = this.vals[r][c] + matrix4.vals[r][c];
       }
     }
-    return new Matrix4(vals);
+    return new mea3D.Matrix4(vals);
   },
   
   subt:function(matrix4) {
@@ -495,7 +506,7 @@ Matrix4.prototype = {
   },
   
   transpose:function() {
-    var matrix = new Matrix4();
+    var matrix = new mea3D.Matrix4();
     for (var y=0; y<4; y++) {
       for (var x=0; x<4; x++) {
         matrix.vals[x][y] = this.vals[y][x];
@@ -511,7 +522,7 @@ Matrix4.prototype = {
       Logging.log("ERROR: w==0 in Matrix");
       return null;
     }
-    var matrix = new Matrix4();
+    var matrix = new mea3D.Matrix4();
     for (var y=0; y<4; y++) {
       for (var x=0; x<4; x++) {
         matrix.vals[x][y] = this.vals[y][x]/w;
@@ -522,27 +533,28 @@ Matrix4.prototype = {
   
   
   transformVector:function(v) {
-    var out = new Vector3(0,0,0);
-		out.x = v.x * this.vals[0][0] + v.y * this.vals[1][0] + v.z * this.vals[2][0] + this.vals[3][0];
-		out.y = v.x * this.vals[0][1] + v.y * this.vals[1][1] + v.z * this.vals[2][1] + this.vals[3][1];
-		out.z = v.x * this.vals[0][2] + v.y * this.vals[1][2] + v.z * this.vals[2][2] + this.vals[3][2];
-		out.w = v.x * this.vals[0][3] + v.y * this.vals[1][3] + v.z * this.vals[2][3] + this.vals[3][3];
+    var out = new mea3D.Vector3(0,0,0);
+    out.x = v.x * this.vals[0][0] + v.y * this.vals[1][0] + v.z * this.vals[2][0] + this.vals[3][0];
+    out.y = v.x * this.vals[0][1] + v.y * this.vals[1][1] + v.z * this.vals[2][1] + this.vals[3][1];
+    out.z = v.x * this.vals[0][2] + v.y * this.vals[1][2] + v.z * this.vals[2][2] + this.vals[3][2];
+    out.w = v.x * this.vals[0][3] + v.y * this.vals[1][3] + v.z * this.vals[2][3] + this.vals[3][3];
     return out;
 	}
 };
 // Author: Mustafa Acer
+if (typeof mea3D=="undefined") mea3D = {};
 
 /**
 * @constructor
 */
-function Transformation(position, scaling, rotation) {
-  this.position = position ? position : new Vector3(0,0,0);
-  this.rotation = rotation ? rotation : new Vector3(0,0,0);
-  this.scaling  = scaling  ? scaling  : new Vector3(1,1,1);
+mea3D.Transformation = function(position, scaling, rotation) {
+  this.position = position ? position : new mea3D.Vector3(0,0,0);
+  this.rotation = rotation ? rotation : new mea3D.Vector3(0,0,0);
+  this.scaling  = scaling  ? scaling  : new mea3D.Vector3(1,1,1);
   this.update();
 }
 
-Transformation.prototype = {
+mea3D.Transformation.prototype = {
   toString:function() {
     return  "position: " + this.position.toString() +
             "rotation: " + this.rotation.toString() +
@@ -550,7 +562,7 @@ Transformation.prototype = {
   },
  
   copy:function() {
-    var trans = new Transformation(
+    var trans = new mea3D.Transformation(
       this.position.copy(),
       this.scaling.copy(),
       this.rotation.copy()
@@ -575,7 +587,7 @@ Transformation.prototype = {
   },
   
   combine:function(childTransformation) {
-    var trans = new Transformation();
+    var trans = new mea3D.Transformation();
     trans.position = this.position.add(childTransformation.position);
     trans.rotation = this.rotation.copy(); //.add(childTransformation.rotation);
     // TODO: Add a "scale by vector" function to Vector3 class to encapsulate this:
@@ -626,10 +638,10 @@ mea3D.Math = {
 
   // 4D Matrices
   getScaleMatrix4:function(sx,sy,sz) {
-    return new Matrix4( [[sx,0,0,0], [0,sy,0,0], [0,0,sz,0], [0,0,0,1]] );
+    return new mea3D.Matrix4( [[sx,0,0,0], [0,sy,0,0], [0,0,sz,0], [0,0,0,1]] );
   },
   getTranslationMatrix4:function(tx,ty,tz) {
-    return new Matrix4( 
+    return new mea3D.Matrix4( 
       [[1,0,0,0],
        [0,1,0,0],
        [0,0,1,0],
@@ -651,7 +663,7 @@ mea3D.Math = {
   getMatrixRotationX4:function(angle) {
     var s = Math.sin(angle);
     var c = Math.cos(angle);
-    return new Matrix4(
+    return new mea3D.Matrix4(
     [ [1, 0, 0,  0],
       [0, c,  s, 0],
       [0, -s, c, 0],
@@ -661,7 +673,7 @@ mea3D.Math = {
   getMatrixRotationY4:function(angle) {
     var s = Math.sin(angle);
     var c = Math.cos(angle);
-    return new Matrix4(
+    return new mea3D.Matrix4(
     [ [c, 0, -s, 0],
       [0, 1,  0, 0],
       [s, 0, c,  0],
@@ -671,7 +683,7 @@ mea3D.Math = {
   getMatrixRotationZ4:function(angle) {
     var s = Math.sin(angle);
     var c = Math.cos(angle);
-    return new Matrix4(
+    return new mea3D.Matrix4(
     [ [c,  s, 0, 0],
       [-s, c, 0, 0],
       [0, 0, 1,  0],      
@@ -679,9 +691,9 @@ mea3D.Math = {
     ]);
   },
   
-  // Expanded 4x4 matrix multiplication. This might perform a little better than Matrix4.mult(m)
+  // Expanded 4x4 matrix multiplication. This might perform a little better than mea3D.Matrix4.mult(m)
   mult4:function(a,b) {
-    var c = new Matrix4();
+    var c = new mea3D.Matrix4();
     c.vals[0][0] = a.vals[0][0] * b.vals[0][0] + a.vals[0][1] * b.vals[1][0] + a.vals[0][2] * b.vals[2][0] + a.vals[0][3] * b.vals[3][0];
     c.vals[0][1] = a.vals[0][0] * b.vals[0][1] + a.vals[0][1] * b.vals[1][1] + a.vals[0][2] * b.vals[2][1] + a.vals[0][3] * b.vals[3][1];
     c.vals[0][2] = a.vals[0][0] * b.vals[0][2] + a.vals[0][1] * b.vals[1][2] + a.vals[0][2] * b.vals[2][2] + a.vals[0][3] * b.vals[3][2];
@@ -706,7 +718,7 @@ mea3D.Math = {
     var w = 1.0/Math.tan(fovHor*0.5);
     var h = 1.0/Math.tan(fovVer*0.5);
     var q = zFar/ (zFar-zNear);
-    var matrix = new Matrix4();
+    var matrix = new mea3D.Matrix4();
     matrix.vals[0][0] = w;
     matrix.vals[1][1] = h;
     matrix.vals[2][2] = q;
@@ -724,7 +736,7 @@ mea3D.Math = {
     var dotY  = -yAxis.dot(eyePos);
     var dotZ  = -zAxis.dot(eyePos);
     
-    return new Matrix4(
+    return new mea3D.Matrix4(
       [ [xAxis.x, yAxis.x, zAxis.x, 0],
         [xAxis.y, yAxis.y, zAxis.y, 0],
         [xAxis.z, yAxis.z, zAxis.z, 0],
@@ -732,7 +744,7 @@ mea3D.Math = {
       ]);
   },
   getScreenProjectionMatrix4:function(x, y, width, height, zMin, zMax) {
-    return new Matrix4(
+    return new mea3D.Matrix4(
       [ [ width*0.5, 0, 0, 0],
         [ 0, -height*0.5, 0, 0],
         [ 0, 0, zMax-zMin, 0],
@@ -745,7 +757,7 @@ mea3D.Math = {
   },
   
   transformPoint:function(p, t) { // matrix, point
-    var vec = new Vector3(0,0,0);
+    var vec = new mea3D.Vector3(0,0,0);
     vec.x = t.vals[0][0]*p.x + t.vals[1][0]*p.y + t.vals[2][0]*p.z + t.vals[3][0];
     vec.y = t.vals[0][1]*p.x + t.vals[1][1]*p.y + t.vals[2][1]*p.z + t.vals[3][1];
     vec.z = t.vals[0][2]*p.x + t.vals[1][2]*p.y + t.vals[2][2]*p.z + t.vals[3][2];
@@ -754,13 +766,13 @@ mea3D.Math = {
 
   getFaceCenter:function(v1,v2,v3,v4) {
     if (v4) { // 4 point polygon
-      return new Vector3(
+      return new mea3D.Vector3(
         (v1.x + v2.x + v3.x + v4.x)/4.0,
         (v1.y + v2.y + v3.y + v4.y)/4.0,
         (v1.z + v2.z + v3.z + v4.z)/4.0
       );
     } else { // triangle
-      return new Vector3(
+      return new mea3D.Vector3(
         (v1.x + v2.x + v3.x)/3.0,
         (v1.y + v2.y + v3.y)/3.0,
         (v1.z + v2.z + v3.z)/3.0
@@ -789,21 +801,21 @@ mea3D.Math = {
   mouseCoordsToDirectionVector:function(x,y) {
     var z2 = 1-(x*x+y*y);
     var z = (z2>0) ? Math.sqrt(z2) : 0;
-    return new Vector3(x,-y,z).norm();
+    return new mea3D.Vector3(x,-y,z).norm();
   },
   
   getRotationMatrixFromOrientation:function(dir) {
 
-    var x_dir = new Vector3(0.0,0.0,1.0);
-    var y_dir = new Vector3();
+    var x_dir = new mea3D.Vector3(0.0,0.0,1.0);
+    var y_dir = new mea3D.Vector3();
     var d = dir.z;
 
     if (d>-0.999999999 && d<0.999999999){ // to avoid problems with normalize in special cases
       x_dir = x_dir.subt(dir).scale(d).norm();
       y_dir = dir.cross(x_dir);
     } else {
-      x_dir = new Vector3(dir.z, 0, -dir.x);
-      y_dir = new Vector3(0,1,0);
+      x_dir = new mea3D.Vector3(dir.z, 0, -dir.x);
+      y_dir = new mea3D.Vector3(0,1,0);
     };
 
 
@@ -813,7 +825,7 @@ mea3D.Math = {
     // this is matrix i use which may give starting point. 
     // this is for arrow that points in z direction (for arrow that points in x direction you may try swapping dir and x_dir)
       
-    return new Matrix4( [
+    return new mea3D.Matrix4( [
       [x_dir.x, x_dir.y, x_dir.z, 0.0], 
       [y_dir.x, y_dir.y, y_dir.z, 0.0],
       [dir.x,   dir.y,   dir.z,   0.0],
@@ -922,9 +934,9 @@ mea3D.Math = {
     if (typeof skipPolygon=="undefined") skipPolygon = -1;
     
     // Vector creation is expensive. Do them here:
-    var intersectionPoint = new Vector3(0,0,0);
-    var w = new Vector3(0,0,0);
-    var distanceVector = new Vector3(0,0,0);
+    var intersectionPoint = new mea3D.Vector3(0,0,0);
+    var w = new mea3D.Vector3(0,0,0);
+    var distanceVector = new mea3D.Vector3(0,0,0);
     var u,v, dot_uv, dot_wv, dot_wu, dot_uu, dot_vv;
     var center, normal, v1;
     var polygon;
@@ -1063,7 +1075,7 @@ mea3D.Math = {
   
   computeLighting:function(pointOnPolygon, polygonNormal, polygonMaterial, lights, ambientColor) {
 
-    var computedColor = new ColorRGBA(0,0,0);    
+    var computedColor = new mea3D.ColorRGBA(0,0,0);    
     // Sum up all lights in the scene
     for (var i=0; i<lights.length; i++) {
     
@@ -1122,7 +1134,7 @@ mea3D.Math = {
     var z = vector.z;    
     var sin = Math.sin(angle);
     var cos = Math.cos(angle);    
-    var rotated = new Vector3(0,0,0);
+    var rotated = new mea3D.Vector3(0,0,0);
     var dot = vector.dot(axis);
     var lenAxis = axis.mag();    
     rotated.x = u * dot + (x*(v*v + w*w) - u*(v*y+w*z))*cos + lenAxis*(-w*y + v*z)*sin;
@@ -1226,9 +1238,9 @@ mea3D.Camera.prototype = {
   
   reset:function() {
   
-    this.eyePos   = new Vector3(0,0,0);  // camera position
-    this.eyeDir   = new Vector3(0,0,1);  // camera direction      
-    this.upVector = new Vector3(0,1,0);  // camera up vector      
+    this.eyePos   = new mea3D.Vector3(0,0,0);  // camera position
+    this.eyeDir   = new mea3D.Vector3(0,0,1);  // camera direction      
+    this.upVector = new mea3D.Vector3(0,1,0);  // camera up vector      
     this.update();
   },
   
@@ -1261,7 +1273,7 @@ mea3D.Camera.prototype = {
     this.eyePos = this.eyePos.add(this.upVector.scale(delta));
   },
   moveTo:function(pos) {
-    this.eyePos = new Vector3(pos.x, pos.y, pos.z);
+    this.eyePos = new mea3D.Vector3(pos.x, pos.y, pos.z);
   },
   /*
   moveByMouse:function(x,y) {
@@ -1292,13 +1304,14 @@ mea3D.Camera.prototype = {
     this.lookAt = this.eyePos.add(this.eyeDir);
   }
 };
+
 // Author: Mustafa Acer
 if (typeof mea3D=="undefined") mea3D = {};
 
 /**
 * @constructor
 */
-mea3D.ViewPort=function(x,y,width,height,zNear, zFar) {
+mea3D.ViewPort = function(x,y,width,height,zNear, zFar) {
   this.x = x;
   this.y = y;
   this.width = width;
@@ -1307,17 +1320,18 @@ mea3D.ViewPort=function(x,y,width,height,zNear, zFar) {
   this.zFar = zFar;
 };
 // Author: Mustafa Acer
+if (typeof mea3D=="undefined") mea3D = {};
 
 /**
 * @constructor
 */
-function Vertex(x,y,z, nx,ny,nz, color) {
-  this.pos = new Vector3(0,0,0);
+mea3D.Vertex = function(x,y,z, nx,ny,nz, color) {
+  this.pos = new mea3D.Vector3(0,0,0);
   this.pos.x = x;
   this.pos.y = y;
   this.pos.z = z;
   
-  this.normal = new Vector3(0,0,0);
+  this.normal = new mea3D.Vector3(0,0,0);
   if (nx) this.normal.x = nx;
   if (ny) this.normal.y = ny;
   if (nz) this.normal.z = nz;
@@ -1326,13 +1340,14 @@ function Vertex(x,y,z, nx,ny,nz, color) {
   this.color = (color)?color:"#fff";
 }
 
-Vertex.fromVector = function(vector) {
-  return new Vertex(
+mea3D.Vertex.fromVector = function(vector) {
+  return new mea3D.Vertex(
     vector.x,
     vector.y,
     vector.z
   );
 };
+
 // Author: Mustafa Acer
 if (typeof mea3D=="undefined") mea3D = {};
 
@@ -1345,7 +1360,7 @@ mea3D.RenderableType = {
 /**
 * @constructor
 */
-function Polygon(
+mea3D.Polygon = function(
   type,
   vertex1, vertex2, vertex3, vertex4, 
   transformedVertices,
@@ -1368,10 +1383,10 @@ function Polygon(
     this.transformedVertices = transformedVertices;
   } else {
     this.transformedVertices = {};
-    this.transformedVertices.v1 = new Vector3(0,0,0);
-    this.transformedVertices.v2 = new Vector3(0,0,0);
-    this.transformedVertices.v3 = new Vector3(0,0,0);
-    this.transformedVertices.v4 = new Vector3(0,0,0);
+    this.transformedVertices.v1 = new mea3D.Vector3(0,0,0);
+    this.transformedVertices.v2 = new mea3D.Vector3(0,0,0);
+    this.transformedVertices.v3 = new mea3D.Vector3(0,0,0);
+    this.transformedVertices.v4 = new mea3D.Vector3(0,0,0);
   }
   
   // 2D projected vertices for this polygon
@@ -1379,10 +1394,10 @@ function Polygon(
     this.projectedVertices = projectedVertices;
   } else {
     this.projectedVertices = {};
-    this.projectedVertices.v1 = new Vector3(0,0,0);
-    this.projectedVertices.v2 = new Vector3(0,0,0);
-    this.projectedVertices.v3 = new Vector3(0,0,0);
-    this.projectedVertices.v4 = new Vector3(0,0,0);
+    this.projectedVertices.v1 = new mea3D.Vector3(0,0,0);
+    this.projectedVertices.v2 = new mea3D.Vector3(0,0,0);
+    this.projectedVertices.v3 = new mea3D.Vector3(0,0,0);
+    this.projectedVertices.v4 = new mea3D.Vector3(0,0,0);
   }
   this.material = material; // the original material
   
@@ -1390,7 +1405,7 @@ function Polygon(
   this.calculateEdges();
 }
 
-Polygon.prototype = {
+mea3D.Polygon.prototype = {
 
   toString:function() {
     if (this.v4) {
@@ -1454,8 +1469,8 @@ if (typeof mea3D=="undefined") mea3D = {};
 */
 mea3D.Material = function(reflectivity, texture, ambientColor, emitColor) {
   
-  this.ambientColor = ambientColor ? ambientColor : new ColorRGBA(0,0,0);  
-  this.emitColor    = emitColor    ? emitColor    : new ColorRGBA(0,0,0);
+  this.ambientColor = ambientColor ? ambientColor : new mea3D.ColorRGBA(0,0,0);  
+  this.emitColor    = emitColor    ? emitColor    : new mea3D.ColorRGBA(0,0,0);
   this.reflectivity = (typeof reflectivity=="undefined") ? 0:reflectivity; // 0 <= reflectivity <= 1
   
   this.enableAmbientColor = true;
@@ -1492,18 +1507,18 @@ mea3D.Material.prototype = {
   setColorValues:function(ambientValues, emitValues, diffuseValues, specularValues) {
     
     if (ambientValues) {
-      this.ambientColor = ColorRGBA.createFromValues(ambientValues);
+      this.ambientColor = mea3D.ColorRGBA.createFromValues(ambientValues);
     }
     if (emitValues) {
-      this.emitColor = ColorRGBA.createFromValues(emitValues);
+      this.emitColor = mea3D.ColorRGBA.createFromValues(emitValues);
     }
     // TODO: These values are ignored. Implement them in Math3D.computeLighing:
     /*
     if (diffuseValues) {
-      this.diffuseColor = ColorRGBA.createFromValues(diffuseValues);
+      this.diffuseColor = mea3D.ColorRGBA.createFromValues(diffuseValues);
     }
     if (specularValues) {
-      this.specularColor = ColorRGBA.createFromValues(specularValues);
+      this.specularColor = mea3D.ColorRGBA.createFromValues(specularValues);
     }
     */
   }
@@ -1569,7 +1584,7 @@ mea3D.Light.prototype = {
   
   calculateColor:function(faceMaterial, pointOnFace, faceNormal) {
   
-    var calculatedColor = new ColorRGBA(0,0,0);
+    var calculatedColor = new mea3D.ColorRGBA(0,0,0);
     
     switch (this.type) {
       case mea3D.LightType.AMBIENT:
@@ -1633,9 +1648,9 @@ mea3D.Mesh = function(parent, params) {
   
   this.name     = params.name;
   this.material = params.meshMaterial;
-  this.transformation = params.transformation ? params.transformation:new Transformation();
+  this.transformation = params.transformation ? params.transformation:new mea3D.Transformation();
   // Calculated transformation from parents:
-  this.finalTransformation = new Transformation();  // TODO: We only use the matrix of the final transformation. Make it fully used.
+  this.finalTransformation = new mea3D.Transformation();  // TODO: We only use the matrix of the final transformation. Make it fully used.
   this.numFaces = 0;
   this.numVertices = 0;
 }
@@ -1713,7 +1728,7 @@ mea3D.Mesh.prototype = {
     // Build the vertices
     this.vertices = new Array(vertices.length/3);
     for (var i=0; i<vertices.length; i+=3) {
-      this.vertices[i/3] = new Vector3(vertices[i], vertices[i+1], vertices[i+2]);
+      this.vertices[i/3] = new mea3D.Vector3(vertices[i], vertices[i+1], vertices[i+2]);
     }
     this.numVertices = this.vertices.length;
         
@@ -1721,8 +1736,8 @@ mea3D.Mesh.prototype = {
     this.worldTransformedVertices = new Array(this.numVertices);
     this.projectedVertices = new Array(this.numVertices);    
     for (var i=0; i<this.numVertices; i++) {
-      this.projectedVertices[i] = new Vector3(0,0,0);
-      this.worldTransformedVertices[i] = new Vector3(0,0,0);
+      this.projectedVertices[i] = new mea3D.Vector3(0,0,0);
+      this.worldTransformedVertices[i] = new mea3D.Vector3(0,0,0);
     }
     // Transform the vertices
     this.worldTransformVertices();
@@ -1748,9 +1763,9 @@ mea3D.Mesh.prototype = {
       var i1 = faceIndices[i][0]
       var i2 = faceIndices[i][1];
       var i3 = faceIndices[i][2];
-      var vertex1 = new Vertex(this.vertices[i1].x, this.vertices[i1].y, this.vertices[i1].z);
-      var vertex2 = new Vertex(this.vertices[i2].x, this.vertices[i2].y, this.vertices[i2].z);
-      var vertex3 = new Vertex(this.vertices[i3].x, this.vertices[i3].y, this.vertices[i3].z);
+      var vertex1 = new mea3D.Vertex(this.vertices[i1].x, this.vertices[i1].y, this.vertices[i1].z);
+      var vertex2 = new mea3D.Vertex(this.vertices[i2].x, this.vertices[i2].y, this.vertices[i2].z);
+      var vertex3 = new mea3D.Vertex(this.vertices[i3].x, this.vertices[i3].y, this.vertices[i3].z);
       
       var faceMaterial = null;
       if (faceMaterialIndices) {
@@ -1761,17 +1776,17 @@ mea3D.Mesh.prototype = {
      }
      if (!faceMaterial) {
        // if still null, assign the default material:
-       faceMaterial = new mea3D.Material(0,null, new ColorRGBA(0.6, 0.6, 0.6));
+       faceMaterial = new mea3D.Material(0,null, new mea3D.ColorRGBA(0.6, 0.6, 0.6));
      }
         
       if (vertexCount==4) {
         // Quad
         var i4 = faceIndices[i][3];
         this.faceIndices.push([i1, i2, i3, i4]);
-        var vertex4 = new Vertex(this.vertices[i4].x, this.vertices[i4].y, this.vertices[i4].z);        
+        var vertex4 = new mea3D.Vertex(this.vertices[i4].x, this.vertices[i4].y, this.vertices[i4].z);        
         
         this.polygons.push(
-          new Polygon(
+          new mea3D.Polygon(
             mea3D.RenderableType.POLYGON,
             vertex1, vertex2, vertex3, vertex4,
             { // Transformed vertices:
@@ -1795,7 +1810,7 @@ mea3D.Mesh.prototype = {
         // Triangle
         this.faceIndices.push([i1, i2, i3]);
         this.polygons.push(
-          new Polygon(
+          new mea3D.Polygon(
             mea3D.RenderableType.POLYGON,
             vertex1, vertex2, vertex3, null,
             { // Transformed vertices:
@@ -1828,7 +1843,7 @@ mea3D.Mesh.prototype = {
       this.vertices[i].y *= this.transformation.scaling.y;
       this.vertices[i].z *= this.transformation.scaling.z;
     }
-    this.transformation.scaling = new Vector3(1,1,1);
+    this.transformation.scaling = new mea3D.Vector3(1,1,1);
     this.updateTransformation();
   },*/
   
@@ -1921,7 +1936,7 @@ mea3D.Mesh.prototype = {
     if (this.type==mea3D.MeshType.MESH_SURFACE ||
         this.type=="surface") {
       Logging.log("Bounding surface radius: " + this.radius);      
-      return {radius:this.radius, position:new Vector3(0,0,0)};
+      return {radius:this.radius, position:new mea3D.Vector3(0,0,0)};
     }
     
     if (typeof this.type=="undefined" ||
@@ -1958,7 +1973,7 @@ mea3D.Mesh.prototype = {
         if (v4) usedVertices.push(v4);
       }
       
-      var centerOfGravity = new Vector3(0,0,0);
+      var centerOfGravity = new mea3D.Vector3(0,0,0);
       if (usedVertices && usedVertices.length>0) {
       
         for (var i=0; i<usedVertices.length; i++) {
@@ -1988,7 +2003,7 @@ mea3D.Mesh.prototype = {
       return {radius:radius, position: centerOfGravity};
     }; // type==POLYGON
     
-    return {radius:0, position: new Vector3(0,0,0)};
+    return {radius:0, position: new mea3D.Vector3(0,0,0)};
   },
   
   calculateBoundingShape:function() {
@@ -2044,7 +2059,7 @@ mea3D.Model3D = function(name, modelTemplate, transformation) {
   }*/
   
   this.name = name;
-  this.transformation = transformation ? transformation : new Transformation();
+  this.transformation = transformation ? transformation : new mea3D.Transformation();
   
   this.numFaces = 0;
   this.numVertices = 0;
@@ -2250,7 +2265,7 @@ mea3D.Scene = function() {
   this.skyBox = null; // Skybox is the model which will always be drawn first
   
   this.lights = [];
-  this.ambientColor = new ColorRGBA(0, 0, 0);
+  this.ambientColor = new mea3D.ColorRGBA(0, 0, 0);
   this.boundingShapes = [];
 }
 
@@ -2325,12 +2340,12 @@ mea3D.Renderer = function(container, options) {
     width:          800,                        // viewport height
     height:         600,                        // viewport width
     backfaceCulling:true,                       // backface culling
-    clearColor:     new ColorRGBA(0,0,0),       // color with which we clean the screen
+    clearColor:     new mea3D.ColorRGBA(0,0,0),       // color with which we clean the screen
     renderMode:     mea3D.RenderModes.RENDER_FACES,  // render mode
     enableMouseNavigation:true,                // should enable mouse navigation?
-    cameraPosition:  new Vector3(0,0,0),       // initial camera position
-    cameraDirection: new Vector3(0,0,1),       // initial camera direction
-    cameraUpVector:  new Vector3(0,1,0),       // initial camera up vector
+    cameraPosition:  new mea3D.Vector3(0,0,0),       // initial camera position
+    cameraDirection: new mea3D.Vector3(0,0,1),       // initial camera direction
+    cameraUpVector:  new mea3D.Vector3(0,1,0),       // initial camera up vector
     
     fovHorizontal:   Math.PI/3,                 // horizontal field of view
     aspectRatio:     this.width/this.height,    // viewport aspect ratio
@@ -2365,8 +2380,8 @@ mea3D.Renderer = function(container, options) {
   this.initiated = false;
   this.init();    
   this.reset();
-  this.currentStrokeColor = new ColorRGBA();
-  this.currentFillColor = new ColorRGBA();
+  this.currentStrokeColor = new mea3D.ColorRGBA();
+  this.currentFillColor = new mea3D.ColorRGBA();
 
 };
 
@@ -2408,7 +2423,7 @@ mea3D.Renderer.prototype = {
       return false;
     }
     // Transformations:
-    this.worldTransform = new Matrix4(); // identity
+    this.worldTransform = new mea3D.Matrix4(); // identity
     this.updateProjectionMatrix();
     this.updateTransformMatrix(); 
 
@@ -2507,8 +2522,8 @@ mea3D.Renderer.prototype = {
     //Logging.log("Z 2: " + z2, LOG_ERROR);
 
     this.drawLine2D(p1.x, p1.y, p2.x, p2.y, color, lineWidth);
-    this.drawRect(p1.x-3,p1.y-3, 6,6, new ColorRGBA(1,0,0));
-    this.drawRect(p2.x-3,p2.y-3, 6,6, new ColorRGBA(0,1,1));
+    this.drawRect(p1.x-3,p1.y-3, 6,6, new mea3D.ColorRGBA(1,0,0));
+    this.drawRect(p2.x-3,p2.y-3, 6,6, new mea3D.ColorRGBA(0,1,1));
         
     /*this.drawLine2D(z1.x, z1.y, z2.x, z2.y, "#0F0");
     this.drawRect(z1.x-3, z1.y-3, 6,6, "#ff0");
@@ -2654,7 +2669,7 @@ mea3D.Renderer.prototype = {
     projected.x = ((projected.x * this.viewport.width)  / 2.0) + this.viewport.width/2;
     projected.y = -((projected.y * this.viewport.height)/ 2.0) + this.viewport.height/2;    
 
-    var radiusVector = mesh.finalTransformation.position.add(new Vector3(0, mesh.radius, 0));
+    var radiusVector = mesh.finalTransformation.position.add(new mea3D.Vector3(0, mesh.radius, 0));
     var projectedRadius = mea3D.Math.transformPoint(radiusVector, this.matrixTransform);
     projectedRadius.x /= projectedRadius.z;
     projectedRadius.y /= projectedRadius.z;
@@ -2662,7 +2677,7 @@ mea3D.Renderer.prototype = {
     projectedRadius.x =  ((projectedRadius.x * this.viewport.width) / 2.0) + this.viewport.width/2;
     projectedRadius.y = -((projectedRadius.y * this.viewport.height)/ 2.0) + this.viewport.height/2;    
     
-    var projectedRadius = new Vector2(projected.x-projectedRadius.x, projected.y-projectedRadius.y);      
+    var projectedRadius = new mea3D.Vector2(projected.x-projectedRadius.x, projected.y-projectedRadius.y);      
     var radius = projectedRadius.mag();
     
     // Draw a circle with the projected position and radius.
@@ -2672,7 +2687,7 @@ mea3D.Renderer.prototype = {
         // TODO: FIX THIS IMMEDIATELY:
         //radius:radius*mesh.parent.transformation.scaling.x * mesh.transformation.scaling.x, // <<== Not only x should be here
         radius: radius,
-        color:new ColorRGBA(1,1,0),
+        color:new mea3D.ColorRGBA(1,1,0),
         type: mea3D.RenderableType.SURFACE,
         projectedCenter:projected
       }
@@ -2692,7 +2707,7 @@ mea3D.Renderer.prototype = {
     projected.y = -((projected.y * this.viewport.height)/ 2.0) + this.viewport.height/2;    
     
     // TODO: Fix!
-    var radiusVector = mesh.finalTransformation.position.add(new Vector3(0, mesh.fontSize*mesh.finalTransformation.scaling.x, 0));
+    var radiusVector = mesh.finalTransformation.position.add(new mea3D.Vector3(0, mesh.fontSize*mesh.finalTransformation.scaling.x, 0));
     var projectedRadius = mea3D.Math.transformPoint(radiusVector, this.matrixTransform);
     projectedRadius.x /= projectedRadius.z;
     projectedRadius.y /= projectedRadius.z;
@@ -2700,7 +2715,7 @@ mea3D.Renderer.prototype = {
     projectedRadius.x = ((projectedRadius.x * this.viewport.width)  /2.0) + this.viewport.width/2;
     projectedRadius.y = -((projectedRadius.y * this.viewport.height)/2.0) + this.viewport.height/2;    
     
-    var projectedRadius = new Vector2(projected.x-projectedRadius.x, projected.y-projectedRadius.y);      
+    var projectedRadius = new mea3D.Vector2(projected.x-projectedRadius.x, projected.y-projectedRadius.y);      
     var radius = projectedRadius.mag();
          
     this.renderBuffer.push(
@@ -2766,8 +2781,8 @@ mea3D.Renderer.prototype = {
       if (this.options.backfaceCulling) {
         var a1 = p1.subt(p2);
         var a2 = p1.subt(p3);
-        var b1 = new Vector3(a1.x, a1.y, 0);
-        var b2 = new Vector3(a2.x, a2.y, 0);
+        var b1 = new mea3D.Vector3(a1.x, a1.y, 0);
+        var b2 = new mea3D.Vector3(a2.x, a2.y, 0);
         var cross = b1.cross(b2);
         if (cross.z<0)
          continue;
@@ -2807,8 +2822,8 @@ mea3D.Renderer.prototype = {
     h = h || 10;
     var halfWidth = this.viewport.width/2;
     var halfHeight = this.viewport.height/2;
-    this.drawLine2D(halfWidth-w, halfHeight, halfWidth+w, halfHeight,  new ColorRGBA(1,1,0));
-    this.drawLine2D(halfWidth, halfHeight-h, halfWidth, halfHeight+10, new ColorRGBA(1,1,0));
+    this.drawLine2D(halfWidth-w, halfHeight, halfWidth+w, halfHeight,  new mea3D.ColorRGBA(1,1,0));
+    this.drawLine2D(halfWidth, halfHeight-h, halfWidth, halfHeight+10, new mea3D.ColorRGBA(1,1,0));
   },
   
   sortFunction:function(a,b) {
@@ -2834,7 +2849,7 @@ mea3D.Renderer.prototype = {
       switch(polygon.type) {
                 
         case mea3D.RenderableType.POLYGON:
-           // 2D Polygon
+           // 2D mea3D.Polygon
           this.renderPolygon(
             polygon.projectedVertices.v1,
             polygon.projectedVertices.v2,
@@ -2874,12 +2889,12 @@ mea3D.Renderer.prototype = {
 
   renderAxes:function() {
     // Draw axes
-    this.drawLine(new Vector3(0,0,0), new Vector3(4,0,0), new ColorRGBA(0,1,1));     // x axis
-    this.drawLine(new Vector3(0,0,0), new Vector3(0,0,4), new ColorRGBA(1,1,0));     // z axis
-    this.drawLine(new Vector3(0,0,0), new Vector3(0,4,0), new ColorRGBA(1,0,1));     // y axis
-    this.renderText("+X", new Vector3(5,0,0), new ColorRGBA(1,1,1));
-    this.renderText("+Z", new Vector3(0,0,5));
-    this.renderText("+Y", new Vector3(0,5,0));
+    this.drawLine(new mea3D.Vector3(0,0,0), new mea3D.Vector3(4,0,0), new mea3D.ColorRGBA(0,1,1));     // x axis
+    this.drawLine(new mea3D.Vector3(0,0,0), new mea3D.Vector3(0,0,4), new mea3D.ColorRGBA(1,1,0));     // z axis
+    this.drawLine(new mea3D.Vector3(0,0,0), new mea3D.Vector3(0,4,0), new mea3D.ColorRGBA(1,0,1));     // y axis
+    this.renderText("+X", new mea3D.Vector3(5,0,0), new mea3D.ColorRGBA(1,1,1));
+    this.renderText("+Z", new mea3D.Vector3(0,0,5));
+    this.renderText("+Y", new mea3D.Vector3(0,5,0));
     
   },
   
@@ -2951,7 +2966,7 @@ mea3D.Renderer.prototype = {
     var halfHeight= this.viewport.height/2;
     var x = (screenX - halfWidth) /halfWidth;
     var y = (screenY - halfHeight)/halfHeight;
-    return new Vector2(x,y);
+    return new mea3D.Vector2(x,y);
   },
   /*
   // Input handling

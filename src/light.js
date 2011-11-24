@@ -38,7 +38,7 @@ mea3D.Light.prototype = {
   
   calculateColor:function(faceMaterial, pointOnFace, faceNormal) {
   
-    var calculatedColor = new ColorRGBA(0,0,0);
+    var calculatedColor = new mea3D.ColorRGBA(0,0,0);
     
     switch (this.type) {
       case mea3D.LightType.AMBIENT:

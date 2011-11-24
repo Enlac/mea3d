@@ -1,9 +1,10 @@
 // Author: Mustafa Acer
+if (typeof mea3D=="undefined") mea3D = {};
 
 /**
 * @constructor
 */
-function ColorRGBA(red, green, blue, alpha) {
+mea3D.ColorRGBA = function(red, green, blue, alpha) {
   this.r = red;
   this.g = green;
   this.b = blue;
@@ -12,11 +13,11 @@ function ColorRGBA(red, green, blue, alpha) {
 }
 
 // Static method
-ColorRGBA.createFromValues = function(array) {
-  return new ColorRGBA(array[0], array[1], array[2], array[3]);
+mea3D.ColorRGBA.createFromValues = function(array) {
+  return new mea3D.ColorRGBA(array[0], array[1], array[2], array[3]);
 };
 
-ColorRGBA.prototype = {
+mea3D.ColorRGBA.prototype = {
 
   // TODO: Make the color values integer. Float may not be good.
   toString:function() {
@@ -32,11 +33,11 @@ ColorRGBA.prototype = {
   },
   
   copy:function() {
-    return new ColorRGBA(this.r, this.g, this.b, this.a);
+    return new mea3D.ColorRGBA(this.r, this.g, this.b, this.a);
   },
   
   scale:function(scaleR, scaleG, scaleB){
-    return new ColorRGBA(
+    return new mea3D.ColorRGBA(
       this.r*scaleR,
       this.g*scaleG,
       this.b*scaleB
@@ -44,7 +45,7 @@ ColorRGBA.prototype = {
   },
   
   addColor:function(color) {
-    return new ColorRGBA(
+    return new mea3D.ColorRGBA(
       this.r + color.r,
       this.g + color.g,
       this.b + color.b,
@@ -52,7 +53,7 @@ ColorRGBA.prototype = {
   },
   
   add:function(r,g,b,a) {
-    return new ColorRGBA(
+    return new mea3D.ColorRGBA(
       this.r + r,
       this.g + g,
       this.b + b,
@@ -61,7 +62,7 @@ ColorRGBA.prototype = {
   
   divide:function(denominator) {
     if (denominator==0) return null;
-    return new ColorRGBA(
+    return new mea3D.ColorRGBA(
       this.r/denominator,
       this.g/denominator,
       this.b/denominator,
@@ -70,5 +71,6 @@ ColorRGBA.prototype = {
 };
 
 // Export Vector3 object to make closure compiler happy:
-if (!window["ColorRGBA"]) window["ColorRGBA"] = ColorRGBA;
-//if (!mea3D["Vector3"]) mea3D["Vector3"] = mea3D.Color;
+if (!window["mea3D"])                 window["mea3D"] = mea3D;
+if (!window["mea3D"]["ColorRGBA"])    window["mea3D"]["ColorRGBA"] = mea3D.ColorRGBA;
+

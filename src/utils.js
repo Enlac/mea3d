@@ -19,27 +19,30 @@ mea3D.getOptions = function(options, defaultOptions) {
   return calculatedOptions;
 };
 
-// Utility to parse 400x300 type strings
-mea3D.getXYValues = function(str) {
-
-  if (!str) return {x:-1, y:-1};
-  
-  var arr = str.split("x");
-  var x = parseInt(arr[0]);
-  var y = parseInt(arr[1]);
-  return {x:x, y:y};
-};
-
-// From Google JavaScripts:
-mea3D.getPageOffsetTop = function(a){
-  return a.offsetTop + (a.offsetParent ? mea3D.getPageOffsetTop(a.offsetParent):0)
-};
-mea3D.getPageOffsetLeft = function(a){
-  return a.offsetLeft + (a.offsetParent ? mea3D.getPageOffsetLeft(a.offsetParent):0)
-};
 
 mea3D.Utils = {
 
+  // From Google JavaScripts:
+  getPageOffsetTop:function(a){
+    return a.offsetTop + (a.offsetParent ? mea3D.Utils.getPageOffsetTop(a.offsetParent):0);
+  },
+  // From Google JavaScripts:
+  getPageOffsetLeft:function(a){
+    return a.offsetLeft + (a.offsetParent ? mea3D.Utils.getPageOffsetLeft(a.offsetParent):0);
+  },
+
+  // Utility to parse 400x300 type strings
+  getXYValues:function(str) {
+  
+    if (!str) return {x:-1, y:-1};
+    
+    var arr = str.split("x");
+    var x = parseInt(arr[0]);
+    var y = parseInt(arr[1]);
+    return {x:x, y:y};
+  },
+
+  // getElementsByTagName implementation for IE, not recursive
   getElementsByTagName:function(domElement, tagName) {
     tagName = tagName.toUpperCase();
     var child = domElement.firstChild;

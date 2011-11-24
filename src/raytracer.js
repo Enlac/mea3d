@@ -47,7 +47,7 @@ mea3D.RayTracer.prototype = {
       width:320,
       height:240,
       pixelSize:2,
-      clearColor:new ColorRGBA(1,0,0,0),
+      clearColor:new mea3D.ColorRGBA(1,0,0,0),
       calculateReflections:true,
       calculateShadows:true,
       subPixelsX:1,
@@ -96,10 +96,10 @@ mea3D.RayTracer.prototype = {
       var p3 = mesh.worldTransformedVertices[i2];
       var p4 = (vertexCount==4) ? mesh.worldTransformedVertices[i3]:null;
       
-      var v1  = new Vertex(p1.x, p1.y, p1.z);
-      var v2  = new Vertex(p2.x, p2.y, p2.z);
-      var v3  = new Vertex(p3.x, p3.y, p3.z);
-      var v4  = (vertexCount==3) ? null:new Vertex(p4.x, p4.y, p4.z);
+      var v1  = new mea3D.Vertex(p1.x, p1.y, p1.z);
+      var v2  = new mea3D.Vertex(p2.x, p2.y, p2.z);
+      var v3  = new mea3D.Vertex(p3.x, p3.y, p3.z);
+      var v4  = (vertexCount==3) ? null:new mea3D.Vertex(p4.x, p4.y, p4.z);
       
       // Note: Backface culling is done during raytracing.
       // TODO: Change the mesh class so that it carries realCoords, transformedCoords and normals and centers
@@ -109,12 +109,12 @@ mea3D.RayTracer.prototype = {
       };
       
       // Assign material and color
-      var material = mesh.material ? mesh.material: new mea3D.Material(new ColorRGBA(1,1,1), 0);
+      var material = mesh.material ? mesh.material: new mea3D.Material(new mea3D.ColorRGBA(1,1,1), 0);
       if (mesh.faceMaterials && mesh.faceMaterials[i]) {
         material = mesh.faceMaterials[i];
       }      
       
-      var polygon = new Polygon(
+      var polygon = new mea3D.Polygon(
           v1, v2, v3, v4,
           // A copy of transformed 3D points and original color (for raytracing)
           { // Original vertices
@@ -279,7 +279,7 @@ mea3D.RayTracer.prototype = {
     for (var y=yStart; y<height; y++) {
       for (var x=xStart; x<width; x++) {
 
-        var pixelSum = new ColorRGBA(0,0,0,0);
+        var pixelSum = new mea3D.ColorRGBA(0,0,0,0);
         // Calculate subpixels
         for (var subPixelY=0; subPixelY<subPixelsY; subPixelY++) {
           for (var subPixelX=0; subPixelX<subPixelsX; subPixelX++) {
