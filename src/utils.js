@@ -1,10 +1,6 @@
 // Author: Mustafa Acer
 if (typeof mea3D=="undefined") mea3D = {};
 
-function de(s) {
-  return document.getElementById(s);
-}
-
 // Combines given options with the default values
 mea3D.getOptions = function(options, defaultOptions) {
   var calculatedOptions = {};
@@ -41,3 +37,41 @@ mea3D.getPageOffsetTop = function(a){
 mea3D.getPageOffsetLeft = function(a){
   return a.offsetLeft + (a.offsetParent ? mea3D.getPageOffsetLeft(a.offsetParent):0)
 };
+
+mea3D.Utils = {
+
+  getElementsByTagName:function(domElement, tagName) {
+    tagName = tagName.toUpperCase();
+    var child = domElement.firstChild;
+    var children = [];
+    while (child) {
+      if (child.tagName==tagName) {
+        children.push(child);
+      }
+      // no recursion
+    }
+    return children;
+  },
+  
+  getCanvasElement:function(domElement) {
+    if (!domElement) {
+      return null;
+    }
+    var canvas = null;
+    if (domElement.getElementsByTagName) {
+      canvas = domElement.getElementsByTagName("canvas") && domElement.getElementsByTagName("canvas")[0];
+    } else {
+      canvas = this.getElementsByTagName("canvas") && this.getElementsByTagName("canvas")[0];
+    }
+    return canvas;
+  },
+  
+  createCanvas:function(parent, width, height) {
+    var canvas = document.createElement("canvas");
+    canvas.width  = width;
+    canvas.height = height;
+    parent.appendChild(canvas);
+    return canvas;
+  }
+}
+

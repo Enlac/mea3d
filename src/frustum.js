@@ -11,5 +11,4 @@ mea3D.Frustum = function(apex, direction, upVector, fovHorizontal, fovVertical) 
   this.fovHorizontal = fovHorizontal;
   this.fovVertical = fovVertical;
   
-  
 }

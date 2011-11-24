@@ -68,10 +68,13 @@ mea3D.Renderer = function(container, options) {
 mea3D.Renderer.prototype = {
   
   init:function() {
-    this.canvas = this.container.getElementsByTagName("canvas")[0];
+  
+    this.canvas = mea3D.Utils.getCanvasElement(this.container);
+    
+    //this.canvas = this.container.getElementsByTagName("canvas")[0];
     if (!this.canvas) {
-      this.canvas = document.createElement("canvas");
-      
+      this.canvas = mea3D.Utils.createCanvas(this.container, this.viewport.width, this.viewport.height);
+      /*
       // Use excanvas for IE if it is available:
       if (typeof G_vmlCanvasManager!="undefined") {
         G_vmlCanvasManager.initElement(this.canvas);
@@ -79,14 +82,11 @@ mea3D.Renderer.prototype = {
         //this.canvas.setAttribute("height", this.viewport.height);
         this.canvas.width = this.viewport.width;
         this.canvas.height = this.viewport.height;
-      }
-      
-      this.canvas.width  = this.viewport.width;
-      this.canvas.height = this.viewport.height;
-      this.container.appendChild(this.canvas);
+      }*/
       //Logging.log("Created: Width, Height: " + this.canvas.width + "," + this.canvas.height);
     }
     
+    // TODO: IE 9 will fail here if DOCTYPE is not standards. Check it here.
     if (!(this.canvas.getContext)) {
       return false;
     }

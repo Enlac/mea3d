@@ -1,6 +1,10 @@
 // Author: Mustafa Acer
 if (typeof mea3D=="undefined") mea3D = {};
 
+function de(s) {
+  return document.getElementById(s);
+}
+
 /**
 * @constructor
 */

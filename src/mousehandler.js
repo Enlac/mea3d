@@ -54,6 +54,6 @@ mea3D.MouseHandler.prototype = {
       this.getMouseSelection(screenX, screenY);
     }
     return false;
-  },
+  }
 };
 

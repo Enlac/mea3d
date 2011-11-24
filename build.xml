@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- 
+ mea3d ANT build script
+ 
+ Author:  Mustafa Emre Acer
+-->
+
+<project name="mea3d" basedir="." default="build-mea3d">
+  
+  <!-- Configuration properties -->
+  <property file="build.properties"/>
+
+  <!--==========================================================================
+    Build mea3d by concatenating files 
+  ===========================================================================-->
+  <target name="build-mea3d">
+  
+    <delete file="${mea3d.output}"/>
+  
+    <echo message="Building ${mea3d.output} by concatenating files"/>
+    <concat destfile="${mea3d.output}" append="true" encoding="UTF-8" outputencoding="UTF-8"> 
+    
+      <filelist dir="${basedir}">
+        <file name="src/renderer2d.js" />
+        <file name="src/utils.js" />
+        <file name="src/logger.js" />
+        <file name="src/colorrgba.js" />
+        <file name="src/vector.js" />
+        <file name="src/line.js" />
+        <file name="src/matrix4.js" />
+        <file name="src/transformation.js" />
+        <file name="src/math3d.js" />
+        <file name="src/camera.js" />
+        <file name="src/viewport.js" />
+
+        <file name="src/vertex.js" />
+        <file name="src/polygon.js" />
+        <file name="src/material.js" />
+        <file name="src/texture.js" />
+        <file name="src/light.js" />
+        <file name="src/mesh.js" />
+        <file name="src/model3d.js" />
+
+        <file name="src/keycodes.js" />
+        <file name="src/scene.js" />
+        <file name="src/renderer.js" />
+        <file name="src/fps.js" />
+        <file name="src/mousehandler.js" />
+        
+      </filelist>
+      <filterchain>
+        <deletecharacters chars="&#xFEFF;" />                <!-- Delete BOM characters-->
+      </filterchain>
+    </concat>
+    
+    <echo message="DONE"/>
+  </target>
+  
+  <target name="help">
+    <echo>
+      build-mea3d                    : Builds mea3d JS code
+    </echo>
+  </target>
+
+</project>
