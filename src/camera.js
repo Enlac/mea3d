@@ -1,5 +1,6 @@
+// mea3D HTML5 Canvas 3D library
+//
 // Author: Mustafa Acer
-if (typeof mea3D=="undefined") mea3D = {};
 
 /**
 * @constructor
@@ -13,9 +14,9 @@ mea3D.Camera = function(eyePos, eyeDir, upVector, fovHorizontal, fovVertical) {
     this.fovHorizontal = fovHorizontal;
     this.fovVertical = fovVertical;
     this.update();
-  }
-  else
+  } else {
     this.reset();
+  }
 }
   
 mea3D.Camera.prototype = {
@@ -63,6 +64,38 @@ mea3D.Camera.prototype = {
   moveTo:function(pos) {
     this.eyePos = new mea3D.Vector3(pos.x, pos.y, pos.z);
   },
+  getEyePos:function() {
+    return this.eyePos;
+  },
+  
+  getEyeDir:function() {
+    return this.eyeDir;
+  },
+  setEyeDir:function(dir) {
+    this.eyeDir = new mea3D.Vector3(dir.x, dir.y, dir.z).norm();
+  },
+
+  getFovHorizontal:function() {
+    return this.fovHorizontal;
+  },
+  setFovHorizontal:function(fh) {
+    this.fovHorizontal = fh;
+  },
+  
+  getFovVertical:function() {
+    return this.fovVertical;
+  },
+  setFovVertical:function(fv) {
+    this.fovVertical = fv;
+  },
+  
+  getUpVector:function() {
+    return this.upVector;
+  },
+  setUpVector:function(vec) {
+    this.upVector = new mea3D.Vector3(vec.x, vec.y, vec.z);
+  },
+  
   /*
   moveByMouse:function(x,y) {
   
@@ -92,4 +125,3 @@ mea3D.Camera.prototype = {
     this.lookAt = this.eyePos.add(this.eyeDir);
   }
 };
-

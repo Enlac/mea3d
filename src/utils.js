@@ -1,5 +1,6 @@
+// mea3D HTML5 Canvas 3D library
+//
 // Author: Mustafa Acer
-if (typeof mea3D=="undefined") mea3D = {};
 
 // Combines given options with the default values
 mea3D.getOptions = function(options, defaultOptions) {
@@ -7,11 +8,11 @@ mea3D.getOptions = function(options, defaultOptions) {
   if (defaultOptions) {
     for (var optionName in defaultOptions) {
       if (options && optionName in options) {
-        //Logging.log("Setting " + optionName + " to " + options[optionName]);
+        //mea3D.Logging.log("Setting " + optionName + " to " + options[optionName]);
         calculatedOptions[optionName] = options[optionName];
       }
       else  {
-        //Logging.log("Defaulting " + optionName + " to " + defaultOptions[optionName]);
+        //mea3D.Logging.log("Defaulting " + optionName + " to " + defaultOptions[optionName]);
         calculatedOptions[optionName] = defaultOptions[optionName];
       }
     }
@@ -64,7 +65,7 @@ mea3D.Utils = {
     if (domElement.getElementsByTagName) {
       canvas = domElement.getElementsByTagName("canvas") && domElement.getElementsByTagName("canvas")[0];
     } else {
-      canvas = this.getElementsByTagName("canvas") && this.getElementsByTagName("canvas")[0];
+      canvas = mea3D.Utils.getElementsByTagName("canvas") && mea3D.Utils.getElementsByTagName("canvas")[0];
     }
     return canvas;
   },
@@ -77,4 +78,3 @@ mea3D.Utils = {
     return canvas;
   }
 }
-

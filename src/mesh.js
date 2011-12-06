@@ -1,5 +1,6 @@
+// mea3D HTML5 Canvas 3D library
+//
 // Author: Mustafa Acer
-if (typeof mea3D=="undefined") mea3D = {};
 
 mea3D.MeshType = {
   MESH_NONE:0,
@@ -204,7 +205,7 @@ mea3D.Mesh.prototype = {
     this.numFaces = this.faceIndices.length;       
     
     this.updateTransformation();
-    //Logging.log("Mesh loaded with " + this.numVertices + " vertices, " + this.numFaces + " faces.");
+    //mea3D.Logging.log("Mesh loaded with " + this.numVertices + " vertices, " + this.numFaces + " faces.");
   },
   
   // Scales the vertices and sets the scaling value as 1.
@@ -306,7 +307,7 @@ mea3D.Mesh.prototype = {
   
     if (this.type==mea3D.MeshType.MESH_SURFACE ||
         this.type=="surface") {
-      Logging.log("Bounding surface radius: " + this.radius);      
+      mea3D.Logging.log("Bounding surface radius: " + this.radius);      
       return {radius:this.radius, position:new mea3D.Vector3(0,0,0)};
     }
     
@@ -356,7 +357,7 @@ mea3D.Mesh.prototype = {
         centerOfGravity.y /= usedVertices.length;
         centerOfGravity.z /= usedVertices.length;
       
-        //Logging.log("Center of gravity: " + centerOfGravity);
+        //mea3D.Logging.log("Center of gravity: " + centerOfGravity);
         
         // Find maximum distance:
         var maxDistSquared = 0;
@@ -393,7 +394,7 @@ mea3D.Mesh.prototype = {
         ownerMesh : this
       }
     );
-    Logging.log("Bounding shape calculated : " + this.boundingShape);
+    mea3D.Logging.log("Bounding shape calculated : " + this.boundingShape);
   },
   
   
@@ -414,4 +415,3 @@ mea3D.Mesh.prototype = {
     this.transformation.scale3(sx,sy,sz);
   }
 };
-

@@ -1,5 +1,6 @@
+// mea3D HTML5 Canvas 3D library
+//
 // Author: Mustafa Acer
-if (typeof mea3D=="undefined") mea3D = {};
 
 /**
 * @constructor
@@ -150,12 +151,12 @@ mea3D.RayTracer.prototype = {
   
   calculatePixelColor:function(width, height, x,y) {
     
-    var eyePos = this.camera.eyePos;
-    var eyeDir = this.camera.eyeDir;
-    var upVector = this.camera.upVector;
-    var leftVector = this.camera.leftVector;
-    var fovHorizontal = this.camera.fovHorizontal;
-    var fovVertical = this.camera.fovVertical;
+    var eyePos = this.camera.getEyePos();
+    var eyeDir = this.camera.getEyeDir();
+    var upVector = this.camera.getUpVector();
+    var leftVector = this.camera.getLeftVector();
+    var fovHorizontal = this.camera.getFovHorizontal();
+    var fovVertical = this.camera.getFovVertical();
     var polygons = this.renderBuffer;
     
     // Direction of the ray from eye position to given pixel's 3D position
@@ -202,7 +203,7 @@ mea3D.RayTracer.prototype = {
           pixelDirectionVector
         );
         
-        //Logging.log("Reflected ray: " + reflected);
+        //mea3D.Logging.log("Reflected ray: " + reflected);
         var reflectionOrigin = intersection.position;
         var reflectionIntersection = mea3D.Math.getRayPolygonListIntersection(
           polygons,
@@ -229,7 +230,7 @@ mea3D.RayTracer.prototype = {
           reflectedColor = this.clearColor;
         }
         //if (reflectedColor.r<0 || reflectedColor.g<0 || reflectedColor.b<0)
-        //  Logging.log("reflectedColor<0: " + reflectedColor);
+        //  mea3D.Logging.log("reflectedColor<0: " + reflectedColor);
           
         // Update the color with the reflected color:
         var reflectivity = intersection.polygon.material.reflectivity;
@@ -252,7 +253,7 @@ mea3D.RayTracer.prototype = {
       this.height*this.pixelSize
     ); // Rendered image data to be filled
    
-    Logging.info("Total " + this.renderBuffer.length + " polygons ");       
+    mea3D.Logging.info("Total " + this.renderBuffer.length + " polygons ");       
     
     this.totalProcessedPixels = 0;
     this.progress = 0; // Progress percentage
@@ -302,7 +303,7 @@ mea3D.RayTracer.prototype = {
         
         if (this.totalProcessedPixels%1000==0) {
           this.progress = (100.0*this.totalProcessedPixels/totalPixels);
-          Logging.info("Render " + this.progress.toFixed(1) + "% complete");
+          mea3D.Logging.info("Render " + this.progress.toFixed(1) + "% complete");
         }
         this.totalProcessedPixels++;
         processedPixels++;
@@ -333,6 +334,6 @@ mea3D.RayTracer.prototype = {
     this.completed = true;
     // Finally, draw the image
     this.context.putImageData(this.imageData,0,0);
-    Logging.info("Raytrace finished.");
+    mea3D.Logging.info("Raytrace finished.");
   }
 };

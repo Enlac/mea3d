@@ -1,5 +1,6 @@
+// mea3D HTML5 Canvas 3D library
+//
 // Author: Mustafa Acer
-if (typeof mea3D=="undefined") mea3D = {};
 
 /**
 * @constructor
@@ -20,7 +21,7 @@ mea3D.RenderUtils = {
       polygon.projectedVertices.v2 = renderer.project(polygon.v2.pos);
       polygon.projectedVertices.v3 = renderer.project(polygon.v3.pos);
       polygon.projectedVertices.v4 = renderer.project(polygon.v4.pos);
-      //Logging.log("mea3D.Polygon " + i + ":" + mesh.polygons[i].projectedVertices.v1.toString());
+      //mea3D.Logging.log("mea3D.Polygon " + i + ":" + mesh.polygons[i].projectedVertices.v1.toString());
       /*renderer.drawLine(mesh.polygons[i].v1.pos, mesh.polygons[i].v2.pos);
       renderer.drawLine(mesh.polygons[i].v2.pos, mesh.polygons[i].v3.pos);
       renderer.drawLine(mesh.polygons[i].v3.pos, mesh.polygons[i].v4.pos);
@@ -41,7 +42,7 @@ mea3D.RenderUtils = {
       polygon.projectedVertices.v2 = renderer.project(polygon.v2.pos);
       polygon.projectedVertices.v3 = renderer.project(polygon.v3.pos);
       polygon.projectedVertices.v4 = renderer.project(polygon.v4.pos);
-      //Logging.log("mea3D.Polygon " + i + ":" + mesh.polygons[i].projectedVertices.v1.toString());
+      //mea3D.Logging.log("mea3D.Polygon " + i + ":" + mesh.polygons[i].projectedVertices.v1.toString());
       /*renderer.drawLine(mesh.polygons[i].v1.pos, mesh.polygons[i].v2.pos);
       renderer.drawLine(mesh.polygons[i].v2.pos, mesh.polygons[i].v3.pos);
       renderer.drawLine(mesh.polygons[i].v3.pos, mesh.polygons[i].v4.pos);
@@ -51,4 +52,3 @@ mea3D.RenderUtils = {
     renderer.drawPolygonList(heightMap.polygons);
   }
 };
-

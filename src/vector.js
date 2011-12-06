@@ -1,5 +1,6 @@
+// mea3D HTML5 Canvas 3D library
+//
 // Author: Mustafa Acer
-if (typeof mea3D=="undefined") mea3D = {};
 
 /**
 * @constructor
@@ -98,10 +99,10 @@ mea3D.Vector3.prototype = {
                         this.y*v.z - this.z*v.y,
                         this.z*v.x - this.x*v.z,
                         this.x*v.y - this.y*v.x);
+  },
+  set:function(x,y,z) {
+    this.x = x;
+    this.y = y;
+    this.z = z;
   }
 };
-
-
-// Export Vector3 object to make closure compiler happy:
-if (!window["mea3D"])             window["mea3D"] = mea3D;
-if (!window["mea3D"]["Vector3"])  window["mea3D"]["Vector3"] = mea3D.Vector3;

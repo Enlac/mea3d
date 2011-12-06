@@ -1,5 +1,6 @@
+// mea3D HTML5 Canvas 3D library
+//
 // Author: Mustafa Acer
-if (typeof mea3D=="undefined") mea3D = {};
 
 /**
 * @constructor
@@ -7,9 +8,9 @@ if (typeof mea3D=="undefined") mea3D = {};
 mea3D.Model3D = function(name, modelTemplate, transformation) {
     
   /*if (modelTemplate) {
-    Logging.info("Loading model template " + modelTemplate.name + " into model " + name);  
+    mea3D.Logging.info("Loading model template " + modelTemplate.name + " into model " + name);
   } else {
-    Logging.info("Creating empty model (" + name + ")");  
+    mea3D.Logging.info("Creating empty model (" + name + ")");
   }*/
   
   this.name = name;
@@ -41,7 +42,7 @@ mea3D.Model3D = function(name, modelTemplate, transformation) {
   }
   if (modelTemplate) {
     this.loadFromTemplate(modelTemplate);
-    //Logging.info("Model (" + modelTemplate.name + ") loaded, " + this.numVertices + " vertices, " + this.numFaces + " faces.");
+    //mea3D.Logging.info("Model (" + modelTemplate.name + ") loaded, " + this.numVertices + " vertices, " + this.numFaces + " faces.");
   }
   
   this.updateTransformation();  
@@ -74,7 +75,7 @@ mea3D.Model3D.prototype = {
   updateTransformation:function() {
     this.transformation.update();
     this.updateMeshes();
-    //Logging.log("Model transformation : " + this.transformation.toString());
+    //mea3D.Logging.log("Model transformation : " + this.transformation.toString());
   },
   
   updateMeshes:function() {
@@ -103,7 +104,7 @@ mea3D.Model3D.prototype = {
     if (mesh.name) {
       this.meshNames[mesh.name] = mesh;
     }
-    //Logging.log("Mesh transformation : " + mesh.transformation);
+    //mea3D.Logging.log("Mesh transformation : " + mesh.transformation);
   },
   
   calculateBoundingShapeParameters:function() {
@@ -136,7 +137,7 @@ mea3D.Model3D.prototype = {
         ownerMesh : this
       }
     );
-    //Logging.log("Bounding shape calculated : " + this.boundingShape);
+    //mea3D.Logging.log("Bounding shape calculated : " + this.boundingShape);
   },
   
   

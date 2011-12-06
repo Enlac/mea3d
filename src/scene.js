@@ -1,5 +1,6 @@
+// mea3D HTML5 Canvas 3D library
+//
 // Author: Mustafa Acer
-if (typeof mea3D=="undefined") mea3D = {};
 
 /**
 * @constructor
@@ -36,6 +37,10 @@ mea3D.Scene.prototype = {
     this.boundingShapes.push(shape);
   },
   
+  getLights:function() {
+    return this.lights;
+  },
+  
   hitTestBoundingShape:function(lineOrigin, lineDirection) {
     var nearestBoundingShapeDistanceSquared = -1;
     var nearestBoundingShape = null;
@@ -47,16 +52,16 @@ mea3D.Scene.prototype = {
         lineOrigin,
         lineDirection
       );
-      //Logging.log(">>>>>> BoundingShape" + i + " tested, distance: " + distanceSquared);
+      //mea3D.Logging.log(">>>>>> BoundingShape" + i + " tested, distance: " + distanceSquared);
       
       if (distanceSquared<boundingShape.radiusSquared) {
         // We hit an object.
-        //Logging.log(">>>>>> HITTEST: Hit an object!");
+        //mea3D.Logging.log(">>>>>> HITTEST: Hit an object!");
         if (nearestBoundingShapeDistanceSquared==-1 ||
             distanceSquared<nearestBoundingShapeDistanceSquared) {
           nearestBoundingShapeDistanceSquared = distanceSquared;
           nearestBoundingShape = boundingShape;
-          //Logging.log(">>>>>> Minimum distance :" + nearestBoundingShapeDistanceSquared);
+          //mea3D.Logging.log(">>>>>> Minimum distance :" + nearestBoundingShapeDistanceSquared);
         }
       }
     }

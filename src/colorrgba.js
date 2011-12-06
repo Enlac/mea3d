@@ -1,5 +1,6 @@
+// mea3D HTML5 Canvas 3D library
+//
 // Author: Mustafa Acer
-if (typeof mea3D=="undefined") mea3D = {};
 
 /**
 * @constructor
@@ -69,8 +70,3 @@ mea3D.ColorRGBA.prototype = {
       this.a/denominator);
   }
 };
-
-// Export Vector3 object to make closure compiler happy:
-if (!window["mea3D"])                 window["mea3D"] = mea3D;
-if (!window["mea3D"]["ColorRGBA"])    window["mea3D"]["ColorRGBA"] = mea3D.ColorRGBA;
-

@@ -1,5 +1,6 @@
+// mea3D HTML5 Canvas 3D library
+//
 // Author: Mustafa Acer
-if (typeof mea3D=="undefined") mea3D = {};
 
 mea3D.RenderModes = {
   RENDER_NONE:0,
@@ -57,7 +58,7 @@ mea3D.Renderer = function(container, options) {
   this.container.style.height = this.viewport.height + "px";  
   
   this.numFramesRendered = 0;
-  this.initiated = false;
+  this.initialized = false;
   this.init();    
   this.reset();
   this.currentStrokeColor = new mea3D.ColorRGBA();
@@ -83,7 +84,7 @@ mea3D.Renderer.prototype = {
         this.canvas.width = this.viewport.width;
         this.canvas.height = this.viewport.height;
       }*/
-      //Logging.log("Created: Width, Height: " + this.canvas.width + "," + this.canvas.height);
+      //mea3D.Logging.log("Created: Width, Height: " + this.canvas.width + "," + this.canvas.height);
     }
     
     // TODO: IE 9 will fail here if DOCTYPE is not standards. Check it here.
@@ -93,13 +94,16 @@ mea3D.Renderer.prototype = {
     this.context = this.canvas.getContext("2d");
     //this.context = new mea3D.Renderer2D(this.canvas);  // Uses our custom renderer (not working)
     this.context.lineWidth = 2;
-    this.initiated = true;
+    this.initialized = true;
     return true;
   },
   
- 
+  isInitialized:function() {
+    return this.initialized;
+  },
+  
   reset:function() {    
-    if (!(this.initiated)) {
+    if (!(this.isInitialized())) {
       return false;
     }
     // Transformations:
@@ -115,8 +119,8 @@ mea3D.Renderer.prototype = {
     this.projectionTransform = mea3D.Math.getProjectionMatrix4(
       this.viewport.zNear, 
       this.viewport.zFar, 
-      this.camera.fovHorizontal, 
-      this.camera.fovVertical
+      this.camera.getFovHorizontal(), 
+      this.camera.getFovVertical()
     );
   },
   
@@ -128,7 +132,7 @@ mea3D.Renderer.prototype = {
     // Update Direct3D-ish transform matrices
     this.matrixWorldView = mea3D.Math.mult4(
       this.worldTransform,
-      this.camera.viewTransform
+      this.camera.getViewTransform()
     );
     this.matrixTransform = mea3D.Math.mult4(
         this.matrixWorldView,
@@ -196,10 +200,10 @@ mea3D.Renderer.prototype = {
     adjustVector(z1, v1);
     adjustVector(z2, v2);
 
-    //Logging.log("P1:  " + p1, LOG_ERROR);
-    //Logging.log("Z 1: " + z1, LOG_ERROR);
-    //Logging.log("P2:  " + p2, LOG_ERROR);
-    //Logging.log("Z 2: " + z2, LOG_ERROR);
+    //mea3D.Logging.log("P1:  " + p1, LOG_ERROR);
+    //mea3D.Logging.log("Z 1: " + z1, LOG_ERROR);
+    //mea3D.Logging.log("P2:  " + p2, LOG_ERROR);
+    //mea3D.Logging.log("Z 2: " + z2, LOG_ERROR);
 
     this.drawLine2D(p1.x, p1.y, p2.x, p2.y, color, lineWidth);
     this.drawRect(p1.x-3,p1.y-3, 6,6, new mea3D.ColorRGBA(1,0,0));
@@ -325,7 +329,7 @@ mea3D.Renderer.prototype = {
   
   // Draw a 2D circle at the given point and radius
   renderCircle2D:function(position, radius, color) {
-    //Logging.log("Rendering surface at : " + position + ", radius: " + radius);
+    //mea3D.Logging.log("Rendering surface at : " + position + ", radius: " + radius);
     if (color) {
       this.setFillColor(color);
     }
@@ -439,7 +443,7 @@ mea3D.Renderer.prototype = {
     this.numRenderedVertices += numVertices;
     
     this.drawPolygonList(mesh.polygons);
-    //Logging.info("Transformed " + mesh.worldTransformedVertices.length + " points");
+    //mea3D.Logging.info("Transformed " + mesh.worldTransformedVertices.length + " points");
   },
   
   drawPolygonList:function(polygonList) {
@@ -702,7 +706,7 @@ mea3D.Renderer.prototype = {
         }
         
         this.prevSelectedShape = boundingShape;
-        Logging.log("A new mesh is selected");
+        mea3D.Logging.log("A new mesh is selected");
       }
     } else { // Nothing is selected
     
@@ -725,11 +729,11 @@ mea3D.Renderer.prototype = {
     var pixelDirectionVector = mea3D.Math.getPixelDirectionVector(
       this.viewport.width, this.viewport.height, 
       x,y,
-      this.camera.fovHorizontal, this.camera.fovVertical,  // TODO: Include fov in calculations.
-      this.camera.eyeDir, this.camera.upVector, this.camera.leftVector
+      this.camera.getFovHorizontal(), this.camera.getFovVertical(),  // TODO: Include fov in calculations.
+      this.camera.getEyeDir(), this.camera.getUpVector(), this.camera.getLeftVector()
     ).norm();
     
-    var lineOrigin = this.camera.eyePos;
+    var lineOrigin = this.camera.getEyePos();
     var lineDirection = pixelDirectionVector;
     var lineEnd = lineOrigin.add(lineDirection.scale(1,1,1));
     // Draw mouse line:
@@ -739,6 +743,9 @@ mea3D.Renderer.prototype = {
       lineOrigin, lineDirection
     );
     return nearestBoundingShape;
+  },
+  
+  getCamera:function() {
+    return this.camera;
   }
 };
-

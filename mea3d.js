@@ -1,5 +1,15 @@
+//
+// mea3D - HTML5 Canvas 3D Engine
+//
+// Author:  Mustafa Acer
+// Version: 1.0.1
+
+if (typeof(mea3D)=="undefined") {
+  mea3D = {};
+}
+// mea3D HTML5 Canvas 3D library
+//
 // Author: Mustafa Acer
-if (typeof mea3D=="undefined") mea3D = {};
 
 /**
 * @constructor
@@ -72,10 +82,9 @@ mea3D.Renderer2D.prototype = {
     this.setPixel(100,100, new mea3D.ColorRGBA(255,0,0));
   }
 };
-
-
+// mea3D HTML5 Canvas 3D library
+//
 // Author: Mustafa Acer
-if (typeof mea3D=="undefined") mea3D = {};
 
 // Combines given options with the default values
 mea3D.getOptions = function(options, defaultOptions) {
@@ -140,7 +149,7 @@ mea3D.Utils = {
     if (domElement.getElementsByTagName) {
       canvas = domElement.getElementsByTagName("canvas") && domElement.getElementsByTagName("canvas")[0];
     } else {
-      canvas = this.getElementsByTagName("canvas") && this.getElementsByTagName("canvas")[0];
+      canvas = mea3D.Utils.getElementsByTagName("canvas") && mea3D.Utils.getElementsByTagName("canvas")[0];
     }
     return canvas;
   },
@@ -153,9 +162,9 @@ mea3D.Utils = {
     return canvas;
   }
 }
-
+// mea3D HTML5 Canvas 3D library
+//
 // Author: Mustafa Acer
-if (typeof mea3D=="undefined") mea3D = {};
 
 mea3D.LogLevel = {
   LOG_ALL   :0,
@@ -167,8 +176,8 @@ mea3D.LogLevel = {
 
 var Logging = {
   log:function(s) {
-    if (typeof console!="undefined") {
-      console.log(s);
+    if (typeof(window.console)!="undefined") {
+      window.console.log(s);
     }
     var debugDiv = document.getElementById("debugDiv");
     if (debugDiv) {
@@ -198,7 +207,6 @@ var Logging = {
     Logging.log(s);
   },
   
-  
   debug:function(s) {
     Logging.logByLevel(s, mea3D.LogLevel.LOG_DEBUG);
   },
@@ -206,12 +214,14 @@ var Logging = {
   info:function(s) {
     Logging.logByLevel(s, mea3D.LogLevel.LOG_INFO);  
   },
+  
   error:function(s) {
     Logging.logByLevel(s, mea3D.LogLevel.LOG_ERROR);
   }
 };
+// mea3D HTML5 Canvas 3D library
+//
 // Author: Mustafa Acer
-if (typeof mea3D=="undefined") mea3D = {};
 
 /**
 * @constructor
@@ -281,13 +291,9 @@ mea3D.ColorRGBA.prototype = {
       this.a/denominator);
   }
 };
-
-// Export Vector3 object to make closure compiler happy:
-if (!window["mea3D"])                 window["mea3D"] = mea3D;
-if (!window["mea3D"]["ColorRGBA"])    window["mea3D"]["ColorRGBA"] = mea3D.ColorRGBA;
-
+// mea3D HTML5 Canvas 3D library
+//
 // Author: Mustafa Acer
-if (typeof mea3D=="undefined") mea3D = {};
 
 /**
 * @constructor
@@ -386,15 +392,16 @@ mea3D.Vector3.prototype = {
                         this.y*v.z - this.z*v.y,
                         this.z*v.x - this.x*v.z,
                         this.x*v.y - this.y*v.x);
+  },
+  set:function(x,y,z) {
+    this.x = x;
+    this.y = y;
+    this.z = z;
   }
 };
-
-
-// Export Vector3 object to make closure compiler happy:
-if (!window["mea3D"])             window["mea3D"] = mea3D;
-if (!window["mea3D"]["Vector3"])  window["mea3D"]["Vector3"] = mea3D.Vector3;
+// mea3D HTML5 Canvas 3D library
+//
 // Author: Mustafa Acer
-if (typeof mea3D=="undefined") mea3D = {};
 
 /**
 * @constructor
@@ -418,9 +425,9 @@ mea3D.Line3.prototype = {
     return this.v2.subt(this.v1).norm();
   }
 };
-
+// mea3D HTML5 Canvas 3D library
+//
 // Author: Mustafa Acer
-if (typeof mea3D=="undefined") mea3D = {};
 
 /**
 * @constructor
@@ -475,7 +482,7 @@ mea3D.Matrix4.prototype = {
     for (var r=0; r<4; r++) {
       for (var c=0; c<4; c++) {
         for (var k=0; k<4; k++) {
-          vals[r][c] += (this.vals[r][k]* matrix3.vals[k][c]);
+          vals[r][c] += (this.vals[r][k]* matrix4.vals[k][c]);
         }
       }
     }
@@ -531,7 +538,6 @@ mea3D.Matrix4.prototype = {
     return matrix;
   },
   
-  
   transformVector:function(v) {
     var out = new mea3D.Vector3(0,0,0);
     out.x = v.x * this.vals[0][0] + v.y * this.vals[1][0] + v.z * this.vals[2][0] + this.vals[3][0];
@@ -539,10 +545,11 @@ mea3D.Matrix4.prototype = {
     out.z = v.x * this.vals[0][2] + v.y * this.vals[1][2] + v.z * this.vals[2][2] + this.vals[3][2];
     out.w = v.x * this.vals[0][3] + v.y * this.vals[1][3] + v.z * this.vals[2][3] + this.vals[3][3];
     return out;
-	}
+  }
 };
+// mea3D HTML5 Canvas 3D library
+//
 // Author: Mustafa Acer
-if (typeof mea3D=="undefined") mea3D = {};
 
 /**
 * @constructor
@@ -630,9 +637,9 @@ mea3D.Transformation.prototype = {
     this.update();
   }
 };
-
+// mea3D HTML5 Canvas 3D library
+//
 // Author: Mustafa Acer
-if (typeof mea3D=="undefined") mea3D = {};
 
 mea3D.Math = {
 
@@ -757,11 +764,10 @@ mea3D.Math = {
   },
   
   transformPoint:function(p, t) { // matrix, point
-    var vec = new mea3D.Vector3(0,0,0);
-    vec.x = t.vals[0][0]*p.x + t.vals[1][0]*p.y + t.vals[2][0]*p.z + t.vals[3][0];
-    vec.y = t.vals[0][1]*p.x + t.vals[1][1]*p.y + t.vals[2][1]*p.z + t.vals[3][1];
-    vec.z = t.vals[0][2]*p.x + t.vals[1][2]*p.y + t.vals[2][2]*p.z + t.vals[3][2];
-    return vec;
+    return new mea3D.Vector3(
+      t.vals[0][0]*p.x + t.vals[1][0]*p.y + t.vals[2][0]*p.z + t.vals[3][0],
+      t.vals[0][1]*p.x + t.vals[1][1]*p.y + t.vals[2][1]*p.z + t.vals[3][1],
+      t.vals[0][2]*p.x + t.vals[1][2]*p.y + t.vals[2][2]*p.z + t.vals[3][2]);
   },
 
   getFaceCenter:function(v1,v2,v3,v4) {
@@ -882,7 +888,7 @@ mea3D.Math = {
       }
       
       if (rayDir) {
-        var intersection = this.getRayPolygonListIntersection(
+        var intersection = mea3D.Math.getRayPolygonListIntersection(
           polygonList,
           point,
           rayDir,
@@ -961,9 +967,10 @@ mea3D.Math = {
       if (planeDist<=0) continue;    // no intersection
       
       // Find intersection point with the plane
-      intersectionPoint.x = rayOrigin.x + rayDir.x*planeDist;
-      intersectionPoint.y = rayOrigin.y + rayDir.y*planeDist;
-      intersectionPoint.z = rayOrigin.z + rayDir.z*planeDist;
+      intersectionPoint.set(
+        rayOrigin.x + rayDir.x*planeDist,   // x
+        rayOrigin.y + rayDir.y*planeDist,   // y
+        rayOrigin.z + rayDir.z*planeDist);  // z
       
       // Intersection point found. Check if it is inside the triangle.
       // Now, check if the intersection is inside the triangle:
@@ -1210,71 +1217,112 @@ mea3D.Math = {
   }
 };
 
+// mea3D HTML5 Canvas 3D library
+//
 // Author: Mustafa Acer
-if (typeof mea3D=="undefined") mea3D = {};
 
 /**
 * @constructor
 */
-mea3D.Camera = function(eyePos, eyeDir, upVector, fovHorizontal, fovVertical) {
+mea3D.Camera = function(_eyePos, _eyeDir, _upVector, _fovHorizontal, _fovVertical) {
   
-  if (eyePos && eyeDir && upVector) {
-    this.eyePos = eyePos;
-    this.eyeDir = eyeDir.norm();
-    this.upVector = upVector;
-    this.fovHorizontal = fovHorizontal;
-    this.fovVertical = fovVertical;
-    this.update();
-  }
-  else
-    this.reset();
-}
+  var eyePos, eyeDir, upVector, fovHorizontal, fovVertical;
+  var lookAt, leftVector;
+  var viewTransform;
+  var that = this;
   
-mea3D.Camera.prototype = {
-
-  toString:function() {
-    return this.eyePos.toString() + "," + this.eyeDir.toString();
-  },
+  // Member functions:
   
-  reset:function() {
+  this.toString = function() {
+    return eyePos.toString() + "," + eyeDir.toString();
+  };
   
-    this.eyePos   = new mea3D.Vector3(0,0,0);  // camera position
-    this.eyeDir   = new mea3D.Vector3(0,0,1);  // camera direction      
-    this.upVector = new mea3D.Vector3(0,1,0);  // camera up vector      
-    this.update();
-  },
+  this.reset = function() {
+    eyePos   = new mea3D.Vector3(0,0,0);  // camera position
+    eyeDir   = new mea3D.Vector3(0,0,1);  // camera direction      
+    upVector = new mea3D.Vector3(0,1,0);  // camera up vector      
+    that.update();
+  };
   
-  update:function() {
-    this.lookAt          = this.eyePos.add(this.eyeDir.norm());
-    this.leftVector      = this.upVector.cross(this.eyeDir).norm();
-    this.viewTransform   = mea3D.Math.getCameraMatrix4( this.eyePos, this.lookAt, this.upVector );
-  },
+  this.update = function() {
+    lookAt          = eyePos.add(eyeDir.norm());
+    leftVector      = upVector.cross(eyeDir).norm();
+    viewTransform   = mea3D.Math.getCameraMatrix4( eyePos, lookAt, upVector );
+  };
   
   // negative delta will move backwards
-  moveForwardBackward:function(delta) {
+  this.moveForwardBackward = function(delta) {
     if (delta==0) return;
-    this.eyePos = this.eyePos.add(this.eyeDir.norm().scale(delta));
-  },
+    eyePos = eyePos.add(eyeDir.norm().scale(delta));
+  };
+  
   // negative delta will move left
-  moveLeftRight:function(delta) {
+  this.moveLeftRight = function(delta) {
     if (delta==0) return;
-    var strafeVec = this.upVector.cross(this.eyeDir).norm();
-    this.eyePos = this.eyePos.add(strafeVec.scale(delta));
-  },
-  rotateYaw:function(angle) {
-    this.eyeDir = mea3D.Math.rotateVector3(this.eyeDir, 0, angle, 0);
-  },
-  rotatePitch:function(angle) {
-    this.eyeDir = mea3D.Math.rotateVector3(this.eyeDir, 0, 0, angle);
-  },
+    var strafeVec = upVector.cross(eyeDir).norm();
+    eyePos = eyePos.add(strafeVec.scale(delta));
+  };
+  
+  this.rotateYaw = function(angle) {
+    eyeDir = mea3D.Math.rotateVector3(eyeDir, 0, angle, 0);
+  };
+  
+  this.rotatePitch = function(angle) {
+    eyeDir = mea3D.Math.rotateVector3(eyeDir, 0, 0, angle);
+  };
+  
+  this.moveUpDown = function(delta) {
+    if (delta==0) return;
+    eyePos = eyePos.add(upVector.scale(delta));
+  };
+  
+  this.moveTo = function(pos) {
+    eyePos = new mea3D.Vector3(pos.x, pos.y, pos.z);
+  };
+  
+  this.getEyePos = function() {
+    return eyePos;
+  };
+  
+  this.getEyeDir = function() {
+    return eyeDir;
+  };
+  
+  this.setEyeDir = function(dir) {
+    eyeDir = new mea3D.Vector3(dir.x, dir.y, dir.z).norm();
+  };
 
-  moveUpDown:function(delta) {
-    if (delta==0) return;
-    this.eyePos = this.eyePos.add(this.upVector.scale(delta));
-  },
-  moveTo:function(pos) {
-    this.eyePos = new mea3D.Vector3(pos.x, pos.y, pos.z);
-  },
+  this.getFovHorizontal = function() {
+    return fovHorizontal;
+  };
+  
+  this.setFovHorizontal = function(fh) {
+    fovHorizontal = fh;
+  };
+  
+  this.getFovVertical = function() {
+    return fovVertical;
+  };
+  
+  this.setFovVertical = function(fv) {
+    fovVertical = fv;
+  };
+  
+  this.getUpVector = function() {
+    return upVector;
+  }
+  
+  this.setUpVector = function(vec) {
+    upVector = new mea3D.Vector3(vec.x, vec.y, vec.z);
+  }
+  
+  this.getViewTransform = function() {
+    return viewTransform;
+  }
+  
+  this.getLeftVector = function() {
+    return leftVector;
+  }
   /*
   moveByMouse:function(x,y) {
   
@@ -1282,31 +1330,46 @@ mea3D.Camera.prototype = {
     //Logging.debug("Mouse x: " + x);
     //Logging.debug("Mouse y: " + y);
     var mouseCoordsVec = mea3D.Math.mouseCoordsToDirectionVector(x,y);    
-    this.eyeDir = mouseCoordsVec; //=> this is resetting rotation by keyboard
+    eyeDir = mouseCoordsVec; //=> this is resetting rotation by keyboard
     
     //mouseCoordsVec.y = -mouseCoordsVec.y;
-    //this.eyeDir = this.eyeDir.add(mouseCoordsVec.norm()).norm; // => we may try this
-    this.lookAt = this.eyePos.add(this.eyeDir);
-    //this.upVector = mea3D.Math.rotateVector3(this.eyeDir, -Math.PI/2, 0, 0).norm(); 
+    //eyeDir = eyeDir.add(mouseCoordsVec.norm()).norm; // => we may try this
+    this.lookAt = eyePos.add(eyeDir);
+    //upVector = mea3D.Math.rotateVector3(eyeDir, -Math.PI/2, 0, 0).norm(); 
   },
   */
-  moveByMouseDelta:function(x,y) {
+  this.moveByMouseDelta = function(x,y) {
   
     // Calculations are from http://viewport3d.com/trackball.htm
     // Rotate by Y axis
-    this.eyeDir = mea3D.Math.rotateVectorAroundAxis(this.eyeDir, this.upVector, x).norm();
-    var leftVector = this.upVector.cross(this.eyeDir).norm();
+    eyeDir = mea3D.Math.rotateVectorAroundAxis(eyeDir, upVector, x).norm();
+    var leftVector = upVector.cross(eyeDir).norm();
     // Rotate by X axis
-    this.eyeDir = mea3D.Math.rotateVectorAroundAxis(this.eyeDir, leftVector, y).norm();
+    eyeDir = mea3D.Math.rotateVectorAroundAxis(eyeDir, leftVector, y).norm();
    
     // Calculate new upvector
-    //this.upVector = this.eyeDir.cross(leftVector).norm();
-    this.lookAt = this.eyePos.add(this.eyeDir);
+    //upVector = eyeDir.cross(leftVector).norm();
+    lookAt = eyePos.add(eyeDir);
+  };
+  
+  // Initialization:
+  if (_eyePos && _eyeDir && _upVector) {
+    eyePos = _eyePos;
+    eyeDir = _eyeDir.norm();
+    upVector = _upVector;
+    fovHorizontal = _fovHorizontal;
+    fovVertical = _fovVertical;
+    that.update();
+  } else {
+    that.reset();
   }
+  
+  this.viewTransform = viewTransform;
 };
 
+// mea3D HTML5 Canvas 3D library
+//
 // Author: Mustafa Acer
-if (typeof mea3D=="undefined") mea3D = {};
 
 /**
 * @constructor
@@ -1319,8 +1382,9 @@ mea3D.ViewPort = function(x,y,width,height,zNear, zFar) {
   this.zNear = zNear;
   this.zFar = zFar;
 };
+// mea3D HTML5 Canvas 3D library
+//
 // Author: Mustafa Acer
-if (typeof mea3D=="undefined") mea3D = {};
 
 /**
 * @constructor
@@ -1347,9 +1411,9 @@ mea3D.Vertex.fromVector = function(vector) {
     vector.z
   );
 };
-
+// mea3D HTML5 Canvas 3D library
+//
 // Author: Mustafa Acer
-if (typeof mea3D=="undefined") mea3D = {};
 
 mea3D.RenderableType = {
   POLYGON: 1,
@@ -1461,8 +1525,9 @@ mea3D.Polygon.prototype = {
     this.insidePolygonFormulaDenominator = (this.dot_edge12*this.dot_edge12)-(this.dot_edge11*this.dot_edge22);
   }
 };
+// mea3D HTML5 Canvas 3D library
+//
 // Author: Mustafa Acer
-if (typeof mea3D=="undefined") mea3D = {};
 
 /**
 * @constructor
@@ -1523,8 +1588,9 @@ mea3D.Material.prototype = {
     */
   }
 };
+// mea3D HTML5 Canvas 3D library
+//
 // Author: Mustafa Acer
-if (typeof mea3D=="undefined") mea3D = {};
 
 /**
 * @constructor
@@ -1544,8 +1610,9 @@ mea3D.Texture.prototype = {
     //Logging.log("loaded texture " + filePath);
   }
 };
+// mea3D HTML5 Canvas 3D library
+//
 // Author: Mustafa Acer
-if (typeof mea3D=="undefined") mea3D = {};
 
 mea3D.LightType = {
   NONE:      0, 
@@ -1560,7 +1627,7 @@ mea3D.LightType = {
 mea3D.Light = function(type, color, position, direction, range, attenuation, enabled) {
 
   this.type = type;
-  this.color = color ? color: new ColorRGBA(0,1,0);
+  this.color = color ? color: new mea3D.ColorRGBA(0,1,0);
   this.position = position;
   this.direction = direction ? direction.norm():null;
   this.range = range;
@@ -1571,6 +1638,13 @@ mea3D.Light = function(type, color, position, direction, range, attenuation, ena
 
 mea3D.Light.prototype = {
 
+  setEnabled:function(enabled) {
+    this.enabled = enabled;
+  },
+  getEnabled:function() {
+    return this.enabled;
+  },
+  
   calculateAttenuationFactor:function(distance) {
     if (this.attenuation) {
       var denominator = 0;
@@ -1627,8 +1701,9 @@ mea3D.Light.prototype = {
     //return color.scale(dot);
   }
 };
+// mea3D HTML5 Canvas 3D library
+//
 // Author: Mustafa Acer
-if (typeof mea3D=="undefined") mea3D = {};
 
 mea3D.MeshType = {
   MESH_NONE:0,
@@ -2043,9 +2118,9 @@ mea3D.Mesh.prototype = {
     this.transformation.scale3(sx,sy,sz);
   }
 };
-
+// mea3D HTML5 Canvas 3D library
+//
 // Author: Mustafa Acer
-if (typeof mea3D=="undefined") mea3D = {};
 
 /**
 * @constructor
@@ -2203,8 +2278,9 @@ mea3D.Model3D.prototype = {
     this.transformation.scale3(sx,sy,sz);
   }
 }
+// mea3D HTML5 Canvas 3D library
+//
 // Author: Mustafa Acer
-if (typeof mea3D=="undefined") mea3D = {};
 
 mea3D.KeyCodes = {
   KEYCODE_A: 65,
@@ -2253,8 +2329,9 @@ mea3D.KeyCodes = {
   KEYCODE_SPACE: 32,
   KEYCODE_PERIOD: 190
 };
+// mea3D HTML5 Canvas 3D library
+//
 // Author: Mustafa Acer
-if (typeof mea3D=="undefined") mea3D = {};
 
 /**
 * @constructor
@@ -2291,6 +2368,10 @@ mea3D.Scene.prototype = {
     this.boundingShapes.push(shape);
   },
   
+  getLights:function() {
+    return this.lights;
+  },
+  
   hitTestBoundingShape:function(lineOrigin, lineDirection) {
     var nearestBoundingShapeDistanceSquared = -1;
     var nearestBoundingShape = null;
@@ -2318,8 +2399,9 @@ mea3D.Scene.prototype = {
     return nearestBoundingShape;
   }
 };
+// mea3D HTML5 Canvas 3D library
+//
 // Author: Mustafa Acer
-if (typeof mea3D=="undefined") mea3D = {};
 
 mea3D.RenderModes = {
   RENDER_NONE:0,
@@ -2377,7 +2459,7 @@ mea3D.Renderer = function(container, options) {
   this.container.style.height = this.viewport.height + "px";  
   
   this.numFramesRendered = 0;
-  this.initiated = false;
+  this.initialized = false;
   this.init();    
   this.reset();
   this.currentStrokeColor = new mea3D.ColorRGBA();
@@ -2413,13 +2495,16 @@ mea3D.Renderer.prototype = {
     this.context = this.canvas.getContext("2d");
     //this.context = new mea3D.Renderer2D(this.canvas);  // Uses our custom renderer (not working)
     this.context.lineWidth = 2;
-    this.initiated = true;
+    this.initialized = true;
     return true;
   },
   
- 
+  isInitialized:function() {
+    return this.initialized;
+  },
+  
   reset:function() {    
-    if (!(this.initiated)) {
+    if (!(this.isInitialized())) {
       return false;
     }
     // Transformations:
@@ -2435,8 +2520,8 @@ mea3D.Renderer.prototype = {
     this.projectionTransform = mea3D.Math.getProjectionMatrix4(
       this.viewport.zNear, 
       this.viewport.zFar, 
-      this.camera.fovHorizontal, 
-      this.camera.fovVertical
+      this.camera.getFovHorizontal(), 
+      this.camera.getFovVertical()
     );
   },
   
@@ -2448,7 +2533,7 @@ mea3D.Renderer.prototype = {
     // Update Direct3D-ish transform matrices
     this.matrixWorldView = mea3D.Math.mult4(
       this.worldTransform,
-      this.camera.viewTransform
+      this.camera.getViewTransform()
     );
     this.matrixTransform = mea3D.Math.mult4(
         this.matrixWorldView,
@@ -3045,11 +3130,11 @@ mea3D.Renderer.prototype = {
     var pixelDirectionVector = mea3D.Math.getPixelDirectionVector(
       this.viewport.width, this.viewport.height, 
       x,y,
-      this.camera.fovHorizontal, this.camera.fovVertical,  // TODO: Include fov in calculations.
-      this.camera.eyeDir, this.camera.upVector, this.camera.leftVector
+      this.camera.getFovHorizontal(), this.camera.getFovVertical(),  // TODO: Include fov in calculations.
+      this.camera.getEyeDir(), this.camera.getUpVector(), this.camera.getLeftVector()
     ).norm();
     
-    var lineOrigin = this.camera.eyePos;
+    var lineOrigin = this.camera.getEyePos();
     var lineDirection = pixelDirectionVector;
     var lineEnd = lineOrigin.add(lineDirection.scale(1,1,1));
     // Draw mouse line:
@@ -3059,11 +3144,15 @@ mea3D.Renderer.prototype = {
       lineOrigin, lineDirection
     );
     return nearestBoundingShape;
+  },
+  
+  getCamera:function() {
+    return this.camera;
   }
 };
-
+// mea3D HTML5 Canvas 3D library
+//
 // Author: Mustafa Acer
-if (typeof mea3D=="undefined") mea3D = {};
 
 // Frames Per Second Calculator
 /**
@@ -3101,8 +3190,9 @@ mea3D.FPSCalculator.prototype = {
     return this.fps;
   }*/
 };
+// mea3D HTML5 Canvas 3D library
+//
 // Author: Mustafa Acer
-if (typeof mea3D=="undefined") mea3D = {};
 
 /**
 * @constructor
@@ -3159,4 +3249,3 @@ mea3D.MouseHandler.prototype = {
     return false;
   }
 };
-

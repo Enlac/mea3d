@@ -1,5 +1,6 @@
+// mea3D HTML5 Canvas 3D library
+//
 // Author: Mustafa Acer
-if (typeof mea3D=="undefined") mea3D = {};
 
 mea3D.LightType = {
   NONE:      0, 
@@ -14,7 +15,7 @@ mea3D.LightType = {
 mea3D.Light = function(type, color, position, direction, range, attenuation, enabled) {
 
   this.type = type;
-  this.color = color ? color: new ColorRGBA(0,1,0);
+  this.color = color ? color: new mea3D.ColorRGBA(0,1,0);
   this.position = position;
   this.direction = direction ? direction.norm():null;
   this.range = range;
@@ -25,6 +26,13 @@ mea3D.Light = function(type, color, position, direction, range, attenuation, ena
 
 mea3D.Light.prototype = {
 
+  setEnabled:function(enabled) {
+    this.enabled = enabled;
+  },
+  getEnabled:function() {
+    return this.enabled;
+  },
+  
   calculateAttenuationFactor:function(distance) {
     if (this.attenuation) {
       var denominator = 0;

@@ -11,6 +11,8 @@
   <!-- Configuration properties -->
   <property file="build.properties"/>
 
+  <target name="build-all" depends="build-mea3d"/>
+  
   <!--==========================================================================
     Build mea3d by concatenating files 
   ===========================================================================-->
@@ -22,6 +24,7 @@
     <concat destfile="${mea3d.output}" append="true" encoding="UTF-8" outputencoding="UTF-8"> 
     
       <filelist dir="${basedir}">
+        <file name="src/base.js" />
         <file name="src/renderer2d.js" />
         <file name="src/utils.js" />
         <file name="src/logger.js" />

@@ -1,5 +1,6 @@
+// mea3D HTML5 Canvas 3D library
+//
 // Author: Mustafa Acer
-if (typeof mea3D=="undefined") mea3D = {};
 
 /**
 * @constructor
@@ -26,4 +27,3 @@ mea3D.Vertex.fromVector = function(vector) {
     vector.z
   );
 };
-

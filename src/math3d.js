@@ -1,5 +1,6 @@
+// mea3D HTML5 Canvas 3D library
+//
 // Author: Mustafa Acer
-if (typeof mea3D=="undefined") mea3D = {};
 
 mea3D.Math = {
 
@@ -124,11 +125,10 @@ mea3D.Math = {
   },
   
   transformPoint:function(p, t) { // matrix, point
-    var vec = new mea3D.Vector3(0,0,0);
-    vec.x = t.vals[0][0]*p.x + t.vals[1][0]*p.y + t.vals[2][0]*p.z + t.vals[3][0];
-    vec.y = t.vals[0][1]*p.x + t.vals[1][1]*p.y + t.vals[2][1]*p.z + t.vals[3][1];
-    vec.z = t.vals[0][2]*p.x + t.vals[1][2]*p.y + t.vals[2][2]*p.z + t.vals[3][2];
-    return vec;
+    return new mea3D.Vector3(
+      t.vals[0][0]*p.x + t.vals[1][0]*p.y + t.vals[2][0]*p.z + t.vals[3][0],
+      t.vals[0][1]*p.x + t.vals[1][1]*p.y + t.vals[2][1]*p.z + t.vals[3][1],
+      t.vals[0][2]*p.x + t.vals[1][2]*p.y + t.vals[2][2]*p.z + t.vals[3][2]);
   },
 
   getFaceCenter:function(v1,v2,v3,v4) {
@@ -218,12 +218,12 @@ mea3D.Math = {
     var vec = mea3D.Math.rotateVectorAroundAxis(eyeDir, upVector, fovHorizontal*pX*0.5);
     
     vec = mea3D.Math.rotateVectorAroundAxis(vec, leftVector, fovVertical*pY*0.5);
-    /*Logging.log("===========================");
-    Logging.log("upVector: " + upVector);
-    Logging.log("w,h  : " + width + "," + height);
-    Logging.log("fovs  : " + fovHorizontal + "," + fovVertical);
-    Logging.log("x,y  : " + x + "," + y);
-    Logging.log("pX,pY: " + pX + "," + pY);*/
+    /*mea3D.Logging.log("===========================");
+    mea3D.Logging.log("upVector: " + upVector);
+    mea3D.Logging.log("w,h  : " + width + "," + height);
+    mea3D.Logging.log("fovs  : " + fovHorizontal + "," + fovVertical);
+    mea3D.Logging.log("x,y  : " + x + "," + y);
+    mea3D.Logging.log("pX,pY: " + pX + "," + pY);*/
     return vec;
   },
   
@@ -249,7 +249,7 @@ mea3D.Math = {
       }
       
       if (rayDir) {
-        var intersection = this.getRayPolygonListIntersection(
+        var intersection = mea3D.Math.getRayPolygonListIntersection(
           polygonList,
           point,
           rayDir,
@@ -328,9 +328,10 @@ mea3D.Math = {
       if (planeDist<=0) continue;    // no intersection
       
       // Find intersection point with the plane
-      intersectionPoint.x = rayOrigin.x + rayDir.x*planeDist;
-      intersectionPoint.y = rayOrigin.y + rayDir.y*planeDist;
-      intersectionPoint.z = rayOrigin.z + rayDir.z*planeDist;
+      intersectionPoint.set(
+        rayOrigin.x + rayDir.x*planeDist,   // x
+        rayOrigin.y + rayDir.y*planeDist,   // y
+        rayOrigin.z + rayDir.z*planeDist);  // z
       
       // Intersection point found. Check if it is inside the triangle.
       // Now, check if the intersection is inside the triangle:

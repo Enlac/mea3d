@@ -1,5 +1,6 @@
 // Author: Mustafa Acer
-if (typeof mea3D=="undefined") mea3D = {};
+
+(function(){
 
 function de(s) {
   return document.getElementById(s);
@@ -8,7 +9,9 @@ function de(s) {
 /**
 * @constructor
 */
-mea3D.ChromeExperiment = function() {}
+mea3D.ChromeExperiment = function() {
+  this.renderer = null;
+}
 
 mea3D.ChromeExperiment.prototype = {
 
@@ -22,7 +25,7 @@ mea3D.ChromeExperiment.prototype = {
     }
     
     this.renderer = new mea3D.Renderer(de("sceneDiv"), options.rendererOptions);
-    if (!this.renderer.initiated) {
+    if (!this.renderer.isInitialized()) {
       var errorDiv = de("errorDiv");
       if (errorDiv) {
         errorDiv.style.display = "block";
@@ -32,8 +35,8 @@ mea3D.ChromeExperiment.prototype = {
     
     // Closure compiler breaks rendering options so we set these here:
     this.renderer.clearColor = new mea3D.ColorRGBA(0.1, 0.1, 0.2);
-    this.renderer.camera.eyePos = new mea3D.Vector3(-50,25,-50);
-    this.renderer.camera.eyeDir = new mea3D.Vector3(0.8,0,1).norm();
+    this.renderer.getCamera().moveTo(new mea3D.Vector3(-50,25,-50));
+    this.renderer.getCamera().setEyeDir(new mea3D.Vector3(0.8,0,1));
     
     this.sceneOffsetX = mea3D.Utils.getPageOffsetLeft(this.renderer.canvas);
     this.sceneOffsetY = mea3D.Utils.getPageOffsetTop(this.renderer.canvas);
@@ -144,8 +147,8 @@ mea3D.ChromeExperiment.prototype = {
     );
     
     // Turn off all lights in the beginning
-    for (var i=1; i<scene.lights.length; i++) {
-      scene.lights[i].enabled = false;
+    for (var i=1; i<scene.getLights().length; i++) {
+      scene.getLights()[i].enabled = false;
     }
     this.renderer.scene = scene;
   },
@@ -169,52 +172,52 @@ mea3D.ChromeExperiment.prototype = {
     
                 
     if (keyCode==mea3D.KeyCodes.KEYCODE_W) {   // Move forward
-      this.renderer.camera.moveForwardBackward(1.0);
+      this.renderer.getCamera().moveForwardBackward(1.0);
     }
 
     if (keyCode==mea3D.KeyCodes.KEYCODE_S) {   // Move backward
-      this.renderer.camera.moveForwardBackward(-1.0);
+      this.renderer.getCamera().moveForwardBackward(-1.0);
     }    
     
     if (keyCode==mea3D.KeyCodes.KEYCODE_LEFT) {  // Turn left
-      this.renderer.camera.rotateYaw(-Math.PI/15);
+      this.renderer.getCamera().rotateYaw(-Math.PI/15);
     }
     
     if (keyCode==mea3D.KeyCodes.KEYCODE_RIGHT) {  // Turn right    
-      this.renderer.camera.rotateYaw(Math.PI/15);
+      this.renderer.getCamera().rotateYaw(Math.PI/15);
     }
 
     if (keyCode==mea3D.KeyCodes.KEYCODE_UP) {  // Look up      
-      this.renderer.camera.rotatePitch(-Math.PI/15);
+      this.renderer.getCamera().rotatePitch(-Math.PI/15);
     }
     
     if (keyCode==mea3D.KeyCodes.KEYCODE_DOWN) {  // Look down
-      this.renderer.camera.rotatePitch(Math.PI/15);
+      this.renderer.getCamera().rotatePitch(Math.PI/15);
     }
     
     if (keyCode==mea3D.KeyCodes.KEYCODE_A) { // Strafe left
-      this.renderer.camera.moveLeftRight(-1.0);
+      this.renderer.getCamera().moveLeftRight(-1.0);
     }
     
     if (keyCode==mea3D.KeyCodes.KEYCODE_D) { // Strafe right
-      this.renderer.camera.moveLeftRight(1.0);
+      this.renderer.getCamera().moveLeftRight(1.0);
     }
     
     /*if (keyCode==mea3D.KeyCodes.KEYCODE_L) {
       if (de("loggingLevel")) {
         de("loggingLevel").selectedIndex = (de("loggingLevel").selectedIndex+1) % (LOG_NONE+1);
-        Logging.log("Logging level is now " + de("loggingLevel").value, LOG_NONE+1);
+        mea3D.Logging.log("Logging level is now " + de("loggingLevel").value, LOG_NONE+1);
       }
     }*/
     
     if (keyCode==mea3D.KeyCodes.KEYCODE_M) {
       this.renderer.options.enableMouseNavigation = !this.renderer.options.enableMouseNavigation;
-      Logging.info("Mouse navigation is now " + (this.renderer.options.enableMouseNavigation?"on":"off"));
+      mea3D.Logging.info("Mouse navigation is now " + (this.renderer.options.enableMouseNavigation?"on":"off"));
     }
     
     if (keyCode==mea3D.KeyCodes.KEYCODE_B) {
       this.renderer.options.backfaceCulling = !this.renderer.options.backfaceCulling;
-      Logging.info("Backface culling is now " + (this.renderer.options.backfaceCulling?"on":"off"));
+      mea3D.Logging.info("Backface culling is now " + (this.renderer.options.backfaceCulling?"on":"off"));
       if (de("backfaceCulling")) de("backfaceCulling").innerHTML = (this.renderer.options.backfaceCulling?"on":"off");
     }
     
@@ -231,17 +234,17 @@ mea3D.ChromeExperiment.prototype = {
     }
         
     if (keyCode==mea3D.KeyCodes.KEYCODE_Q) {
-      this.renderer.camera.moveUpDown(1);     // move the camera up
+      this.renderer.getCamera().moveUpDown(1);     // move the camera up
     }
     if (keyCode==mea3D.KeyCodes.KEYCODE_E) {
-      this.renderer.camera.moveUpDown(-1);    // move the camera down
+      this.renderer.getCamera().moveUpDown(-1);    // move the camera down
     }
     
     if (keyCode>=mea3D.KeyCodes.KEYCODE_1 && keyCode<=mea3D.KeyCodes.KEYCODE_6) {
       var lightNo = keyCode-mea3D.KeyCodes.KEYCODE_1;
-      if (lightNo<this.renderer.scene.lights.length) {
-        this.renderer.scene.lights[lightNo].enabled = 
-          !this.renderer.scene.lights[lightNo].enabled;
+      var lights = this.renderer.scene.getLights();
+      if (lightNo<lights.length) {
+        lights[lightNo].setEnabled(!lights[lightNo].getEnabled());
       }
     }
     
@@ -255,17 +258,19 @@ mea3D.ChromeExperiment.prototype = {
   },
   
   onWheel:function(mouseDelta) {
-    
-    //Logging.log("Wheel delta:" + mouseDelta);
-    this.renderer.camera.fovHorizontal += mouseDelta/1000.0;
-    if (this.renderer.camera.fovHorizontal>Math.PI*0.9) {
-      this.renderer.camera.fovHorizontal = Math.PI*0.9;
+    var FOV_MAX = Math.PI*0.9;
+    var FOV_MIN = Math.PI*0.001;
+    //mea3D.Logging.log("Wheel delta:" + mouseDelta);
+    this.renderer.getCamera().setFovHorizontal(
+      this.renderer.getCamera().getFovHorizontal() + mouseDelta/1000.0);
+    if (this.renderer.getCamera().getFovHorizontal()>FOV_MAX) {
+      this.renderer.getCamera().setFovHorizontal(FOV_MAX);
     }
-    if (this.renderer.camera.fovHorizontal<Math.PI*0.001) {
-      this.renderer.camera.fovHorizontal = Math.PI*0.001;
+    if (this.renderer.getCamera().getFovHorizontal()<FOV_MIN) {
+      this.renderer.getCamera().setFovHorizontal(FOV_MIN);
     }
     
-    this.renderer.camera.fovVertical = this.renderer.camera.fovHorizontal/this.renderer.options.aspectRatio;
+    this.renderer.getCamera().setFovVertical(this.renderer.getCamera().getFovHorizontal()/this.renderer.options.aspectRatio);
     this.renderer.updateProjectionMatrix();
     this.renderer.updateTransformMatrix();
     this.renderer.update();
@@ -353,7 +358,7 @@ mea3D.ChromeExperiment.prototype = {
     var fpsCalculator = new mea3D.FPSCalculator();
     
     // Reset camera's up vector:
-    this.renderer.camera.upVector = new mea3D.Vector3(0,1,0);
+    this.renderer.getCamera().setUpVector(new mea3D.Vector3(0,1,0));
     // Turn on plane's light:
     this.renderer.scene.lights[0].enabled = true;
     
@@ -383,11 +388,11 @@ mea3D.ChromeExperiment.prototype = {
       var s2 = Math.sin(angle/10.0);      
       var c2 = Math.cos(angle/10.0);
       var cameraRadius = 70 + s2 * 20;
-      me.renderer.camera.eyePos = new mea3D.Vector3(cameraRadius*c2, 50+20*s2, cameraRadius*s2);
-      me.renderer.camera.eyeDir = planePos.scale(0.3).subt(me.renderer.camera.eyePos).norm();
+      me.renderer.getCamera().moveTo(new mea3D.Vector3(cameraRadius*c2, 50+20*s2, cameraRadius*s2));
+      me.renderer.getCamera().setEyeDir(planePos.scale(0.3).subt(me.renderer.getCamera().getEyePos()).norm());
       // Ride on the plane:      
-      //me.renderer.camera.eyePos = planePos.add(new mea3D.Vector3(0,3,0));      
-      //me.renderer.camera.eyeDir = planePos.cross(new mea3D.Vector3(0,1,0)).scale(-1);
+      //me.renderer.getCamera().moveTo( planePos.add(new mea3D.Vector3(0,3,0)));
+      //me.renderer.getCamera().setEyeDir( planePos.cross(new mea3D.Vector3(0,1,0)).scale(-1));
       
       // Toggle lights
       var currentTime = new Date();
@@ -418,21 +423,21 @@ mea3D.ChromeExperiment.prototype = {
   benchmark:function() {
     var startTime = new Date();
     var frameCount = 0;
-    Logging.log("=================================================");
-    Logging.log("Benchmarking...");
+    mea3D.Logging.log("=================================================");
+    mea3D.Logging.log("Benchmarking...");
     for (var i=0; i<500; i++) {
       this.renderer.update();
       frameCount++;
     }    
-    Logging.log("Frames Rendered: " + frameCount);
-    Logging.log("Time elapsed: " + (((new Date())-startTime)/1000.0) + " seconds");
+    mea3D.Logging.log("Frames Rendered: " + frameCount);
+    mea3D.Logging.log("Time elapsed: " + (((new Date())-startTime)/1000.0) + " seconds");
   }
 };
 
 // Export Chrome Experiment object to make closure compiler happy:
 window["mea3D"] = mea3D;
-window["mea3D"]["ChromeExperiment"] = mea3D.ChromeExperiment;
-window["mea3D"]["ChromeExperiment"]["prototype"] = mea3D.ChromeExperiment.prototype;
-window["mea3D"]["ChromeExperiment"]["prototype"]["init"] = mea3D.ChromeExperiment.prototype.init;
-window["mea3D"]["ChromeExperiment"]["prototype"]["run"] =  mea3D.ChromeExperiment.prototype.run;
+mea3D["ChromeExperiment"] = mea3D.ChromeExperiment;
+mea3D.ChromeExperiment.prototype["init"] = mea3D.ChromeExperiment.prototype.init;
+mea3D.ChromeExperiment.prototype["run"] =  mea3D.ChromeExperiment.prototype.run;
 
+})();

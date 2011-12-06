@@ -1,5 +1,6 @@
+// mea3D HTML5 Canvas 3D library
+//
 // Author: Mustafa Acer
-if (typeof mea3D=="undefined") mea3D = {};
 
 /**
 * @constructor
@@ -16,6 +17,6 @@ mea3D.Texture.prototype = {
   loadFromFile:function(filePath) {
     this.image = new Image();
     this.image.src = filePath;
-    //Logging.log("loaded texture " + filePath);
+    //mea3D.Logging.log("loaded texture " + filePath);
   }
 };

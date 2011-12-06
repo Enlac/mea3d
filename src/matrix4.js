@@ -1,5 +1,6 @@
+// mea3D HTML5 Canvas 3D library
+//
 // Author: Mustafa Acer
-if (typeof mea3D=="undefined") mea3D = {};
 
 /**
 * @constructor
@@ -54,7 +55,7 @@ mea3D.Matrix4.prototype = {
     for (var r=0; r<4; r++) {
       for (var c=0; c<4; c++) {
         for (var k=0; k<4; k++) {
-          vals[r][c] += (this.vals[r][k]* matrix3.vals[k][c]);
+          vals[r][c] += (this.vals[r][k]* matrix4.vals[k][c]);
         }
       }
     }
@@ -98,7 +99,7 @@ mea3D.Matrix4.prototype = {
   normalize:function() {
     var w = this.vals[3][3];
     if (w==0) {
-      Logging.log("ERROR: w==0 in Matrix");
+      mea3D.Logging.log("ERROR: w==0 in Matrix");
       return null;
     }
     var matrix = new mea3D.Matrix4();
@@ -110,7 +111,6 @@ mea3D.Matrix4.prototype = {
     return matrix;
   },
   
-  
   transformVector:function(v) {
     var out = new mea3D.Vector3(0,0,0);
     out.x = v.x * this.vals[0][0] + v.y * this.vals[1][0] + v.z * this.vals[2][0] + this.vals[3][0];
@@ -118,5 +118,5 @@ mea3D.Matrix4.prototype = {
     out.z = v.x * this.vals[0][2] + v.y * this.vals[1][2] + v.z * this.vals[2][2] + this.vals[3][2];
     out.w = v.x * this.vals[0][3] + v.y * this.vals[1][3] + v.z * this.vals[2][3] + this.vals[3][3];
     return out;
-	}
+  }
 };
