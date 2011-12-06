@@ -1,3 +1,5 @@
+// mea3D JSON 3D Model File
+// v1.0
 
 var airplaneModelTemplate = {
 name:"airplane",

@@ -1,3 +1,5 @@
+// mea3D JSON 3D Model File
+// v1.0
 
 var skyBoxModelTemplate = {
 name:"skyBox",
@@ -66,4 +68,4 @@ materials:
   skyBoxModelTemplate.meshList[0].faceMaterialIndices = null;
   //console.log("Skybox has " + vertices.length/3 + " vertices and " + faceIndices.length + " faces.");
 })();
-      
+
