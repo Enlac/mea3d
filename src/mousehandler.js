@@ -26,8 +26,13 @@ mea3D.MouseHandler.prototype = {
   // Input handling
   onMouseMove:function(screenX, screenY) {
   
-    //if (!(this.app.options.enableMouseNavigation))
-    //  return true;
+    if (!(this.app && 
+        this.app.renderer && 
+        this.app.renderer.options && 
+        this.app.renderer.options.enableMouseNavigation)
+      ) {
+      return true;
+    }
     
     if (screenX==this.prevMouseX && screenY==this.prevMouseY) {
       return true;
@@ -51,8 +56,8 @@ mea3D.MouseHandler.prototype = {
     this.app.renderer.update();
 
     // TEST: Mouse hit test:
-    if (this.getMouseSelection) {
-      this.getMouseSelection(screenX, screenY);
+    if (this.app.renderer.getMouseSelection) {
+      this.app.renderer.getMouseSelection(screenX, screenY);
     }
     return false;
   }
