@@ -60,7 +60,7 @@ mea3D.ChromeExperiment.prototype = {
     );
     scene.addModel(airplane);
     
-    // Gears    
+    // Gears
     var gearModel = new mea3D.Model3D("gearModel", null);
     var gearMaterials = [
       new mea3D.Material(0, null, new mea3D.ColorRGBA(1,1,0.3), new mea3D.ColorRGBA(0.3, 0.1, 0.1)),

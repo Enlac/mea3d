@@ -96,6 +96,14 @@ mea3D.Camera.prototype = {
     this.upVector = new mea3D.Vector3(vec.x, vec.y, vec.z);
   },
   
+  getViewTransform:function() {
+    return this.viewTransform;
+  },
+  
+  getLeftVector:function() {
+    return this.leftVector;
+  },
+  
   /*
   moveByMouse:function(x,y) {
   
