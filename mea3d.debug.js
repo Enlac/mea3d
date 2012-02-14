@@ -2467,143 +2467,32 @@ mea3D.RenderStats = function() {
   this.framesRendered = 0;
 }
 
-/** @constructor
+/** @constructor 
 */
-mea3D.Renderer = function(container, options) {
-
-  if (!container) {
-    return false;
-  }
-  this.container = container;
+mea3D.Canvas2DRenderer = function(canvas, viewport, options, renderStats) {
+  this.canvas = canvas;
+  this.viewport = viewport;
+  this.options = options;
   
-  var defaultOptions = { 
-    width:          800,                        // viewport height
-    height:         600,                        // viewport width
-    backfaceCulling:true,                       // backface culling
-    clearColor:     new mea3D.ColorRGBA(0,0,0),       // color with which we clean the screen
-    renderMode:     mea3D.RenderModes.RENDER_FACES,  // render mode
-    enableMouseNavigation:true,                // should enable mouse navigation?
-    cameraPosition:  new mea3D.Vector3(0,0,0),       // initial camera position
-    cameraDirection: new mea3D.Vector3(0,0,1),       // initial camera direction
-    cameraUpVector:  new mea3D.Vector3(0,1,0),       // initial camera up vector
-    
-    fovHorizontal:   Math.PI/3,                 // horizontal field of view
-    aspectRatio:     this.width/this.height,    // viewport aspect ratio
-    fovVertical:     Math.PI/(this.aspectRatio) // vertical field of view
-  };
-  // Get the options
-  this.options = mea3D.getOptions(options, defaultOptions);
-  this.options.aspectRatio = (this.options.width/this.options.height);  
-  // Calculate vertical fov using aspect ratio if it's not given
-  if (!this.options.fovVertical) {
-    this.options.fovVertical = this.options.fovHorizontal/this.options.aspectRatio;
-  }
-  // Create the viewport
-  this.viewport = new mea3D.ViewPort(0, 0, // left and top coords
-    this.options.width,
-    this.options.height, 
-    0.1, 100000 // near and far planes
-  );  
-  // Create the camera
-  this.camera = new mea3D.Camera(
-    this.options.cameraPosition.copy(),
-    this.options.cameraDirection.norm(),    
-    this.options.cameraUpVector,
-    this.options.fovHorizontal,       // horizontal field of view
-    this.options.fovVertical          // vertical field of view
-  );
-  // Set container width and heights  
-  this.container.style.width  = this.viewport.width  + "px";
-  this.container.style.height = this.viewport.height + "px";  
-  
-  this.initialized = false;
-  this.init();    
-  this.reset();
+  this.context = null;
+  this.sceneProjection = null;
+  this.renderStats = renderStats;
   this.currentStrokeColor = new mea3D.ColorRGBA();
   this.currentFillColor = new mea3D.ColorRGBA();
+}
+mea3D.Canvas2DRenderer.prototype = {
 
-  this.renderStats = new mea3D.RenderStats();
-};
-
-mea3D.Renderer.prototype = {
-  
   init:function() {
-  
-    this.canvas = mea3D.Utils.getCanvasElement(this.container);
-    
-    //this.canvas = this.container.getElementsByTagName("canvas")[0];
-    if (!this.canvas) {
-      this.canvas = mea3D.Utils.createCanvas(this.container, this.viewport.width, this.viewport.height);
-      /*
-      // Use excanvas for IE if it is available:
-      if (typeof G_vmlCanvasManager!="undefined") {
-        G_vmlCanvasManager.initElement(this.canvas);
-        //this.canvas.setAttribute("width", this.viewport.width);
-        //this.canvas.setAttribute("height", this.viewport.height);
-        this.canvas.width = this.viewport.width;
-        this.canvas.height = this.viewport.height;
-      }*/
-      //mea3D.Logging.log("Created: Width, Height: " + this.canvas.width + "," + this.canvas.height);
-    }
-    
     // TODO: IE 9 will fail here if DOCTYPE is not standards. Check it here.
     if (!(this.canvas.getContext)) {
       return false;
     }
     this.context = this.canvas.getContext("2d");
-    //this.context = new mea3D.Renderer2D(this.canvas);  // Uses our custom renderer (not working)
-    this.context.lineWidth = 2;
-    this.initialized = true;
-    return true;
-  },
-  
-  isInitialized:function() {
-    return this.initialized;
-  },
-  
-  reset:function() {    
-    if (!(this.isInitialized())) {
-      return false;
+    if (!this.context) {
+      throw "Error creating 2D context";
     }
-    // Transformations:
-    this.worldTransform = new mea3D.Matrix4(); // identity
-    this.updateProjectionMatrix();
-    this.updateTransformMatrix(); 
-
-    // List of projected polygons
-    this.renderBuffer = []; // This is calcuated every frame. Used to sort polys.
-  },
-  
-  updateProjectionMatrix:function() {
-    this.projectionTransform = mea3D.Math.getProjectionMatrix4(
-      this.viewport.zNear, 
-      this.viewport.zFar, 
-      this.camera.getFovHorizontal(), 
-      this.camera.getFovVertical()
-    );
-  },
-  
-  updateTransformMatrix:function() {
-  
-    // Update camera matrix
-    this.camera.update();
-    
-    // Update Direct3D-ish transform matrices
-    this.matrixWorldView = mea3D.Math.mult4(
-      this.worldTransform,
-      this.camera.getViewTransform()
-    );
-    this.matrixTransform = mea3D.Math.mult4(
-        this.matrixWorldView,
-        this.projectionTransform        
-    );
-
-    // Update perspective projection matrix
-    this.screenProjectionMatrix = mea3D.Math.getScreenProjectionMatrix4(
-      0,0, 
-      this.viewport.width, this.viewport.height, 
-      this.viewport.zNear, this.viewport.zFar
-    );
+    this.context.lineWidth = 2;
+    this.sceneProjection = new mea3D.SceneProjection(this.options, this.viewport, this.renderStats);
   },
   
   setStrokeColor:function(color) {
@@ -2612,6 +2501,7 @@ mea3D.Renderer.prototype = {
       this.currentStrokeColor = color;
     }
   },
+  
   setFillColor:function(color) {
     if (!this.currentFillColor.equals(color)) {
       this.context.fillStyle = color.toString();
@@ -2627,7 +2517,7 @@ mea3D.Renderer.prototype = {
   },
   
   drawLine2D:function(x1,y1, x2,y2, color, lineWidth) {
-    
+      
     if (color) { 
       this.setStrokeColor(color);
     }
@@ -2689,7 +2579,7 @@ mea3D.Renderer.prototype = {
   drawPolygon2D:function(v1,v2,v3,v4, color, img) {
     if (color) { 
       this.setFillColor(color);
-    }
+    }    
     
     // Ignore img parameter
     
@@ -2727,10 +2617,64 @@ mea3D.Renderer.prototype = {
     //this.context.stroke();
     this.context.closePath();
   },
-
+  
+  renderText2D:function(text, position, fontSize, color) {
+    if (color) {
+      this.setFillColor(color);
+    }
+    if (fontSize) {
+      this.context.font = fontSize + "pt Arial";
+    }
+    this.context.fillText(text, position.x, position.y);
+  },
+  
+  // Renders text in 3d
+  renderText:function(text, position, fontSize, color) {
+    if (color) {
+      this.setFillColor(color);
+    }
+    if (fontSize) {
+      this.context.font = fontSize + "pt Arial";
+    }
+    var projected = this.project(position);
+    this.context.fillText(text, projected.x, projected.y);
+  },
+  
+    // Draw a 2D circle at the given point and radius
+  renderCircle2D:function(position, radius, color) {
+    //mea3D.Logging.log("Rendering surface at : " + position + ", radius: " + radius);
+    if (color) {
+      this.setFillColor(color);
+    }
+    this.context.beginPath();
+    this.context.arc(position.x, position.y, radius, 0, Math.PI*2, true);
+    this.context.closePath();
+    //this.context.fill();
+    this.context.stroke();
+  },
+  
+  drawScene:function(scene) {
+    this.sceneProjection.drawScene(scene);
+  },
+  
+  begin:function() {
+  },
+  end:function() {
+  },
+  
+  clear:function() {
+    this.drawRect(
+      0,0,
+      this.viewport.width, 
+      this.viewport.height, 
+      this.options.clearColor
+    );
+    this.sceneProjection.clear();
+  },
+  
   renderPolygon:function(v1, v2, v3, v4, color, texture) {
     
-    switch(this.options.renderMode) {
+    switch (this.options.renderMode) {
     
       case mea3D.RenderModes.RENDER_FACES:
         // Draw faces
@@ -2766,41 +2710,63 @@ mea3D.Renderer.prototype = {
     }
   },
 
-  renderText2D:function(text, position, fontSize, color) {
-    if (color) {
-      this.setFillColor(color);
-    }
-    if (fontSize) {
-      this.context.font = fontSize + "pt Arial";
-    }
-    this.context.fillText(text, position.x, position.y);
+  render:function() {
+    
+    // Render the buffer (draw farthest first)
+    var renderBuffer = this.sceneProjection.renderBuffer;
+    var faceCount = renderBuffer.length;
+    for (var i=faceCount-1; i>=0; i--) {
+      var polygon = renderBuffer[i];
+      
+      switch (polygon.type) {
+      
+        case mea3D.RenderableType.POLYGON:
+           // 2D mea3D.Polygon
+          this.renderPolygon(
+            polygon.projectedVertices.v1,
+            polygon.projectedVertices.v2,
+            polygon.projectedVertices.v3,
+            polygon.projectedVertices.v4,
+            polygon.computedColor,
+            (polygon.material && polygon.material.texture) ? polygon.material.texture:null
+          );
+          break;
+        
+        case mea3D.RenderableType.SURFACE:
+          // 2D Surface
+          this.renderCircle2D(polygon.position, polygon.radius, polygon.color);
+          break;
+        
+        case mea3D.RenderableType.TEXT:
+          // Text mesh
+          this.renderText2D(polygon.text, polygon.position, polygon.fontSize, polygon.color);
+          break;
+      }
+    }  
+    this.renderStats.polygonsRendered = faceCount;
+    this.renderStats.framesRendered++;
   },
+ 
+  setTransformMatrix:function(matrixTransform) {
+    this.sceneProjection.setTransformMatrix(matrixTransform);
+  }
+}
+
+/** @constructor 
+*/
+mea3D.SceneProjection = function(options, viewport, renderStats) {
+  this.renderBuffer = [];
+  this.renderStats = renderStats;
+  this.viewport = viewport;
+  this.options = options;
+};
+
+mea3D.SceneProjection.prototype = {
   
-  // Renders text in 3d
-  renderText:function(text, position, fontSize, color) {
-    if (color) {
-      this.setFillColor(color);
-    }
-    if (fontSize) {
-      this.context.font = fontSize + "pt Arial";
-    }
-    var projected = this.project(position);
-    this.context.fillText(text, projected.x, projected.y);
+  clear:function() {
+    this.renderBuffer = [];
+    this.renderStats.verticesRendered = 0;
   },
-  
-  // Draw a 2D circle at the given point and radius
-  renderCircle2D:function(position, radius, color) {
-    //mea3D.Logging.log("Rendering surface at : " + position + ", radius: " + radius);
-    if (color) {
-      this.setFillColor(color);
-    }
-    this.context.beginPath();
-    this.context.arc(position.x, position.y, radius, 0, Math.PI*2, true);
-    this.context.closePath();
-    //this.context.fill();
-    this.context.stroke();
-  },  
-  
   
   drawSurfaceMesh:function(mesh, lights, ambientColor) {
     // TODO: Ugly, refactor.
@@ -2862,7 +2828,7 @@ mea3D.Renderer.prototype = {
     var projectedRadius = new mea3D.Vector2(projected.x-projectedRadius.x, projected.y-projectedRadius.y);      
     var radius = projectedRadius.mag();
     
-    this.renderBuffer.push({ 
+    this.renderBuffer.push({
       position: projected,
       text:     mesh.text,
       fontSize: radius,
@@ -2876,7 +2842,7 @@ mea3D.Renderer.prototype = {
     switch (mesh.type) {
       case mea3D.MeshType.MESH_POLYGON:
         this.drawPolygonMesh(mesh, lights, ambientColor);
-        break;      
+        break;
       
       case mea3D.MeshType.MESH_SURFACE:
         this.drawSurfaceMesh(mesh, lights, ambientColor);
@@ -2884,8 +2850,13 @@ mea3D.Renderer.prototype = {
             
       case mea3D.MeshType.MESH_TEXT:
         this.drawTextMesh(mesh, lights, ambientColor);
-        break
+        break;
     }
+  },
+  
+  
+  setTransformMatrix:function(matrixTransform) {
+    this.matrixTransform = matrixTransform;
   },
   
   drawPolygonMesh:function(mesh, lights, ambientColor) {
@@ -2899,9 +2870,7 @@ mea3D.Renderer.prototype = {
     );
     
     this.renderStats.verticesRendered += mesh.vertices.length;
-    
     this.drawPolygonList(mesh.polygons, lights, ambientColor);
-    //mea3D.Logging.info("Transformed " + mesh.worldTransformedVertices.length + " points");
   },
   
   drawPolygonList:function(polygonList, lights, ambientColor) {
@@ -2960,55 +2929,37 @@ mea3D.Renderer.prototype = {
       this.drawMesh(model.meshList[i], lights, ambientColor);
     }
   },
-
-  drawCrossHair:function(w,h) {
-    w = w || 10;
-    h = h || 10;
-    var halfWidth = this.viewport.width/2;
-    var halfHeight = this.viewport.height/2;
-    this.drawLine2D(halfWidth-w, halfHeight, halfWidth+w, halfHeight,  new mea3D.ColorRGBA(1,1,0));
-    this.drawLine2D(halfWidth, halfHeight-h, halfWidth, halfHeight+10, new mea3D.ColorRGBA(1,1,0));
-  },
   
-  sortFunction:function(a,b) {
+  sortFunction:function(a, b) {
     // Sort ascending on vertex.z
     return a.projectedCenter.z-b.projectedCenter.z;
   },
   
-  render:function() {
-    
-    // Render the buffer (draw farthest first)
-    var faceCount = this.renderBuffer.length;
-    for (var i=faceCount-1; i>=0; i--) {
-      var polygon = this.renderBuffer[i];
-      
-      switch(polygon.type) {
-                
-        case mea3D.RenderableType.POLYGON:
-           // 2D mea3D.Polygon
-          this.renderPolygon(
-            polygon.projectedVertices.v1,
-            polygon.projectedVertices.v2,
-            polygon.projectedVertices.v3,
-            polygon.projectedVertices.v4,
-            polygon.computedColor,
-            (polygon.material && polygon.material.texture) ? polygon.material.texture:null
-          );
-          break;
-        
-        case mea3D.RenderableType.SURFACE:
-          // 2D Surface
-          this.renderCircle2D(polygon.position, polygon.radius, polygon.color);
-          break;
-        
-        case mea3D.RenderableType.TEXT:
-          // Text mesh
-          this.renderText2D(polygon.text, polygon.position, polygon.fontSize, polygon.color);
-          break;
-      }
+  drawScene:function(scene) {
+    // Draw 3D models
+    for (var i=0; i<scene.models.length; i++) {
+      this.drawModel(scene.models[i], scene.lights, scene.ambientColor);
     }
-    this.renderStats.polygonsRendered = faceCount;
-    this.renderStats.framesRendered++;
+    
+    //this.drawLights(scene.lights);
+    //this.drawCrossHair();
+    //this.renderAxes();
+    /*if (mea3D.RenderUtils) {
+      if (scene.raceTrack) {
+        mea3D.RenderUtils.renderSplineMesh(this, scene.raceTrack);
+      }
+      if (scene.HeightMap) {
+        mea3D.RenderUtils.renderHeightMap(this, scene.HeightMap);
+      }
+    }*/
+    
+    // Sort buffer by z coordinates (painters algorithm)
+    this.renderBuffer.sort(this.sortFunction);
+    
+    // We always draw the skyBox first so that it's always in the background.
+    if (scene.skyBox) {
+      this.drawModel(scene.skyBox, scene.lights, scene.ambientColor);
+    }
   },
   
   project:function(point) {
@@ -3021,8 +2972,195 @@ mea3D.Renderer.prototype = {
     projected.y = -((projected.y * this.viewport.height)/ 2.0) + this.viewport.height/2;
     
     return projected;
+  }
+}
+
+
+/**
+* @constructor
+*/
+mea3D.Renderer = function(container, options) {
+
+  if (!container) {
+    return false;
+  }
+  this.container = container;
+  
+  var defaultOptions = { 
+    width:          800,                              // viewport height
+    height:         600,                              // viewport width
+    backfaceCulling:true,                             // backface culling
+    clearColor:     new mea3D.ColorRGBA(0,0,0),       // color with which we clean the screen
+    renderMode:     mea3D.RenderModes.RENDER_FACES,   // render mode
+    enableMouseNavigation:true,                       // should enable mouse navigation?
+    cameraPosition:  new mea3D.Vector3(0,0,0),        // initial camera position
+    cameraDirection: new mea3D.Vector3(0,0,1),        // initial camera direction
+    cameraUpVector:  new mea3D.Vector3(0,1,0),        // initial camera up vector
+    
+    fovHorizontal:   Math.PI/3,                       // horizontal field of view
+    aspectRatio:     this.width/this.height,          // viewport aspect ratio
+    fovVertical:     Math.PI/(this.aspectRatio)       // vertical field of view
+  };
+  // Get the options
+  this.options = mea3D.getOptions(options, defaultOptions);
+  this.options.aspectRatio = (this.options.width/this.options.height);  
+  // Calculate vertical fov using aspect ratio if it's not given
+  if (!this.options.fovVertical) {
+    this.options.fovVertical = this.options.fovHorizontal/this.options.aspectRatio;
+  }
+  // Create the viewport
+  this.viewport = new mea3D.ViewPort(
+    0, 0, // left and top coords
+    this.options.width,
+    this.options.height, 
+    0.1, 100000 // near and far planes
+  );  
+  // Create the camera
+  this.camera = new mea3D.Camera(
+    this.options.cameraPosition.copy(),
+    this.options.cameraDirection.norm(),    
+    this.options.cameraUpVector,
+    this.options.fovHorizontal,       // horizontal field of view
+    this.options.fovVertical          // vertical field of view
+  );
+  // Set container width and heights  
+  this.container.style.width  = this.viewport.width  + "px";
+  this.container.style.height = this.viewport.height + "px";  
+  
+  this.renderStats = new mea3D.RenderStats();
+  this.initialized = false;
+  this.init();    
+  this.reset();
+};
+
+mea3D.Renderer.prototype = {
+  
+  init:function() {
+  
+    this.canvas = mea3D.Utils.getCanvasElement(this.container);
+    
+    if (!this.canvas) {
+      this.canvas = mea3D.Utils.createCanvas(this.container, this.viewport.width, this.viewport.height);
+      //mea3D.Logging.log("Created: Width, Height: " + this.canvas.width + "," + this.canvas.height);
+    }
+    
+    // TODO: IE 9 will fail here if DOCTYPE is not standards. Check it here.
+    /*if (!(this.canvas.getContext)) {
+      return false;
+    }*/
+    
+    this.context = new mea3D.Canvas2DRenderer(this.canvas, this.viewport, this.options, this.renderStats);
+    this.context.init();
+    this.initialized = true;
+    return true;
+  },
+  
+  isInitialized:function() {
+    return this.initialized;
+  },
+  
+  reset:function() {    
+    if (!(this.isInitialized())) {
+      return false;
+    }
+    // Transformations:
+    this.worldTransform = new mea3D.Matrix4(); // identity
+    this.updateProjectionMatrix();
+    this.updateTransformMatrix(); 
+
+    // List of projected polygons
+    //this.renderBuffer = []; // This is calcuated every frame. Used to sort polys.
+  },
+  
+  updateProjectionMatrix:function() {
+    this.projectionTransform = mea3D.Math.getProjectionMatrix4(
+      this.viewport.zNear, 
+      this.viewport.zFar, 
+      this.camera.getFovHorizontal(), 
+      this.camera.getFovVertical()
+    );
+  },
+  
+  updateTransformMatrix:function() {
+  
+    // Update camera matrix
+    this.camera.update();
+    
+    // Update Direct3D-ish transform matrices
+    this.matrixWorldView = mea3D.Math.mult4(
+      this.worldTransform,
+      this.camera.getViewTransform()
+    );
+    this.matrixTransform = mea3D.Math.mult4(
+        this.matrixWorldView,
+        this.projectionTransform        
+    );
+
+    // Update perspective projection matrix
+    this.screenProjectionMatrix = mea3D.Math.getScreenProjectionMatrix4(
+      0,0, 
+      this.viewport.width, this.viewport.height, 
+      this.viewport.zNear, this.viewport.zFar
+    );
+
+    this.context.setTransformMatrix(this.matrixTransform);
+  },
+  
+  setStrokeColor:function(color) {
+    this.context.setStrokeColor(color);
+  },
+  setFillColor:function(color) {
+    this.context.setFillColor(color);
+  },
+  
+  drawRect:function(x, y, w, h, color) {
+    this.context.drawRect(x, y, w, h, color);
+  },
+  
+  drawLine2D:function(x1,y1, x2,y2, color, lineWidth) {
+    this.context.drawLine2D(x1,y1, x2,y2, color, lineWidth);   
+  },
+  
+  drawLine:function(v1, v2, color, lineWidth) {
+    this.context.drawLine(v1, v2, color, lineWidth);
+  },  
+  
+  drawPoint2D:function(x, y, color) {
+    this.context.drawPoint2D(x, y, color);
+  },
+  
+  drawPoint:function(point, color) {
+    this.context.drawPoint(point, color);
+  },  
+  
+  drawPolygon2D:function(v1,v2,v3,v4, color, img) {
+    this.context.drawPolygon2D(v1,v2,v3,v4, color, img);
   },
 
+  
+  renderText2D:function(text, position, fontSize, color) {
+    this.context.renderText2D(text, position, fontSize, color);
+  },
+  
+  // Renders text in 3d
+  renderText:function(text, position, fontSize, color) {
+    this.context.renderText(text, position, fontSize, color);
+  },
+  
+  // Draw a 2D circle at the given point and radius
+  renderCircle2D:function(position, radius, color) {
+    this.context.renderCircle2D(position, radius, color);
+  },
+
+  drawCrossHair:function(w, h) {
+    w = w || 10;
+    h = h || 10;
+    var halfWidth = this.viewport.width/2;
+    var halfHeight = this.viewport.height/2;
+    this.drawLine2D(halfWidth-w, halfHeight, halfWidth+w, halfHeight,  new mea3D.ColorRGBA(1,1,0));
+    this.drawLine2D(halfWidth, halfHeight-h, halfWidth, halfHeight+10, new mea3D.ColorRGBA(1,1,0));
+  },
+  
   renderAxes:function() {
     // Draw axes
     this.drawLine(new mea3D.Vector3(0,0,0), new mea3D.Vector3(4,0,0), new mea3D.ColorRGBA(0,1,1));     // x axis
@@ -3031,18 +3169,10 @@ mea3D.Renderer.prototype = {
     this.renderText("+X", new mea3D.Vector3(5,0,0), new mea3D.ColorRGBA(1,1,1));
     this.renderText("+Z", new mea3D.Vector3(0,0,5));
     this.renderText("+Y", new mea3D.Vector3(0,5,0));
-    
   },
   
   clear:function() {
-    this.drawRect(
-      0,0,
-      this.viewport.width, 
-      this.viewport.height, 
-      this.options.clearColor
-    );
-    this.renderBuffer = [];
-    this.renderStats.verticesRendered = 0;
+    this.context.clear();
   },
   
   drawLights:function(lights) {
@@ -3056,7 +3186,7 @@ mea3D.Renderer.prototype = {
   
   /*updateLighting:function(scene) {
   
-    if (scene && scene.models) {
+    if (scene.models) {
       // Re-compute lights for all vertices:
       for (var i=0; i<scene.models.length; ++i) {
         var model = scene.models[i];
@@ -3072,23 +3202,19 @@ mea3D.Renderer.prototype = {
 
     this.clear();
     
-    // Draw 3D models
-    for (var i=0; i<scene.models.length; i++) {
-      this.drawModel(scene.models[i], scene.lights, scene.ambientColor);
-    }
+    this.context.begin();
     
-    // Sort buffer by z coordinates (painters algorithm)
-    this.renderBuffer.sort(this.sortFunction);
+    this.context.drawScene(scene);
     
-    // We always draw the skyBox first so that it's always in the background.
-    if (scene.skyBox) {
-      this.drawModel(scene.skyBox, scene.lights, scene.ambientColor);
-    }
+    this.context.render();
+    /*
+    if (this.context.draw) {
+      this.context.draw();  // For custom 2D renderer
+    }*/
     
-    this.render(scene);
-    
+    this.context.end();
   },
-    
+  
   screenToViewportCoords:function(screenX, screenY) {
     // Calculate mouse positions
     var halfWidth = this.viewport.width/2;
@@ -3168,7 +3294,7 @@ mea3D.Renderer.prototype = {
   },
 
   // TODO: Refactor
-  hitTestBoundingShapes:function(scene, x, y) {
+  hitTestBoundingShapes:function(scene, x,y) {
       
     // Direction of the ray from eye position to given pixel's 3D position
     var pixelDirectionVector = mea3D.Math.getPixelDirectionVector(
@@ -3192,6 +3318,9 @@ mea3D.Renderer.prototype = {
   
   getCamera:function() {
     return this.camera;
+  },
+  getCanvas:function() {
+    return this.canvas;
   }
 };
 // mea3D HTML5 Canvas 3D library
