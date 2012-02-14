@@ -11,6 +11,7 @@ function de(s) {
 */
 mea3D.ChromeExperiment = function() {
   this.renderer = null;
+  this.scene = null;
 }
 
 mea3D.ChromeExperiment.prototype = {
@@ -42,17 +43,16 @@ mea3D.ChromeExperiment.prototype = {
     this.sceneOffsetY = mea3D.Utils.getPageOffsetTop(this.renderer.canvas);
       
     this.buildScene();
-    this.renderer.update();
-    this.updateInformation();
     this.bindInputEvents();
-    
+    this.renderer.update(this.scene);
+    this.updateInformation();
     //this.animate();
   },
   
   buildScene:function() {
   
     // Create the scene
-    var scene = new mea3D.Scene();
+    var scene = this.scene = new mea3D.Scene();
     
     // Airplane model
     var airplane = new mea3D.Model3D("airplane", airplaneModelTemplate,
@@ -150,7 +150,6 @@ mea3D.ChromeExperiment.prototype = {
     for (var i=1; i<scene.getLights().length; i++) {
       scene.getLights()[i].enabled = false;
     }
-    this.renderer.scene = scene;
   },
   
   onKey:function(keyCode) {
@@ -242,7 +241,7 @@ mea3D.ChromeExperiment.prototype = {
     
     if (keyCode>=mea3D.KeyCodes.KEYCODE_1 && keyCode<=mea3D.KeyCodes.KEYCODE_6) {
       var lightNo = keyCode-mea3D.KeyCodes.KEYCODE_1;
-      var lights = this.renderer.scene.getLights();
+      var lights = this.scene.getLights();
       if (lightNo<lights.length) {
         lights[lightNo].setEnabled(!lights[lightNo].getEnabled());
       }
@@ -251,7 +250,7 @@ mea3D.ChromeExperiment.prototype = {
     var me = this;
     setTimeout(function() {
       me.renderer.updateTransformMatrix();
-      me.renderer.update();
+      me.renderer.update(me.scene);
       me.updateInformation();
     }, 1);
     return false;
@@ -273,16 +272,16 @@ mea3D.ChromeExperiment.prototype = {
     this.renderer.getCamera().setFovVertical(this.renderer.getCamera().getFovHorizontal()/this.renderer.options.aspectRatio);
     this.renderer.updateProjectionMatrix();
     this.renderer.updateTransformMatrix();
-    this.renderer.update();
+    this.renderer.update(this.scene);
     
     return false;
   },
   
   updateInformation:function() {
     
-    if (de("numFaces")) de("numFaces").innerHTML = this.renderer.numRenderedPolygons;
-    if (de("numVertices")) de("numVertices").innerHTML = this.renderer.numRenderedVertices;    
-    if (de("numFramesRendered")) de("numFramesRendered").innerHTML = this.renderer.numFramesRendered;
+    if (de("numFaces")) de("numFaces").innerHTML = this.renderer.renderStats.polygonsRendered;
+    if (de("numVertices")) de("numVertices").innerHTML = this.renderer.renderStats.verticesRendered;    
+    if (de("numFramesRendered")) de("numFramesRendered").innerHTML = this.renderer.renderStats.framesRendered;
   },
 
   bindInputEvents:function() {
@@ -350,8 +349,8 @@ mea3D.ChromeExperiment.prototype = {
     var currentLight = 0;
     var lastLightToggleTime = startTime;
     var gearRatio = (10.5/6.0);
-    var airplaneModel = this.renderer.scene.getModelByName("airplane");
-    var gearModel = this.renderer.scene.getModelByName("gearModel");
+    var airplaneModel = this.scene.getModelByName("airplane");
+    var gearModel = this.scene.getModelByName("gearModel");
     var gearMesh1 = gearModel.getMeshByName("gearMesh1");
     var gearMesh2 = gearModel.getMeshByName("gearMesh2");
     var gearMesh3 = gearModel.getMeshByName("gearMesh3");
@@ -360,7 +359,7 @@ mea3D.ChromeExperiment.prototype = {
     // Reset camera's up vector:
     this.renderer.getCamera().setUpVector(new mea3D.Vector3(0,1,0));
     // Turn on plane's light:
-    this.renderer.scene.lights[0].enabled = true;
+    this.scene.lights[0].enabled = true;
     
     function updateScene() {
       angle += (Math.PI/25);
@@ -370,8 +369,8 @@ mea3D.ChromeExperiment.prototype = {
       var planeDir = new mea3D.Vector3(0, angle-Math.PI/2, Math.PI/10);
       
       // Update the light which follows the plane
-      me.renderer.scene.lights[0].position = planePos;
-      me.renderer.scene.lights[0].position.y -= 3;
+      me.scene.lights[0].position = planePos;
+      me.scene.lights[0].position.y -= 3;
       // Update the place
       airplaneModel.transformation.position = planePos;
       airplaneModel.transformation.rotation = planeDir;
@@ -397,9 +396,9 @@ mea3D.ChromeExperiment.prototype = {
       // Toggle lights
       var currentTime = new Date();
       if (currentTime-lastLightToggleTime>300) {
-        currentLight = Math.floor(Math.random()* (me.renderer.scene.lights.length-1))+1;
-        me.renderer.scene.lights[currentLight].enabled = !me.renderer.scene.lights[currentLight].enabled ;
-        //currentLight = (currentLight + 1) % me.renderer.scene.lights.length;
+        currentLight = Math.floor(Math.random()* (me.scene.lights.length-1))+1;
+        me.scene.lights[currentLight].enabled = !me.scene.lights[currentLight].enabled ;
+        //currentLight = (currentLight + 1) % me.scene.lights.length;
         lastLightToggleTime = currentTime;
       }
       
@@ -409,7 +408,7 @@ mea3D.ChromeExperiment.prototype = {
       }
       
       me.renderer.updateTransformMatrix();
-      me.renderer.update();
+      me.renderer.update(me.scene);
       numFrames++;
       me.updateInformation();
       
@@ -426,7 +425,7 @@ mea3D.ChromeExperiment.prototype = {
     mea3D.Logging.log("=================================================");
     mea3D.Logging.log("Benchmarking...");
     for (var i=0; i<500; i++) {
-      this.renderer.update();
+      this.renderer.update(this.scene);
       frameCount++;
     }    
     mea3D.Logging.log("Frames Rendered: " + frameCount);

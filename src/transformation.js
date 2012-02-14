@@ -4,6 +4,9 @@
 
 /**
 * @constructor
+* @param {mea3D.Vector3=} position
+* @param {mea3D.Vector3=} scaling
+* @param {mea3D.Vector3=} rotation
 */
 mea3D.Transformation = function(position, scaling, rotation) {
   this.position = position ? position : new mea3D.Vector3(0,0,0);

@@ -10,8 +10,8 @@ mea3D.Renderer2D = function(canvasElement) {
     return;
   }
   this.canvas = canvasElement;
-  this.width = parseInt(this.canvas.width);
-  this.height = parseInt(this.canvas.height);
+  this.width = parseInt(this.canvas.width, 10);
+  this.height = parseInt(this.canvas.height, 10);
   this.pixelSize = 1;
   this.context = this.canvas.getContext("2d");
   this.imageData = this.context.createImageData(

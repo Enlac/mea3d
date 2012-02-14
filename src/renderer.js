@@ -9,12 +9,21 @@ mea3D.RenderModes = {
   RENDER_FACES:3
 };
 
-/**
-* @constructor
+/** @constructor 
+*/
+mea3D.RenderStats = function() {
+  this.verticesRendered = 0;
+  this.polygonsRendered = 0;
+  this.framesRendered = 0;
+}
+
+/** @constructor
 */
 mea3D.Renderer = function(container, options) {
 
-  if (!container) return false;
+  if (!container) {
+    return false;
+  }
   this.container = container;
   
   var defaultOptions = { 
@@ -57,13 +66,13 @@ mea3D.Renderer = function(container, options) {
   this.container.style.width  = this.viewport.width  + "px";
   this.container.style.height = this.viewport.height + "px";  
   
-  this.numFramesRendered = 0;
   this.initialized = false;
   this.init();    
   this.reset();
   this.currentStrokeColor = new mea3D.ColorRGBA();
   this.currentFillColor = new mea3D.ColorRGBA();
 
+  this.renderStats = new mea3D.RenderStats();
 };
 
 mea3D.Renderer.prototype = {
@@ -168,7 +177,7 @@ mea3D.Renderer.prototype = {
   },
   
   drawLine2D:function(x1,y1, x2,y2, color, lineWidth) {
-      
+    
     if (color) { 
       this.setStrokeColor(color);
     }
@@ -212,7 +221,7 @@ mea3D.Renderer.prototype = {
     /*this.drawLine2D(z1.x, z1.y, z2.x, z2.y, "#0F0");
     this.drawRect(z1.x-3, z1.y-3, 6,6, "#ff0");
     this.drawRect(z2.x-3, z2.y-3, 6,6, "#0ff");*/
-  },  
+  },
   
   drawPoint2D:function(x, y, color) {
     this.drawRect(x-2, y-2, 4, 4, color);
@@ -220,15 +229,17 @@ mea3D.Renderer.prototype = {
   
   drawPoint:function(point, color) {  
     var p = this.project(point);
-    if (!p) return;
+    if (!p) {
+      return;
+    }
     // TODO: expand this here:
     this.drawPoint2D(p.x, p.y, color);
-  },  
+  },
   
   drawPolygon2D:function(v1,v2,v3,v4, color, img) {
     if (color) { 
       this.setFillColor(color);
-    }    
+    }
     
     // Ignore img parameter
     
@@ -341,7 +352,7 @@ mea3D.Renderer.prototype = {
   },  
   
   
-  drawSurfaceMesh:function(mesh) {
+  drawSurfaceMesh:function(mesh, lights, ambientColor) {
     // TODO: Ugly, refactor.
     // Here we are drawing a circle for a sphere.
     // Draw a 3D Sphere
@@ -361,24 +372,23 @@ mea3D.Renderer.prototype = {
     projectedRadius.x =  ((projectedRadius.x * this.viewport.width) / 2.0) + this.viewport.width/2;
     projectedRadius.y = -((projectedRadius.y * this.viewport.height)/ 2.0) + this.viewport.height/2;    
     
-    var projectedRadius = new mea3D.Vector2(projected.x-projectedRadius.x, projected.y-projectedRadius.y);      
-    var radius = projectedRadius.mag();
+    var projectedRadius2 = new mea3D.Vector2(projected.x-projectedRadius.x, projected.y-projectedRadius.y);      
+    var radius = projectedRadius2.mag();
     
     // Draw a circle with the projected position and radius.
     // TODO: Make this work with wireframe mode too.
-    this.renderBuffer.push(
-      { position:projected,
-        // TODO: FIX THIS IMMEDIATELY:
-        //radius:radius*mesh.parent.transformation.scaling.x * mesh.transformation.scaling.x, // <<== Not only x should be here
-        radius: radius,
-        color:new mea3D.ColorRGBA(1,1,0),
-        type: mea3D.RenderableType.SURFACE,
-        projectedCenter:projected
-      }
-    );
+    this.renderBuffer.push({
+      position:projected,
+      // TODO: FIX THIS IMMEDIATELY:
+      //radius:radius*mesh.parent.transformation.scaling.x * mesh.transformation.scaling.x, // <<== Not only x should be here
+      radius: radius,
+      color:new mea3D.ColorRGBA(1,1,0),
+      type: mea3D.RenderableType.SURFACE,
+      projectedCenter:projected
+    });
   },
   
-  drawTextMesh:function(mesh) {
+  drawTextMesh:function(mesh, lights, ambientColor) {
     // TODO: Ugly, refactor.
     mesh.fontSize = 1;
     
@@ -401,35 +411,34 @@ mea3D.Renderer.prototype = {
     
     var projectedRadius = new mea3D.Vector2(projected.x-projectedRadius.x, projected.y-projectedRadius.y);      
     var radius = projectedRadius.mag();
-         
-    this.renderBuffer.push(
-      { position: projected,
-        text:     mesh.text,
-        fontSize: radius,
-        color:    mesh.material.ambientColor,
-        type:     mea3D.RenderableType.TEXT,
-        projectedCenter:projected
-      }
-    );
+    
+    this.renderBuffer.push({ 
+      position: projected,
+      text:     mesh.text,
+      fontSize: radius,
+      color:    mesh.material.ambientColor,
+      type:     mea3D.RenderableType.TEXT,
+      projectedCenter:projected
+    });
   },
   
-  drawMesh:function(mesh) {    
+  drawMesh:function(mesh, lights, ambientColor) {
     switch (mesh.type) {
       case mea3D.MeshType.MESH_POLYGON:
-        this.drawPolygonMesh(mesh);
+        this.drawPolygonMesh(mesh, lights, ambientColor);
         break;      
       
       case mea3D.MeshType.MESH_SURFACE:
-        this.drawSurfaceMesh(mesh);
+        this.drawSurfaceMesh(mesh, lights, ambientColor);
         break;
             
       case mea3D.MeshType.MESH_TEXT:
-        this.drawTextMesh(mesh);
+        this.drawTextMesh(mesh, lights, ambientColor);
         break
     }
   },
   
-  drawPolygonMesh:function(mesh) {
+  drawPolygonMesh:function(mesh, lights, ambientColor) {
   
     // Project all vertices:
     mesh.updateCentersAndNormals();
@@ -439,14 +448,13 @@ mea3D.Renderer.prototype = {
       this.viewport.height
     );
     
-    var numVertices = mesh.vertices.length;
-    this.numRenderedVertices += numVertices;
+    this.renderStats.verticesRendered += mesh.vertices.length;
     
-    this.drawPolygonList(mesh.polygons);
+    this.drawPolygonList(mesh.polygons, lights, ambientColor);
     //mea3D.Logging.info("Transformed " + mesh.worldTransformedVertices.length + " points");
   },
   
-  drawPolygonList:function(polygonList) {
+  drawPolygonList:function(polygonList, lights, ambientColor) {
       
     // Loop through the face indices
     var numFaces = polygonList.length;    
@@ -458,8 +466,9 @@ mea3D.Renderer.prototype = {
       var p3 = polygon.projectedVertices.v3;
       var p4 = polygon.projectedVertices.v4;
       
-      if (p1.z<0 || p2.z<0 || p3.z<0 || (polygon.vertexCount==4 && p4.z<0))
+      if (p1.z<0 || p2.z<0 || p3.z<0 || (polygon.vertexCount==4 && p4.z<0)) {
         continue;
+      }
       
       // Backface culling:
       if (this.options.backfaceCulling) {
@@ -468,8 +477,9 @@ mea3D.Renderer.prototype = {
         var b1 = new mea3D.Vector3(a1.x, a1.y, 0);
         var b2 = new mea3D.Vector3(a2.x, a2.y, 0);
         var cross = b1.cross(b2);
-        if (cross.z<0)
-         continue;
+        if (cross.z<0) {
+          continue;
+        }
       }
       
       // Calculate center for z-sorting:
@@ -486,8 +496,8 @@ mea3D.Renderer.prototype = {
           polygon.transformedCenter,
           polygon.transformedNormal,
           polygon.material,
-          this.scene.lights,
-          this.scene.ambientColor
+          lights,
+          ambientColor
         );
       }      
       // Add the computed polygon to render buffer.
@@ -495,9 +505,9 @@ mea3D.Renderer.prototype = {
     }
   },
   
-  drawModel:function(model) {
+  drawModel:function(model, lights, ambientColor) {
     for (var i=0; i<model.meshList.length; i++) {
-      this.drawMesh(model.meshList[i]);
+      this.drawMesh(model.meshList[i], lights, ambientColor);
     }
   },
 
@@ -516,14 +526,6 @@ mea3D.Renderer.prototype = {
   },
   
   render:function() {
-    
-    // Sort buffer by z coordinates (painters algorithm)
-    this.renderBuffer.sort(this.sortFunction);
-    
-    // We always draw the skyBox first so that it's always in the background.
-    if (this.scene.skyBox) {
-      this.drawModel(this.scene.skyBox);
-    }
     
     // Render the buffer (draw farthest first)
     var faceCount = this.renderBuffer.length;
@@ -554,9 +556,9 @@ mea3D.Renderer.prototype = {
           this.renderText2D(polygon.text, polygon.position, polygon.fontSize, polygon.color);
           break;
       }
-    }  
-    this.numRenderedPolygons = faceCount;
-    this.numFramesRendered++;
+    }
+    this.renderStats.polygonsRendered = faceCount;
+    this.renderStats.framesRendered++;
   },
   
   project:function(point) {
@@ -590,58 +592,51 @@ mea3D.Renderer.prototype = {
       this.options.clearColor
     );
     this.renderBuffer = [];
-    this.numRenderedVertices = 0;
+    this.renderStats.verticesRendered = 0;
   },
   
-  drawLights:function() {
+  drawLights:function(lights) {
     // Draw lights:
-    for (var i=0; i<this.scene.lights.length; i++) {
-      if (this.scene.lights[i].position) { // Some lights dont have a position vector (i.e. ambient)        
-        this.drawPoint(this.scene.lights[i].position, this.scene.lights[i].color);
+    for (var i=0; i<lights.length; i++) {
+      if (lights[i].position) { // Some lights dont have a position vector (i.e. ambient)        
+        this.drawPoint(lights[i].position, lights[i].color);
       }
     }    
   },
   
-  /*updateLighting:function() {
+  /*updateLighting:function(scene) {
   
-    if (this.scene && this.scene.models) {
+    if (scene && scene.models) {
       // Re-compute lights for all vertices:
-      for (var i=0; i<this.scene.models.length; ++i) {
-        var model = this.scene.models[i];
+      for (var i=0; i<scene.models.length; ++i) {
+        var model = scene.models[i];
         for (var j=0; j<model.meshList.length; ++j) {
           var mesh = model.meshList[j];
-          mesh.calculateLighting(this.scene.lights, this.scene.ambientColor);
+          mesh.calculateLighting(scene.lights, scene.ambientColor);
         }
       }
     }
   },*/
   
-  update:function() {
+  update:function(scene) {
 
-    this.clear();                
+    this.clear();
     
     // Draw 3D models
-    for (var i=0; i<this.scene.models.length; i++) {
-      this.drawModel(this.scene.models[i]);
-    }    
-    
-    //this.drawLights();
-    //this.drawCrossHair();
-    //this.renderAxes();    
-    if (mea3D.RenderUtils) {    
-      if (this.scene.raceTrack) {
-        mea3D.RenderUtils.renderSplineMesh(this, this.scene.raceTrack);
-      }
-      if (this.scene.HeightMap) {
-        mea3D.RenderUtils.renderHeightMap(this, this.scene.HeightMap);
-      }
+    for (var i=0; i<scene.models.length; i++) {
+      this.drawModel(scene.models[i], scene.lights, scene.ambientColor);
     }
     
-    this.render();
+    // Sort buffer by z coordinates (painters algorithm)
+    this.renderBuffer.sort(this.sortFunction);
     
-    if (this.context.draw) {
-      this.context.draw();  // For custom 2D renderer
+    // We always draw the skyBox first so that it's always in the background.
+    if (scene.skyBox) {
+      this.drawModel(scene.skyBox, scene.lights, scene.ambientColor);
     }
+    
+    this.render(scene);
+    
   },
     
   screenToViewportCoords:function(screenX, screenY) {
@@ -688,8 +683,8 @@ mea3D.Renderer.prototype = {
   },
   
   // Get mouse selection for the given point
-  getMouseSelection:function(mouseX, mouseY) {
-    var boundingShape = this.hitTestBoundingShapes(mouseX, mouseY);
+  getMouseSelection:function(scene, mouseX, mouseY) {
+    var boundingShape = this.hitTestBoundingShapes(scene, mouseX, mouseY);
     if (boundingShape) {
       if (this.prevSelectedShape != boundingShape) {
         if (this.prevSelectedShape)
@@ -723,7 +718,7 @@ mea3D.Renderer.prototype = {
   },
 
   // TODO: Refactor
-  hitTestBoundingShapes:function(x,y) {
+  hitTestBoundingShapes:function(scene, x, y) {
       
     // Direction of the ray from eye position to given pixel's 3D position
     var pixelDirectionVector = mea3D.Math.getPixelDirectionVector(
@@ -739,7 +734,7 @@ mea3D.Renderer.prototype = {
     // Draw mouse line:
     //this.drawLine(lineOrigin, lineEnd);
     
-    var nearestBoundingShape = this.scene.hitTestBoundingShape(
+    var nearestBoundingShape = scene.hitTestBoundingShape(
       lineOrigin, lineDirection
     );
     return nearestBoundingShape;

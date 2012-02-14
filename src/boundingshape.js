@@ -36,7 +36,7 @@ mea3D.BoundingShape.prototype = {
   },
   
   copy:function() {
-    var newShape = new BoundingShape(this.params);
+    var newShape = new mea3D.BoundingShape(this.params);
     return newShape;
   }
 };

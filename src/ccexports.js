@@ -57,6 +57,7 @@ mea3D.Camera.prototype["rotatePitch"] = mea3D.Camera.prototype.rotatePitch;
 mea3D["Renderer"] = mea3D.Renderer;
 mea3D.Renderer.prototype["isInitialized"] = mea3D.Renderer.prototype.isInitialized;
 mea3D.Renderer.prototype["getCamera"] = mea3D.Renderer.prototype.getCamera;
+mea3D.Renderer.prototype["getCanvas"] = mea3D.Renderer.prototype.getCanvas;
 mea3D.Renderer.prototype["update"] = mea3D.Renderer.prototype.update;
 
 // Scene:

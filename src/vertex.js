@@ -4,6 +4,10 @@
 
 /**
 * @constructor
+* @param {number=} nx
+* @param {number=} ny
+* @param {number=} nz
+* @param {mea3D.ColorRGBA=} color
 */
 mea3D.Vertex = function(x,y,z, nx,ny,nz, color) {
   this.pos = new mea3D.Vector3(0,0,0);

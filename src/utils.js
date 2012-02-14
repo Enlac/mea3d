@@ -38,8 +38,8 @@ mea3D.Utils = {
     if (!str) return {x:-1, y:-1};
     
     var arr = str.split("x");
-    var x = parseInt(arr[0]);
-    var y = parseInt(arr[1]);
+    var x = parseInt(arr[0], 10);
+    var y = parseInt(arr[1], 10);
     return {x:x, y:y};
   },
 

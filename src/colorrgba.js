@@ -4,6 +4,7 @@
 
 /**
 * @constructor
+* @param {number=} alpha
 */
 mea3D.ColorRGBA = function(red, green, blue, alpha) {
   this.r = red;

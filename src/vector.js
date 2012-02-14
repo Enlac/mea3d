@@ -33,6 +33,10 @@ mea3D.Vector2.prototype = {
 // 3D Vectors
 /**
 * @constructor
+* @param {number=} x
+* @param {number=} y
+* @param {number=} z
+* @param {number=} w
 */
 mea3D.Vector3 = function(x,y,z, w) {
   this.x = (x) ? x:0;

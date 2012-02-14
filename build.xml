@@ -6,22 +6,22 @@
  Author:  Mustafa Emre Acer
 -->
 
-<project name="mea3d" basedir="." default="build-mea3d">
+<project name="mea3d" basedir="." default="build-all">
   
   <!-- Configuration properties -->
   <property file="build.properties"/>
 
-  <target name="build-all" depends="build-mea3d"/>
+  <target name="build-all" depends="build-mea3d-debug, build-mea3d-min"/>
   
   <!--==========================================================================
     Build mea3d by concatenating files 
   ===========================================================================-->
-  <target name="build-mea3d">
+  <target name="build-mea3d-debug">
   
-    <delete file="${mea3d.output}"/>
+    <delete file="${mea3d.output.debug}"/>
   
-    <echo message="Building ${mea3d.output} by concatenating files"/>
-    <concat destfile="${mea3d.output}" append="true" encoding="UTF-8" outputencoding="UTF-8"> 
+    <echo message="Building ${mea3d.output.debug} by concatenating files"/>
+    <concat destfile="${mea3d.output.debug}" append="true" encoding="UTF-8" outputencoding="UTF-8"> 
     
       <filelist dir="${basedir}">
         <file name="src/base.js" />
@@ -42,6 +42,7 @@
         <file name="src/material.js" />
         <file name="src/texture.js" />
         <file name="src/light.js" />
+        <file name="src/boundingshape.js" />
         <file name="src/mesh.js" />
         <file name="src/model3d.js" />
 
@@ -49,13 +50,63 @@
         <file name="src/scene.js" />
         <file name="src/renderer.js" />
         <file name="src/fps.js" />
-        <file name="src/mousehandler.js" />
         
       </filelist>
       <filterchain>
         <deletecharacters chars="&#xFEFF;" />                <!-- Delete BOM characters-->
       </filterchain>
     </concat>
+    
+    <echo message="DONE"/>
+  </target>
+  
+  <!--==========================================================================
+    Build mea3D using Closure Compiler
+  ===========================================================================-->
+  <target name="build-mea3d-min">
+    
+    <mkdir dir="${logs.dir}"/>
+    <delete file="${mea3d.output.min}"/>
+    <echo message="Building ${mea3d.output.min} using Closure Compiler"/>
+    
+    <exec executable="java" dir="${basedir}" failonerror="true" failifexecutionfails="true" 
+      append="true" output="${logs.dir}/build.log" logError="true">
+      <arg value="-jar"/> <arg value="${closurecompiler.path}"/>
+      
+      <arg value="--js"/>  <arg value="src/base.js" />
+      <arg value="--js"/>  <arg value="src/renderer2d.js" />
+      <arg value="--js"/>  <arg value="src/utils.js" />
+      <arg value="--js"/>  <arg value="src/logger.js" />
+      <arg value="--js"/>  <arg value="src/colorrgba.js" />
+      <arg value="--js"/>  <arg value="src/vector.js" />
+      <arg value="--js"/>  <arg value="src/line.js" />
+      <arg value="--js"/>  <arg value="src/matrix4.js" />
+      <arg value="--js"/>  <arg value="src/transformation.js" />
+      <arg value="--js"/>  <arg value="src/math3d.js" />
+      <arg value="--js"/>  <arg value="src/camera.js" />
+      <arg value="--js"/>  <arg value="src/viewport.js" />
+
+      <arg value="--js"/>  <arg value="src/vertex.js" />
+      <arg value="--js"/>  <arg value="src/polygon.js" />
+      <arg value="--js"/>  <arg value="src/material.js" />
+      <arg value="--js"/>  <arg value="src/texture.js" />
+      <arg value="--js"/>  <arg value="src/light.js" />
+      <arg value="--js"/>  <arg value="src/boundingshape.js" />
+      <arg value="--js"/>  <arg value="src/mesh.js" />
+      <arg value="--js"/>  <arg value="src/model3d.js" />
+
+      <arg value="--js"/>  <arg value="src/keycodes.js" />
+      <arg value="--js"/>  <arg value="src/scene.js" />
+      <arg value="--js"/>  <arg value="src/renderer.js" />
+      <arg value="--js"/>  <arg value="src/fps.js" />
+      
+      <arg value="--js"/>  <arg value="src/ccexports.js" />
+      
+      <arg value="--js_output_file"/>    <arg value="${mea3d.output.min}"/>                 <!-- Output file       --> 
+      <arg value="--compilation_level"/> <arg value="${closurecompiler.compileLevel}"/>     <!-- Compilation level -->
+      <arg value="--warning_level"/>     <arg value="${closurecompiler.warningLevel}"/>     <!-- Warning level     -->
+      <arg value="--output_wrapper"/>    <arg value="(function(){%output%})();"/>           <!-- Output wrapper    -->
+    </exec>
     
     <echo message="DONE"/>
   </target>

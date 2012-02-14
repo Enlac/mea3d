@@ -4,6 +4,7 @@
 
 /**
 * @constructor
+* @param {Array=} vals
 */
 mea3D.Matrix4 = function(vals) {
   if (!vals) {
@@ -118,5 +119,9 @@ mea3D.Matrix4.prototype = {
     out.z = v.x * this.vals[0][2] + v.y * this.vals[1][2] + v.z * this.vals[2][2] + this.vals[3][2];
     out.w = v.x * this.vals[0][3] + v.y * this.vals[1][3] + v.z * this.vals[2][3] + this.vals[3][3];
     return out;
+  },
+  
+  toArray:function() {
+    return this.vals[0].concat(this.vals[1]).concat(this.vals[2]).concat(this.vals[3]);
   }
 };
