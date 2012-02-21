@@ -869,7 +869,6 @@ mea3D.Math = {
     var vec = eyeDir.add(leftVector.scale(angleX));
     vec = vec.add(upVector.scale(angleY));
     */
-    // TODO leftVector redefined?
     var leftVector = upVector.cross(eyeDir);
     var vec = mea3D.Math.rotateVectorAroundAxis(eyeDir, upVector, fovHorizontal*pX*0.5);
     
@@ -2532,8 +2531,8 @@ mea3D.Canvas2DRenderer.prototype = {
   },
   
   drawLine:function(v1, v2, color, lineWidth) {
-    var p1 = this.project(v1);
-    var p2 = this.project(v2);
+    var p1 = this.sceneProjection.project(v1);
+    var p2 = this.sceneProjection.project(v2);
     if (!p1 || !p2) return;
     
     var z1 = p1.copy();
@@ -2568,7 +2567,7 @@ mea3D.Canvas2DRenderer.prototype = {
   },
   
   drawPoint:function(point, color) {  
-    var p = this.project(point);
+    var p = this.sceneProjection.project(point);
     if (!p) {
       return;
     }
@@ -2636,7 +2635,7 @@ mea3D.Canvas2DRenderer.prototype = {
     if (fontSize) {
       this.context.font = fontSize + "pt Arial";
     }
-    var projected = this.project(position);
+    var projected = this.sceneProjection.project(position);
     this.context.fillText(text, projected.x, projected.y);
   },
   

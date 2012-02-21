@@ -362,7 +362,11 @@ mea3D.ChromeExperiment.prototype = {
     this.scene.lights[0].enabled = true;
     
     function updateScene() {
-      angle += (Math.PI/25);
+    
+      var currentTime = new Date();
+      var totalElapsed = currentTime - startTime;
+      
+      angle = (Math.PI * 0.00075) * totalElapsed ;
       var s = Math.sin(angle);
       var c = Math.cos(angle);
       var planePos = new mea3D.Vector3(35*s, 32+2*s, 35*c);
@@ -394,7 +398,6 @@ mea3D.ChromeExperiment.prototype = {
       //me.renderer.getCamera().setEyeDir( planePos.cross(new mea3D.Vector3(0,1,0)).scale(-1));
       
       // Toggle lights
-      var currentTime = new Date();
       if (currentTime-lastLightToggleTime>300) {
         currentLight = Math.floor(Math.random()* (me.scene.lights.length-1))+1;
         me.scene.lights[currentLight].enabled = !me.scene.lights[currentLight].enabled ;
