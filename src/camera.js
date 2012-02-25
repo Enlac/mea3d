@@ -3,10 +3,11 @@
 // Author: Mustafa Acer
 
 /**
-* @constructor
-*/
+ * @constructor
+ */
 mea3D.Camera = function(eyePos, eyeDir, upVector, fovHorizontal, fovVertical) {
   
+  this.lookAtPos = null;
   if (eyePos && eyeDir && upVector) {
     this.eyePos = eyePos;
     this.eyeDir = eyeDir.norm();
@@ -22,7 +23,7 @@ mea3D.Camera = function(eyePos, eyeDir, upVector, fovHorizontal, fovVertical) {
 mea3D.Camera.prototype = {
 
   toString:function() {
-    return this.eyePos.toString() + "," + this.eyeDir.toString();
+    return "mea3D.Camera:{eyePos:" + this.eyePos.toString() + ", eyeDir:" + this.eyeDir.toString() + "}";
   },
   
   reset:function() {
@@ -34,17 +35,42 @@ mea3D.Camera.prototype = {
   },
   
   update:function() {
-    this.lookAt          = this.eyePos.add(this.eyeDir.norm());
+    this.lookAtPos       = this.eyePos.add(this.eyeDir.norm());
     this.leftVector      = this.upVector.cross(this.eyeDir).norm();
-    this.viewTransform   = mea3D.Math.getCameraMatrix4( this.eyePos, this.lookAt, this.upVector );
+    this.viewTransform   = mea3D.Math.getCameraMatrix4( this.eyePos, this.lookAtPos, this.upVector );
   },
   
-  // negative delta will move backwards
+  /** Points the camera at a given point using given up direction vector. This method calculates eye 
+   *  position and direction from given parameters. Consider using setEyePos and setEyeDir 
+   *  instead for better performance.
+   *
+   * @param {mea3D.Vector3} lookAtPos  The point to look at
+   * @param {mea3D.Vector3} upVector   Up vector of the camera
+   */
+  lookAt:function(lookAtPos, upVector) {
+    // Normal form of camera state is (eyeDir, eyePos, upVector). Calculate
+    // these values from given params and update:
+    this.eyeDir = lookAtPos.subt(this.eyePos);
+    this.upVector = this.leftVector.cross(this.eyeDir).norm();
+    this.update();
+  },
+  
+  /** Moves the camera in eye direction. A positive delta value will move the camera
+   *  forward. A nnegative delta will move it backward.
+   *
+   * @param {number} delta Amount of movement
+   */
   moveForwardBackward:function(delta) {
     if (delta==0) return;
     this.eyePos = this.eyePos.add(this.eyeDir.norm().scale(delta));
   },
-  // negative delta will move left
+
+  /** Moves the camera in sideways, keeping the eye direction same. This is basically
+   *  the strafe movement. A positive delta value will move the camera to the right.
+   *  A negative delta will move it to the left.
+   *
+   * @param {number} delta Amount of movement
+   */
   moveLeftRight:function(delta) {
     if (delta==0) return;
     var strafeVec = this.upVector.cross(this.eyeDir).norm();
@@ -61,11 +87,14 @@ mea3D.Camera.prototype = {
     if (delta==0) return;
     this.eyePos = this.eyePos.add(this.upVector.scale(delta));
   },
-  moveTo:function(pos) {
+  setEyePos:function(pos) {
     this.eyePos = new mea3D.Vector3(pos.x, pos.y, pos.z);
-  },
+  }, 
   getEyePos:function() {
     return this.eyePos;
+  },
+  moveTo:function(pos) { // Same as setEyePos
+    this.eyePos = new mea3D.Vector3(pos.x, pos.y, pos.z);
   },
   
   getEyeDir:function() {
@@ -115,7 +144,7 @@ mea3D.Camera.prototype = {
     
     //mouseCoordsVec.y = -mouseCoordsVec.y;
     //this.eyeDir = this.eyeDir.add(mouseCoordsVec.norm()).norm; // => we may try this
-    this.lookAt = this.eyePos.add(this.eyeDir);
+    this.lookAtPos = this.eyePos.add(this.eyeDir);
     //this.upVector = mea3D.Math.rotateVector3(this.eyeDir, -Math.PI/2, 0, 0).norm(); 
   },
   */
@@ -130,6 +159,6 @@ mea3D.Camera.prototype = {
    
     // Calculate new upvector
     //this.upVector = this.eyeDir.cross(leftVector).norm();
-    this.lookAt = this.eyePos.add(this.eyeDir);
+    this.lookAtPos = this.eyePos.add(this.eyeDir);
   }
 };
