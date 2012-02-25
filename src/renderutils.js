@@ -54,9 +54,11 @@ mea3D.RenderUtils = {
   
   drawLights:function(renderer, lights) {
     // Draw lights:
-    for (var i=0; i<lights.length; i++) {
-      if (lights[i].position) { // Some lights dont have a position vector (i.e. ambient)        
-        renderer.drawPoint(lights[i].position, lights[i].color);
+    if (lights) {
+      for (var i=0; i<lights.length; i++) {
+        if (lights[i].position) { // Some lights don't have a position vector (eg. ambient)        
+          renderer.drawPoint(lights[i].position, lights[i].color);
+        }
       }
     }
   },
@@ -82,7 +84,6 @@ mea3D.RenderUtils = {
     renderer.renderText("+Y", new mea3D.Vector3(0,5,0));
   },
   
-  
   /*updateLighting:function(scene) {
   
     if (scene.models) {
@@ -96,5 +97,4 @@ mea3D.RenderUtils = {
       }
     }
   },*/
-  
 };
