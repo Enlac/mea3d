@@ -9,8 +9,8 @@ mea3D.Canvas2DRenderer = function(canvas, viewport, options, renderStats) {
   this.context = null;
   this.sceneProjection = null;
   this.renderStats = renderStats;
-  this.currentStrokeColor = new mea3D.ColorRGBA();
-  this.currentFillColor = new mea3D.ColorRGBA();
+  this.currentStrokeColor = new mea3D.ColorRGBA(1,1,1);
+  this.currentFillColor = new mea3D.ColorRGBA(0,0,0);
 }
 mea3D.Canvas2DRenderer.prototype = {
 
@@ -48,6 +48,15 @@ mea3D.Canvas2DRenderer.prototype = {
     this.context.fillRect(x, y, w, h);
   },
   
+  /** Draws a line in 2D coordinates 
+   *
+   *  @param {number} x1               X coordinate of the starting point of line segment
+   *  @param {number} y1               Y coordinate of the starting point of line segment
+   *  @param {number} x2               X coordinate of the ending point of line segment
+   *  @param {number} y2               Y coordinate of the ending point of line segment
+   *  @param {mea3D.ColorRGBA=} color  Color of line segment, optional
+   *  @param {number=} lineWidth       Line width used to draw the segment, optional
+   */
   drawLine2D:function(x1,y1, x2,y2, color, lineWidth) {
       
     if (color) { 
@@ -60,10 +69,18 @@ mea3D.Canvas2DRenderer.prototype = {
     this.context.moveTo(x1,y1);
     this.context.lineTo(x2,y2);
     this.context.stroke();
-    this.context.closePath();    
+    this.context.closePath();
   },
   
-  drawLine:function(v1, v2, color, lineWidth) {
+  /** Draws a line in 3D coordinates
+    *
+   *  @param {mea3D.Vector3} v1        Starting point of line segment
+   *  @param {mea3D.Vector3} v2        Ending point of line segment
+   *  @param {mea3D.ColorRGBA=} color  Color of line segment, optional
+   *  @param {number=} lineWidth       Line width used to draw the segment, optional
+   *  @param {boolean=} drawEndPoints  If true, will draw the end points of the line, optional
+   */
+  drawLine:function(v1, v2, color, lineWidth, drawEndPoints) {
     var p1 = this.sceneProjection.project(v1);
     var p2 = this.sceneProjection.project(v2);
     if (!p1 || !p2) return;
@@ -82,14 +99,27 @@ mea3D.Canvas2DRenderer.prototype = {
     adjustVector(z2, v2);
 
     this.drawLine2D(p1.x, p1.y, p2.x, p2.y, color, lineWidth);
-    this.drawRect(p1.x-3,p1.y-3, 6,6, new mea3D.ColorRGBA(1,0,0));
-    this.drawRect(p2.x-3,p2.y-3, 6,6, new mea3D.ColorRGBA(0,1,1));
+    if (drawEndPoints) {
+      this.drawRect(p1.x-3,p1.y-3, 6,6, new mea3D.ColorRGBA(1,0,0));
+      this.drawRect(p2.x-3,p2.y-3, 6,6, new mea3D.ColorRGBA(0,1,1));
+    }
   },
   
+  /** Draws a point in 2D
+   *
+   *  @param {number} x                X coordinate of the point
+   *  @param {number} y                Y coordinate of the point
+   *  @param {mea3D.ColorRGBA=} color  Color of the point, optional
+   */
   drawPoint2D:function(x, y, color) {
     this.drawRect(x-2, y-2, 4, 4, color);
   },
   
+  /** Draws a point in 3D
+   *
+   *  @param {mea3D.Vector3} point     Position of the point
+   *  @param {mea3D.ColorRGBA=} color  Color of the point, optional
+   */
   drawPoint:function(point, color) {  
     var p = this.sceneProjection.project(point);
     if (!p) {
@@ -358,8 +388,8 @@ mea3D.SceneProjection.prototype = {
     projectedRadius.x = ((projectedRadius.x * this.viewport.width)  /2.0) + this.viewport.width/2;
     projectedRadius.y = -((projectedRadius.y * this.viewport.height)/2.0) + this.viewport.height/2;    
     
-    var projectedRadius = new mea3D.Vector2(projected.x-projectedRadius.x, projected.y-projectedRadius.y);      
-    var radius = projectedRadius.mag();
+    var projectedRadius2 = new mea3D.Vector2(projected.x-projectedRadius.x, projected.y-projectedRadius.y);      
+    var radius = projectedRadius2.mag();
     
     this.renderBuffer.push({
       position: projected,

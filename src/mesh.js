@@ -282,7 +282,7 @@ mea3D.Mesh.prototype = {
       // this.projectedVertices[i].
       this.projectedVertices[i].x = projected.x;
       this.projectedVertices[i].y = projected.y;
-      this.projectedVertices[i].z = projected.z;      
+      this.projectedVertices[i].z = projected.z;
     }
   },
   
@@ -291,7 +291,7 @@ mea3D.Mesh.prototype = {
     var polygon;
     for (var i=0; i<this.numFaces; ++i) {
       polygon = this.polygons[i];
-      polygon.computedColor = mea3D.Math.computeLighting(
+      polygon.computedColor = mea3D.Math.Util.computeLighting(
         polygon.transformedCenter,
         polygon.transformedNormal,
         polygon.material,

@@ -114,7 +114,7 @@ mea3D.Math.Util = {
       // TODO: Refactor and optimize
       if (!polygon.v4) {
         // triangle
-        var pointCoords = mea3D.Math.getPointCoordsInsideTriangle(
+        var pointCoords = mea3D.Math.Util.getPointCoordsInsideTriangle(
           intersectionPoint, 
           polygon.v1.pos, polygon.v2.pos, polygon.v3.pos
         );
@@ -128,7 +128,7 @@ mea3D.Math.Util = {
       
         // Quad has two triangles: v1,v2,v3 and v3,v4,v1
         // Triangle 1:
-        var pointCoords = mea3D.Math.getPointCoordsInsideTriangle(
+        var pointCoords = mea3D.Math.Util.getPointCoordsInsideTriangle(
           intersectionPoint, 
           polygon.v1.pos, polygon.v2.pos, polygon.v3.pos
         );
@@ -138,7 +138,7 @@ mea3D.Math.Util = {
         // If not in triangle 1, check triangle 2:
         if (s<0 || t<0 || s+t>1) {
           
-          pointCoords = mea3D.Math.getPointCoordsInsideTriangle(
+          pointCoords = mea3D.Math.Util.getPointCoordsInsideTriangle(
             intersectionPoint, 
             polygon.v3.pos, polygon.v4.pos, polygon.v1.pos
           );
@@ -150,7 +150,7 @@ mea3D.Math.Util = {
         }
       }
       /*
-      var pointCoords = mea3D.Math.getPointCoordsInsideTriangle(
+      var pointCoords = mea3D.Math.Util.getPointCoordsInsideTriangle(
         intersectionPoint, 
         polygon.v1.pos, polygon.v2.pos, polygon.v3.pos
       );
@@ -164,7 +164,7 @@ mea3D.Math.Util = {
         if (!polygon.v4) {
           continue;
         }
-        pointCoords = mea3D.Math.getPointCoordsInsideTriangle(
+        pointCoords = mea3D.Math.Util.getPointCoordsInsideTriangle(
           intersectionPoint, 
           polygon.v1.pos, polygon.v2.pos, polygon.v3.pos
         }
@@ -343,7 +343,7 @@ mea3D.Math.Util = {
     var radius = sphereList[0].radius;
     var center = sphereList[0].position;
     for (var i=1; i<sphereList.length; i++) {
-      var newSphere = mea3D.Math.getBoundingSphere(
+      var newSphere = mea3D.Math.Util.getBoundingSphere(
         center, radius, sphereList[i].position, sphereList[i].radius
       );
       radius = newSphere.radius;

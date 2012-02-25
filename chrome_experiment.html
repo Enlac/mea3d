@@ -34,7 +34,7 @@ fieldset {
 legend {
   color: white;
 }
-#mea3D { 
+#mea3D_container { 
   border: 1px solid white;
 }
 #errorDiv {
@@ -90,7 +90,7 @@ h2 {
     <table>
       <tr>
         <td valign=top>
-          <div id="mea3D" style="width:800px; height:600px"></div>
+          <div id="mea3D_container" style="width:800px; height:600px"></div>
         </td>
         <td valign=top>
           <fieldset><legend>Animation</legend>
@@ -154,7 +154,7 @@ h2 {
 <script>
   var app = new mea3D.ChromeExperiment();
   app.init(
-    document.getElementById("mea3D"),
+    document.getElementById("mea3D_container"),
     {
       rendererOptions:{
         width:  800,

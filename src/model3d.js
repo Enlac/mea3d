@@ -122,7 +122,7 @@ mea3D.Model3D.prototype = {
         );
       }
     }
-    var boundingSphere = mea3D.Math.getMinimumBoundingSphere(sphereList);
+    var boundingSphere = mea3D.Math.Util.getMinimumBoundingSphere(sphereList);
     return boundingSphere;
   },
   
