@@ -7,7 +7,7 @@
  * Version: 1.0.2
  */
  
-if (typeof(window.mea3D)=="undefined") {
+if (typeof mea3D=="undefined") {
   var mea3D = {};
 }
 

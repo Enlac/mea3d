@@ -25,7 +25,6 @@
     
       <filelist dir="${basedir}">
         <file name="src/base.js" />
-        <file name="src/renderer2d.js" />
         <file name="src/utils.js" />
         <file name="src/logger.js" />
         <file name="src/colorrgba.js" />
@@ -76,7 +75,6 @@
       <arg value="-jar"/> <arg value="${closurecompiler.path}"/>
       
       <arg value="--js"/>  <arg value="src/base.js" />
-      <arg value="--js"/>  <arg value="src/renderer2d.js" />
       <arg value="--js"/>  <arg value="src/utils.js" />
       <arg value="--js"/>  <arg value="src/logger.js" />
       <arg value="--js"/>  <arg value="src/colorrgba.js" />
