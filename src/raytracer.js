@@ -160,14 +160,14 @@ mea3D.RayTracer.prototype = {
     var polygons = this.renderBuffer;
     
     // Direction of the ray from eye position to given pixel's 3D position
-    var pixelDirectionVector = mea3D.Math.getPixelDirectionVector(
+    var pixelDirectionVector = mea3D.Math.Util.getPixelDirectionVector(
       width, height, 
       x,y,
       fovHorizontal, fovVertical,  // TODO: Include fov in calculations.
       eyeDir, upVector, leftVector
     ).norm();
     
-    var intersection = mea3D.Math.getRayPolygonListIntersection(
+    var intersection = mea3D.Math.Util.getRayPolygonListIntersection(
       polygons, eyePos, pixelDirectionVector);
       
     if (intersection) {
@@ -176,7 +176,7 @@ mea3D.RayTracer.prototype = {
       var illuminatingLights = this.scene.lights;
       if (this.options.calculateShadows) {
         // Find out which lights can illuminate this point on the polygon
-        illuminatingLights = mea3D.Math.getIlluminatingLights(
+        illuminatingLights = mea3D.Math.Util.getIlluminatingLights(
           intersection.position,
           polygons,
           this.scene.lights,
@@ -185,7 +185,7 @@ mea3D.RayTracer.prototype = {
       }
       
       // Calculate the color on the polygon hit based on scene lights:
-      var calculatedColor = mea3D.Math.computeLighting(
+      var calculatedColor = mea3D.Math.Util.computeLighting(
         intersection.polygon,
         intersection.position,
         illuminatingLights,
@@ -198,14 +198,14 @@ mea3D.RayTracer.prototype = {
           intersection.polygon.material.reflectivity>0) {
         
         // Get the reflected ray 
-        var reflected = mea3D.Math.getReflectedRay(
+        var reflected = mea3D.Math.Util.getReflectedRay(
           intersection.polygon.normal, 
           pixelDirectionVector
         );
         
         //mea3D.Logging.log("Reflected ray: " + reflected);
         var reflectionOrigin = intersection.position;
-        var reflectionIntersection = mea3D.Math.getRayPolygonListIntersection(
+        var reflectionIntersection = mea3D.Math.Util.getRayPolygonListIntersection(
           polygons,
           reflectionOrigin,
           reflected,
@@ -219,7 +219,7 @@ mea3D.RayTracer.prototype = {
           var rawReflectedColor = reflectionIntersection.polygon.material.ambientColor;
            
           // Calculate reflected color based on scene lights
-          reflectedColor = mea3D.Math.computeLighting(
+          reflectedColor = mea3D.Math.Util.computeLighting(
             reflectionIntersection.polygon,
             reflectionIntersection.position,
             this.scene.lights,

@@ -855,97 +855,91 @@ mea3D.Math = {
     ]).transpose();
   },
   
-  getPixelDirectionVector:function(width,height,x,y, fovHorizontal, fovVertical, eyeDir, upVector, leftVector){
-    var halfWidth = width/2;
-    var halfHeight = height/2;
-    var pX = (x-halfWidth)/halfWidth;
-    var pY = (y-halfHeight)/halfHeight;
-    /*
-    // TODO: Make this calculation correct (Numbers are calibrated!)
-    var aspectRatio = fovHorizontal/fovVertical;
-    var angleX = pX * 0.5 * 1.3;   // * fovHorizontal;
-    var angleY = -pY * 0.5 /1.1;  // * fovVertical;
-   
-    var vec = eyeDir.add(leftVector.scale(angleX));
-    vec = vec.add(upVector.scale(angleY));
-    */
-    var leftVector = upVector.cross(eyeDir);
-    var vec = mea3D.Math.rotateVectorAroundAxis(eyeDir, upVector, fovHorizontal*pX*0.5);
-    
-    vec = mea3D.Math.rotateVectorAroundAxis(vec, leftVector, fovVertical*pY*0.5);
-    /*mea3D.Logging.log("===========================");
-    mea3D.Logging.log("upVector: " + upVector);
-    mea3D.Logging.log("w,h  : " + width + "," + height);
-    mea3D.Logging.log("fovs  : " + fovHorizontal + "," + fovVertical);
-    mea3D.Logging.log("x,y  : " + x + "," + y);
-    mea3D.Logging.log("pX,pY: " + pX + "," + pY);*/
-    return vec;
+  // TODO: Test and Optimize
+  distanceSquaredPointToLine:function(point, lineOrigin, lineDir) {
+    // Formulas from http://mathworld.wolfram.com/Point-LineDistance3-Dimensional.html
+    var x0 = point;
+    var x1 = lineOrigin;
+    var x2 = lineOrigin.add(lineDir);
+    var x0_x1 = x0.subt(x1);
+    var x0_x2 = x0.subt(x2);
+    var x2_x1 = lineDir;
+    return x0_x1.cross(x0_x2).mag2()/lineDir.mag2();
   },
   
-  getIlluminatingLights:function(point, polygonList, lights, skipPolygon) {
+  // Axis is at the origin.
+  rotateVectorAroundAxis:function(vector, axis, angle) {
+    // The formulas are from http://inside.mines.edu/~gmurray/ArbitraryAxisRotation/
+    var u = axis.x;
+    var v = axis.y;
+    var w = axis.z;    
+    var x = vector.x;
+    var y = vector.y;
+    var z = vector.z;    
+    var sin = Math.sin(angle);
+    var cos = Math.cos(angle);    
+    var rotated = new mea3D.Vector3(0,0,0);
+    var dot = vector.dot(axis);
+    var lenAxis = axis.mag();    
+    rotated.x = u * dot + (x*(v*v + w*w) - u*(v*y+w*z))*cos + lenAxis*(-w*y + v*z)*sin;
+    rotated.y = v * dot + (y*(u*u + w*w) - v*(u*x+w*z))*cos + lenAxis*(w*x - u*z) *sin;
+    rotated.z = w * dot + (z*(u*u + v*v) - w*(u*x+v*y))*cos + lenAxis*(-v*x + u*y)*sin;
+    return rotated;
+  }
   
-    var illuminatingLights = [];
-    // For each light, check if the light is visible from the given point
-    for (var i=0; i<lights.length; i++) {
-      var light = lights[i];
-      var rayDir;
-      
-      switch (light.type) {
-        case mea3D.LightType.POINT:
-          // For point lights, we check if there is a blocking polygon
-          // between us and the light's position
-          rayDir = light.position.subt(point).norm();
-          break;
-        
-        case mea3D.LightType.DIRECTIONAL:
-          // For directional lights, we check only through the light's direction.
-          rayDir = light.direction;
-          break;
-      }
-      
-      if (rayDir) {
-        var intersection = mea3D.Math.getRayPolygonListIntersection(
-          polygonList,
-          point,
-          rayDir,
-          skipPolygon
-        );
-        
-        if (intersection) { // There is a blocking polygon between point and light
-          
-        } else {
-          // no blocking polygon, the light can illuminate the given point.
-          illuminatingLights.push(light);
-        }
-      } // rayDir
-    }
-    return illuminatingLights;
+};
+
+//
+// mea3D HTML5 Canvas 3D library
+//
+// Math utilities 
+//
+// Author: Mustafa Acer
+
+mea3D.Math.Util = {
+
+  getReflectedRay:function(normal, incomingRay) {
+    // Rr = Ri - 2 N (Ri . N) from http://local.wasp.uwa.edu.au/~pbourke/geometry/reflected/
+    var dot = 2* normal.dot(incomingRay);
+    var N = normal.scale(dot);
+    return incomingRay.subt(N);
   },
   
-  // Returns u,v coordinates of the point with respect to the given triangle.
-  // Used in raytracing:
-  getPointCoordsInsideTriangle:function(point, v1,v2,v3) {    
-    
-    //var v1 = polygon.v1.pos;
-    var u = v2.subt(v1);  //polygon.edge1;     // v1 - v0
-    var v = v3.subt(v1);  //polygon.edge2;     // v2 - v0
-    var w = point.subt(v1);
-    
-    var dot_uv = u.dot(v);  //polygon.dot_edge12; //u.dot(v);
-    var dot_wv = w.dot(v);
-    var dot_wu = w.dot(u);
-    var dot_uu = u.dot(u);  //polygon.dot_edge11; //u.dot(u);
-    var dot_vv = v.dot(v);  //polygon.dot_edge22; //v.dot(v);
-               
-    var den = (dot_uv*dot_uv)-(dot_uu*dot_vv);    //polygon.insidePolygonFormulaDenominator;
-    var s = ((dot_uv * dot_wv ) - (dot_vv * dot_wu))/den;
-    var t = ((dot_uv * dot_wu ) - (dot_uu * dot_wv))/den;
-    
-    // If point is not in triangle, then just skip this triangle
-    //if (s<=0 || t<=0 || s+t>1) continue;
-    return {s:s, t:t};
-  },
+  catmullRomSplinePos:function(p0,p1,p2,p3,t) {
   
+    var tSquare = t*t;
+    var tCube = tSquare*t;
+    
+    var p1_2 = p1.scale(2);
+    var p0_2 = p0.scale(2);
+    var p1_5 = p1.scale(5);
+    var p2_4 = p2.scale(4);
+    var p1_3 = p1.scale(3);
+    var p2_3 = p2.scale(3);
+    
+    var el0 = p1_2;
+    var el1 = p2.subt(p0).scale(t);
+    var el2 = (p0_2.subt(p1_5).add(p2_4).subt(p3)).scale(tSquare);
+    var el3 = (p1_3.add(p3).subt(p0.add(p2_3))).scale(tCube);   
+    var pos = el0.add(el1).add(el2).add(el3).scale(0.5);
+    return pos;
+  },
+  catmullRomSplineTangent:function(p0,p1,p2,p3,t) {
+  
+    var tSquare = t*t;    
+    var p0_2 = p0.scale(2);
+    var p1_5 = p1.scale(5);
+    var p2_4 = p2.scale(4);
+    var p1_3 = p1.scale(3);
+    var p2_3 = p2.scale(3);
+    
+    var el1 = p2.subt(p0);
+    var el2 = (p0_2.subt(p1_5).add(p2_4).subt(p3)).scale(2*t);
+    var el3 = (p1_3.add(p3).subt(p0.add(p2_3))).scale(3*tSquare);   
+    var tangent = el1.add(el2).add(el3).scale(0.5);
+    return tangent;
+  },
+
   // TODO: This function cannot find Quad-Ray intersections. It only finds the
   // intersection for the first triangular half. FIX IT!
   getRayPolygonListIntersection:function(polygonList, rayOrigin, rayDir, skipPolygon) {
@@ -1089,11 +1083,95 @@ mea3D.Math = {
     return null;
   },
   
-  getReflectedRay:function(normal, incomingRay) {
-    // Rr = Ri - 2 N (Ri . N) from http://local.wasp.uwa.edu.au/~pbourke/geometry/reflected/
-    var dot = 2* normal.dot(incomingRay);
-    var N = normal.scale(dot);
-    return incomingRay.subt(N);
+  // Returns u,v coordinates of the point with respect to the given triangle.
+  // Used in raytracing:
+  getPointCoordsInsideTriangle:function(point, v1,v2,v3) {    
+    
+    //var v1 = polygon.v1.pos;
+    var u = v2.subt(v1);  //polygon.edge1;     // v1 - v0
+    var v = v3.subt(v1);  //polygon.edge2;     // v2 - v0
+    var w = point.subt(v1);
+    
+    var dot_uv = u.dot(v);  //polygon.dot_edge12; //u.dot(v);
+    var dot_wv = w.dot(v);
+    var dot_wu = w.dot(u);
+    var dot_uu = u.dot(u);  //polygon.dot_edge11; //u.dot(u);
+    var dot_vv = v.dot(v);  //polygon.dot_edge22; //v.dot(v);
+               
+    var den = (dot_uv*dot_uv)-(dot_uu*dot_vv);    //polygon.insidePolygonFormulaDenominator;
+    var s = ((dot_uv * dot_wv ) - (dot_vv * dot_wu))/den;
+    var t = ((dot_uv * dot_wu ) - (dot_uu * dot_wv))/den;
+    
+    // If point is not in triangle, then just skip this triangle
+    //if (s<=0 || t<=0 || s+t>1) continue;
+    return {s:s, t:t};
+  },
+  
+  getPixelDirectionVector:function(width,height,x,y, fovHorizontal, fovVertical, eyeDir, upVector, leftVector){
+    var halfWidth = width/2;
+    var halfHeight = height/2;
+    var pX = (x-halfWidth)/halfWidth;
+    var pY = (y-halfHeight)/halfHeight;
+    /*
+    // TODO: Make this calculation correct (Numbers are calibrated!)
+    var aspectRatio = fovHorizontal/fovVertical;
+    var angleX = pX * 0.5 * 1.3;   // * fovHorizontal;
+    var angleY = -pY * 0.5 /1.1;  // * fovVertical;
+   
+    var vec = eyeDir.add(leftVector.scale(angleX));
+    vec = vec.add(upVector.scale(angleY));
+    */
+    var leftVector = upVector.cross(eyeDir);
+    var vec = mea3D.Math.rotateVectorAroundAxis(eyeDir, upVector, fovHorizontal*pX*0.5);
+    
+    vec = mea3D.Math.rotateVectorAroundAxis(vec, leftVector, fovVertical*pY*0.5);
+    /*mea3D.Logging.log("===========================");
+    mea3D.Logging.log("upVector: " + upVector);
+    mea3D.Logging.log("w,h  : " + width + "," + height);
+    mea3D.Logging.log("fovs  : " + fovHorizontal + "," + fovVertical);
+    mea3D.Logging.log("x,y  : " + x + "," + y);
+    mea3D.Logging.log("pX,pY: " + pX + "," + pY);*/
+    return vec;
+  },
+  
+  getIlluminatingLights:function(point, polygonList, lights, skipPolygon) {
+  
+    var illuminatingLights = [];
+    // For each light, check if the light is visible from the given point
+    for (var i=0; i<lights.length; i++) {
+      var light = lights[i];
+      var rayDir;
+      
+      switch (light.type) {
+        case mea3D.LightType.POINT:
+          // For point lights, we check if there is a blocking polygon
+          // between us and the light's position
+          rayDir = light.position.subt(point).norm();
+          break;
+        
+        case mea3D.LightType.DIRECTIONAL:
+          // For directional lights, we check only through the light's direction.
+          rayDir = light.direction;
+          break;
+      }
+      
+      if (rayDir) {
+        var intersection = mea3D.Math.Util.getRayPolygonListIntersection(
+          polygonList,
+          point,
+          rayDir,
+          skipPolygon
+        );
+        
+        if (intersection) { // There is a blocking polygon between point and light
+          
+        } else {
+          // no blocking polygon, the light can illuminate the given point.
+          illuminatingLights.push(light);
+        }
+      } // rayDir
+    }
+    return illuminatingLights;
   },
   
   computeLighting:function(pointOnPolygon, polygonNormal, polygonMaterial, lights, ambientColor) {
@@ -1134,73 +1212,6 @@ mea3D.Math = {
     return computedColor;
   },
   
-  // TODO: Test and Optimize
-  distanceSquaredPointToLine:function(point, lineOrigin, lineDir) {
-    // Formulas from http://mathworld.wolfram.com/Point-LineDistance3-Dimensional.html
-    var x0 = point;
-    var x1 = lineOrigin;
-    var x2 = lineOrigin.add(lineDir);
-    var x0_x1 = x0.subt(x1);
-    var x0_x2 = x0.subt(x2);
-    var x2_x1 = lineDir;
-    return x0_x1.cross(x0_x2).mag2()/lineDir.mag2();
-  },
-  
-  // Axis is at the origin.
-  rotateVectorAroundAxis:function(vector, axis, angle) {
-    // The formulas are from http://inside.mines.edu/~gmurray/ArbitraryAxisRotation/
-    var u = axis.x;
-    var v = axis.y;
-    var w = axis.z;    
-    var x = vector.x;
-    var y = vector.y;
-    var z = vector.z;    
-    var sin = Math.sin(angle);
-    var cos = Math.cos(angle);    
-    var rotated = new mea3D.Vector3(0,0,0);
-    var dot = vector.dot(axis);
-    var lenAxis = axis.mag();    
-    rotated.x = u * dot + (x*(v*v + w*w) - u*(v*y+w*z))*cos + lenAxis*(-w*y + v*z)*sin;
-    rotated.y = v * dot + (y*(u*u + w*w) - v*(u*x+w*z))*cos + lenAxis*(w*x - u*z) *sin;
-    rotated.z = w * dot + (z*(u*u + v*v) - w*(u*x+v*y))*cos + lenAxis*(-v*x + u*y)*sin;
-    return rotated;
-  },
-  
-  catmullRomSplinePos:function(p0,p1,p2,p3,t) {
-  
-    var tSquare = t*t;
-    var tCube = tSquare*t;
-    
-    var p1_2 = p1.scale(2);
-    var p0_2 = p0.scale(2);
-    var p1_5 = p1.scale(5);
-    var p2_4 = p2.scale(4);
-    var p1_3 = p1.scale(3);
-    var p2_3 = p2.scale(3);
-    
-    var el0 = p1_2;
-    var el1 = p2.subt(p0).scale(t);
-    var el2 = (p0_2.subt(p1_5).add(p2_4).subt(p3)).scale(tSquare);
-    var el3 = (p1_3.add(p3).subt(p0.add(p2_3))).scale(tCube);   
-    var pos = el0.add(el1).add(el2).add(el3).scale(0.5);
-    return pos;
-  },
-  catmullRomSplineTangent:function(p0,p1,p2,p3,t) {
-  
-    var tSquare = t*t;    
-    var p0_2 = p0.scale(2);
-    var p1_5 = p1.scale(5);
-    var p2_4 = p2.scale(4);
-    var p1_3 = p1.scale(3);
-    var p2_3 = p2.scale(3);
-    
-    var el1 = p2.subt(p0);
-    var el2 = (p0_2.subt(p1_5).add(p2_4).subt(p3)).scale(2*t);
-    var el3 = (p1_3.add(p3).subt(p0.add(p2_3))).scale(3*tSquare);   
-    var tangent = el1.add(el2).add(el3).scale(0.5);
-    return tangent;
-  },
-  
   getBoundingSphere:function(pos1, radius1, pos2, radius2) {
   
     var distanceVector = pos2.subt(pos1);
@@ -1231,9 +1242,8 @@ mea3D.Math = {
     }
     return {radius: radius, position:center};
   }
-};
 
-// mea3D HTML5 Canvas 3D library
+}// mea3D HTML5 Canvas 3D library
 //
 // Author: Mustafa Acer
 
@@ -2910,7 +2920,7 @@ mea3D.SceneProjection.prototype = {
       
       // Compute lighting
       if (polygon.material) {
-        polygon.computedColor = mea3D.Math.computeLighting(
+        polygon.computedColor = mea3D.Math.Util.computeLighting(
           polygon.transformedCenter,
           polygon.transformedNormal,
           polygon.material,
@@ -3296,7 +3306,7 @@ mea3D.Renderer.prototype = {
   hitTestBoundingShapes:function(scene, x,y) {
       
     // Direction of the ray from eye position to given pixel's 3D position
-    var pixelDirectionVector = mea3D.Math.getPixelDirectionVector(
+    var pixelDirectionVector = mea3D.Math.Util.getPixelDirectionVector(
       this.viewport.width, this.viewport.height, 
       x,y,
       this.camera.getFovHorizontal(), this.camera.getFovVertical(),  // TODO: Include fov in calculations.

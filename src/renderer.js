@@ -461,7 +461,7 @@ mea3D.SceneProjection.prototype = {
       
       // Compute lighting
       if (polygon.material) {
-        polygon.computedColor = mea3D.Math.computeLighting(
+        polygon.computedColor = mea3D.Math.Util.computeLighting(
           polygon.transformedCenter,
           polygon.transformedNormal,
           polygon.material,
@@ -847,7 +847,7 @@ mea3D.Renderer.prototype = {
   hitTestBoundingShapes:function(scene, x,y) {
       
     // Direction of the ray from eye position to given pixel's 3D position
-    var pixelDirectionVector = mea3D.Math.getPixelDirectionVector(
+    var pixelDirectionVector = mea3D.Math.Util.getPixelDirectionVector(
       this.viewport.width, this.viewport.height, 
       x,y,
       this.camera.getFovHorizontal(), this.camera.getFovVertical(),  // TODO: Include fov in calculations.

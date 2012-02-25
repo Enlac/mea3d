@@ -34,6 +34,7 @@
         <file name="src/matrix4.js" />
         <file name="src/transformation.js" />
         <file name="src/math3d.js" />
+        <file name="src/math3d.utils.js" />
         <file name="src/camera.js" />
         <file name="src/viewport.js" />
 
@@ -83,6 +84,7 @@
       <arg value="--js"/>  <arg value="src/matrix4.js" />
       <arg value="--js"/>  <arg value="src/transformation.js" />
       <arg value="--js"/>  <arg value="src/math3d.js" />
+      <arg value="--js"/>  <arg value="src/math3d.utils.js" />
       <arg value="--js"/>  <arg value="src/camera.js" />
       <arg value="--js"/>  <arg value="src/viewport.js" />
 
