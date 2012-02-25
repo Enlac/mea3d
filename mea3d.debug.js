@@ -2441,40 +2441,80 @@ mea3D.Scene.prototype = {
         lineOrigin,
         lineDirection
       );
-      //mea3D.Logging.log(">>>>>> BoundingShape" + i + " tested, distance: " + distanceSquared);
       
       if (distanceSquared<boundingShape.radiusSquared) {
         // We hit an object.
-        //mea3D.Logging.log(">>>>>> HITTEST: Hit an object!");
         if (nearestBoundingShapeDistanceSquared==-1 ||
             distanceSquared<nearestBoundingShapeDistanceSquared) {
           nearestBoundingShapeDistanceSquared = distanceSquared;
           nearestBoundingShape = boundingShape;
-          //mea3D.Logging.log(">>>>>> Minimum distance :" + nearestBoundingShapeDistanceSquared);
         }
       }
     }
     return nearestBoundingShape;
+  },
+  
+  // Make mesh emitColor yellow:
+  highlightMesh:function(mesh, enableHighlight) {
+    if (mesh && mesh.material) {
+      mesh.material.enableEmitColor = enableHighlight;
+    }
+  },
+  
+  // TODO: Refactor
+  hitTestBoundingShapes:function(viewport, camera, x,y) {
+      
+    // Direction of the ray from eye position to given pixel's 3D position
+    var pixelDirectionVector = mea3D.Math.Util.getPixelDirectionVector(
+      viewport.width, viewport.height, 
+      x,y,
+      camera.getFovHorizontal(), camera.getFovVertical(),  // TODO: Include fov in calculations.
+      camera.getEyeDir(), camera.getUpVector(), camera.getLeftVector()
+    ).norm();
+    
+    var lineOrigin = camera.getEyePos();
+    var lineDirection = pixelDirectionVector;
+    var lineEnd = lineOrigin.add(lineDirection.scale(1,1,1));
+    // We can draw mouse line using renderer.drawLine(lineOrigin, lineEnd);
+    
+    var nearestBoundingShape = this.hitTestBoundingShape(lineOrigin, lineDirection);
+    return nearestBoundingShape;
+  },
+  
+  // Previously selected shape within this scene:
+  prevSelectedShape: null,
+  
+  /** Returns the bounding shape which is under the given mouse coordinates.
+   *
+   * @param viewport Viewport used for hit test
+   * @param camera Camera used for hit test
+   * @param {number} mouseX X coordinate of the mouse position
+   * @param {number} mouseY Y coordinate of the mouse position
+   */
+  getMouseSelection:function(viewport, camera, mouseX, mouseY) {
+    var boundingShape = this.hitTestBoundingShapes(viewport, camera, mouseX, mouseY);
+    if (this.prevSelectedShape != boundingShape) {
+      if (this.prevSelectedShape) {
+        // If a previous shape was selected, de-highlight it: 
+        this.highlightMesh(this.prevSelectedShape.ownerMesh, false); 
+      }
+      // Mouseout callback for previously selected mesh
+      if (this.prevSelectedShape && this.prevSelectedShape.onMouseOut) {
+        this.prevSelectedShape.onMouseOut(this.prevSelectedShape);
+      }
+      if (boundingShape) {
+        // Highlight newly selected mesh
+        this.highlightMesh(boundingShape.ownerMesh, true);
+        // Mouseover callback for newly selected mesh
+        if (boundingShape.onMouseOver) {
+          boundingShape.onMouseOver(boundingShape);
+        }
+      }
+      this.prevSelectedShape = boundingShape;
+    }
+    return boundingShape;
   }
 };
-// mea3D HTML5 Canvas 3D library
-//
-// Author: Mustafa Acer
-
-mea3D.RenderModes = {
-  RENDER_NONE:0,
-  RENDER_POINTS:1,
-  RENDER_WIREFRAMES:2,
-  RENDER_FACES:3
-};
-
-/** @constructor 
-*/
-mea3D.RenderStats = function() {
-  this.verticesRendered = 0;
-  this.polygonsRendered = 0;
-  this.framesRendered = 0;
-}
 
 /** @constructor 
 */
@@ -2558,18 +2598,9 @@ mea3D.Canvas2DRenderer.prototype = {
     adjustVector(z1, v1);
     adjustVector(z2, v2);
 
-    //mea3D.Logging.log("P1:  " + p1, LOG_ERROR);
-    //mea3D.Logging.log("Z 1: " + z1, LOG_ERROR);
-    //mea3D.Logging.log("P2:  " + p2, LOG_ERROR);
-    //mea3D.Logging.log("Z 2: " + z2, LOG_ERROR);
-
     this.drawLine2D(p1.x, p1.y, p2.x, p2.y, color, lineWidth);
     this.drawRect(p1.x-3,p1.y-3, 6,6, new mea3D.ColorRGBA(1,0,0));
     this.drawRect(p2.x-3,p2.y-3, 6,6, new mea3D.ColorRGBA(0,1,1));
-        
-    /*this.drawLine2D(z1.x, z1.y, z2.x, z2.y, "#0F0");
-    this.drawRect(z1.x-3, z1.y-3, 6,6, "#ff0");
-    this.drawRect(z2.x-3, z2.y-3, 6,6, "#0ff");*/
   },
   
   drawPoint2D:function(x, y, color) {
@@ -2662,15 +2693,6 @@ mea3D.Canvas2DRenderer.prototype = {
     this.context.stroke();
   },
   
-  drawScene:function(scene) {
-    this.sceneProjection.drawScene(scene);
-  },
-  
-  begin:function() {
-  },
-  end:function() {
-  },
-  
   clear:function() {
     this.drawRect(
       0,0,
@@ -2678,7 +2700,63 @@ mea3D.Canvas2DRenderer.prototype = {
       this.viewport.height, 
       this.options.clearColor
     );
+    
+  },
+  
+  beginDraw:function() {
     this.sceneProjection.clear();
+    
+  },
+  
+  drawScene:function(scene) {
+    this.sceneProjection.drawScene(scene);
+  },
+  
+  endDraw:function() {
+  },
+  
+  beginRender:function() {
+    this.clear();
+  },
+  render:function() {
+    
+    // Render the buffer (draw farthest first)
+    var renderBuffer = this.sceneProjection.renderBuffer;
+    var faceCount = renderBuffer.length;
+    for (var i=faceCount-1; i>=0; i--) {
+      var polygon = renderBuffer[i];
+      
+      switch (polygon.type) {
+      
+        case mea3D.RenderableType.POLYGON:
+           // 2D mea3D.Polygon
+          this.renderPolygon(
+            polygon.projectedVertices.v1,
+            polygon.projectedVertices.v2,
+            polygon.projectedVertices.v3,
+            polygon.projectedVertices.v4,
+            polygon.computedColor,
+            (polygon.material && polygon.material.texture) ? polygon.material.texture:null
+          );
+          break;
+        
+        case mea3D.RenderableType.SURFACE:
+          // 2D Surface
+          this.renderCircle2D(polygon.position, polygon.radius, polygon.color);
+          break;
+        
+        case mea3D.RenderableType.TEXT:
+          // Text mesh
+          this.renderText2D(polygon.text, polygon.position, polygon.fontSize, polygon.color);
+          break;
+      }
+    }  
+    this.renderStats.polygonsRendered = faceCount;
+    this.renderStats.framesRendered++;
+  },
+  
+  endRender:function() {
+  
   },
   
   renderPolygon:function(v1, v2, v3, v4, color, texture) {
@@ -2717,43 +2795,6 @@ mea3D.Canvas2DRenderer.prototype = {
         if (v4) this.drawPoint2D(v4.x, v4.y);
         break;
     }
-  },
-
-  render:function() {
-    
-    // Render the buffer (draw farthest first)
-    var renderBuffer = this.sceneProjection.renderBuffer;
-    var faceCount = renderBuffer.length;
-    for (var i=faceCount-1; i>=0; i--) {
-      var polygon = renderBuffer[i];
-      
-      switch (polygon.type) {
-      
-        case mea3D.RenderableType.POLYGON:
-           // 2D mea3D.Polygon
-          this.renderPolygon(
-            polygon.projectedVertices.v1,
-            polygon.projectedVertices.v2,
-            polygon.projectedVertices.v3,
-            polygon.projectedVertices.v4,
-            polygon.computedColor,
-            (polygon.material && polygon.material.texture) ? polygon.material.texture:null
-          );
-          break;
-        
-        case mea3D.RenderableType.SURFACE:
-          // 2D Surface
-          this.renderCircle2D(polygon.position, polygon.radius, polygon.color);
-          break;
-        
-        case mea3D.RenderableType.TEXT:
-          // Text mesh
-          this.renderText2D(polygon.text, polygon.position, polygon.fontSize, polygon.color);
-          break;
-      }
-    }  
-    this.renderStats.polygonsRendered = faceCount;
-    this.renderStats.framesRendered++;
   },
  
   setTransformMatrix:function(matrixTransform) {
@@ -2950,18 +2991,6 @@ mea3D.SceneProjection.prototype = {
       this.drawModel(scene.models[i], scene.lights, scene.ambientColor);
     }
     
-    //this.drawLights(scene.lights);
-    //this.drawCrossHair();
-    //this.renderAxes();
-    /*if (mea3D.RenderUtils) {
-      if (scene.raceTrack) {
-        mea3D.RenderUtils.renderSplineMesh(this, scene.raceTrack);
-      }
-      if (scene.HeightMap) {
-        mea3D.RenderUtils.renderHeightMap(this, scene.HeightMap);
-      }
-    }*/
-    
     // Sort buffer by z coordinates (painters algorithm)
     this.renderBuffer.sort(this.sortFunction);
     
@@ -2984,6 +3013,24 @@ mea3D.SceneProjection.prototype = {
   }
 }
 
+// mea3D HTML5 Canvas 3D library
+//
+// Author: Mustafa Acer
+
+mea3D.RenderModes = {
+  RENDER_NONE:0,
+  RENDER_POINTS:1,
+  RENDER_WIREFRAMES:2,
+  RENDER_FACES:3
+};
+
+/** @constructor 
+*/
+mea3D.RenderStats = function() {
+  this.verticesRendered = 0;
+  this.polygonsRendered = 0;
+  this.framesRendered = 0;
+}
 
 /**
 * @constructor
@@ -3050,7 +3097,6 @@ mea3D.Renderer.prototype = {
     
     if (!this.canvas) {
       this.canvas = mea3D.Utils.createCanvas(this.container, this.viewport.width, this.viewport.height);
-      //mea3D.Logging.log("Created: Width, Height: " + this.canvas.width + "," + this.canvas.height);
     }
     
     // TODO: IE 9 will fail here if DOCTYPE is not standards. Check it here.
@@ -3161,67 +3207,22 @@ mea3D.Renderer.prototype = {
     this.context.renderCircle2D(position, radius, color);
   },
 
-  drawCrossHair:function(w, h) {
-    w = w || 10;
-    h = h || 10;
-    var halfWidth = this.viewport.width/2;
-    var halfHeight = this.viewport.height/2;
-    this.drawLine2D(halfWidth-w, halfHeight, halfWidth+w, halfHeight,  new mea3D.ColorRGBA(1,1,0));
-    this.drawLine2D(halfWidth, halfHeight-h, halfWidth, halfHeight+10, new mea3D.ColorRGBA(1,1,0));
-  },
-  
-  renderAxes:function() {
-    // Draw axes
-    this.drawLine(new mea3D.Vector3(0,0,0), new mea3D.Vector3(4,0,0), new mea3D.ColorRGBA(0,1,1));     // x axis
-    this.drawLine(new mea3D.Vector3(0,0,0), new mea3D.Vector3(0,0,4), new mea3D.ColorRGBA(1,1,0));     // z axis
-    this.drawLine(new mea3D.Vector3(0,0,0), new mea3D.Vector3(0,4,0), new mea3D.ColorRGBA(1,0,1));     // y axis
-    this.renderText("+X", new mea3D.Vector3(5,0,0), new mea3D.ColorRGBA(1,1,1));
-    this.renderText("+Z", new mea3D.Vector3(0,0,5));
-    this.renderText("+Y", new mea3D.Vector3(0,5,0));
-  },
-  
   clear:function() {
     this.context.clear();
   },
-  
-  drawLights:function(lights) {
-    // Draw lights:
-    for (var i=0; i<lights.length; i++) {
-      if (lights[i].position) { // Some lights dont have a position vector (i.e. ambient)        
-        this.drawPoint(lights[i].position, lights[i].color);
-      }
-    }    
-  },
-  
-  /*updateLighting:function(scene) {
-  
-    if (scene.models) {
-      // Re-compute lights for all vertices:
-      for (var i=0; i<scene.models.length; ++i) {
-        var model = scene.models[i];
-        for (var j=0; j<model.meshList.length; ++j) {
-          var mesh = model.meshList[j];
-          mesh.calculateLighting(scene.lights, scene.ambientColor);
-        }
-      }
-    }
-  },*/
   
   update:function(scene) {
 
     this.clear();
     
-    this.context.begin();
-    
+    this.context.beginDraw();
     this.context.drawScene(scene);
+    this.context.endDraw();
     
+    this.context.beginRender();
     this.context.render();
-    /*
-    if (this.context.draw) {
-      this.context.draw();  // For custom 2D renderer
-    }*/
+    this.context.endRender();
     
-    this.context.end();
   },
   
   screenToViewportCoords:function(screenX, screenY) {
@@ -3259,71 +3260,6 @@ mea3D.Renderer.prototype = {
     return false;
   },
   */
-  
-  // Make mesh emitColor yellow:
-  highlightMesh:function(mesh, enableHighlight) {
-    if (mesh && mesh.material) {
-      mesh.material.enableEmitColor = enableHighlight;
-    }
-  },
-  
-  // Get mouse selection for the given point
-  getMouseSelection:function(scene, mouseX, mouseY) {
-    var boundingShape = this.hitTestBoundingShapes(scene, mouseX, mouseY);
-    if (boundingShape) {
-      if (this.prevSelectedShape != boundingShape) {
-        if (this.prevSelectedShape)
-          this.highlightMesh(this.prevSelectedShape.ownerMesh, false); // de-highlight previous mesh
-          
-        this.highlightMesh(boundingShape.ownerMesh, true); // highlight new mesh
-                
-        // Callback functions
-        if (boundingShape.onMouseOver) {
-          boundingShape.onMouseOver(boundingShape);
-        }
-        if (this.prevSelectedShape && this.prevSelectedShape.onMouseOut) {
-          this.prevSelectedShape.onMouseOut(this.prevSelectedShape);
-        }
-        
-        this.prevSelectedShape = boundingShape;
-        mea3D.Logging.log("A new mesh is selected");
-      }
-    } else { // Nothing is selected
-    
-      if (this.prevSelectedShape) {
-        this.highlightMesh(this.prevSelectedShape.ownerMesh, false); // de-highlight previous mesh
-        
-        if (this.prevSelectedShape.onMouseOut) {
-          this.prevSelectedShape.onMouseOut(this.prevSelectedShape);
-        }
-      }
-      this.prevSelectedShape = null; // no mesh is selected
-    }
-    return boundingShape;
-  },
-
-  // TODO: Refactor
-  hitTestBoundingShapes:function(scene, x,y) {
-      
-    // Direction of the ray from eye position to given pixel's 3D position
-    var pixelDirectionVector = mea3D.Math.Util.getPixelDirectionVector(
-      this.viewport.width, this.viewport.height, 
-      x,y,
-      this.camera.getFovHorizontal(), this.camera.getFovVertical(),  // TODO: Include fov in calculations.
-      this.camera.getEyeDir(), this.camera.getUpVector(), this.camera.getLeftVector()
-    ).norm();
-    
-    var lineOrigin = this.camera.getEyePos();
-    var lineDirection = pixelDirectionVector;
-    var lineEnd = lineOrigin.add(lineDirection.scale(1,1,1));
-    // Draw mouse line:
-    //this.drawLine(lineOrigin, lineEnd);
-    
-    var nearestBoundingShape = scene.hitTestBoundingShape(
-      lineOrigin, lineDirection
-    );
-    return nearestBoundingShape;
-  },
   
   getCamera:function() {
     return this.camera;

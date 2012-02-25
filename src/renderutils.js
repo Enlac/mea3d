@@ -50,5 +50,51 @@ mea3D.RenderUtils = {
       */
     }
     renderer.drawPolygonList(heightMap.polygons);
-  }
+  },
+  
+  drawLights:function(renderer, lights) {
+    // Draw lights:
+    for (var i=0; i<lights.length; i++) {
+      if (lights[i].position) { // Some lights dont have a position vector (i.e. ambient)        
+        renderer.drawPoint(lights[i].position, lights[i].color);
+      }
+    }
+  },
+  
+  drawCrossHair:function(renderer, width, height, color) {
+    // Draw a cross shaped cross hair in the middle of viewport
+    width = width || 10;
+    height = height || 10;
+    color = color || new mea3D.ColorRGBA(1,1,0);
+    var halfWidth = renderer.viewport.width/2;
+    var halfHeight = renderer.viewport.height/2;
+    renderer.drawLine2D(halfWidth-width, halfHeight, halfWidth+width, halfHeight,   color);
+    renderer.drawLine2D(halfWidth, halfHeight-height, halfWidth, halfHeight+height, color);
+  },
+  
+  renderAxes:function(renderer) {
+    // Draw axes
+    renderer.drawLine(new mea3D.Vector3(0,0,0), new mea3D.Vector3(4,0,0), new mea3D.ColorRGBA(0,1,1));     // x axis
+    renderer.drawLine(new mea3D.Vector3(0,0,0), new mea3D.Vector3(0,0,4), new mea3D.ColorRGBA(1,1,0));     // z axis
+    renderer.drawLine(new mea3D.Vector3(0,0,0), new mea3D.Vector3(0,4,0), new mea3D.ColorRGBA(1,0,1));     // y axis
+    renderer.renderText("+X", new mea3D.Vector3(5,0,0), new mea3D.ColorRGBA(1,1,1));
+    renderer.renderText("+Z", new mea3D.Vector3(0,0,5));
+    renderer.renderText("+Y", new mea3D.Vector3(0,5,0));
+  },
+  
+  
+  /*updateLighting:function(scene) {
+  
+    if (scene.models) {
+      // Re-compute lights for all vertices:
+      for (var i=0; i<scene.models.length; ++i) {
+        var model = scene.models[i];
+        for (var j=0; j<model.meshList.length; ++j) {
+          var mesh = model.meshList[j];
+          mesh.calculateLighting(scene.lights, scene.ambientColor);
+        }
+      }
+    }
+  },*/
+  
 };
