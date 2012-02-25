@@ -16,7 +16,7 @@ mea3D.ChromeExperiment = function() {
 
 mea3D.ChromeExperiment.prototype = {
 
-  init:function(options) {
+  init:function(domElement, options) {
     
     if (typeof options=="undefined") {
       options = {
@@ -25,7 +25,7 @@ mea3D.ChromeExperiment.prototype = {
       };
     }
     
-    this.renderer = new mea3D.Renderer(de("sceneDiv"), options.rendererOptions);
+    this.renderer = new mea3D.Renderer(domElement, options.rendererOptions);
     if (!this.renderer.isInitialized()) {
       var errorDiv = de("errorDiv");
       if (errorDiv) {

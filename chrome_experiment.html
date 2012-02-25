@@ -34,7 +34,7 @@ fieldset {
 legend {
   color: white;
 }
-#sceneDiv { 
+#mea3D { 
   border: 1px solid white;
 }
 #errorDiv {
@@ -90,13 +90,14 @@ h2 {
     <table>
       <tr>
         <td valign=top>
-          <div id="sceneDiv" style="width:800px; height:600px"></div>
+          <div id="mea3D" style="width:800px; height:600px"></div>
         </td>
         <td valign=top>
           <fieldset><legend>Animation</legend>
             <center>
               <input class="btn" type="button" id="btnStartAnim" value="Start">
               <input class="btn" type="button" id="btnStopAnim"  value="Stop" style="display:none">
+              <!-- <input class="btn" type="button" onclick="app.benchmark()" value="Benchmark"> -->
            </center>
           </fieldset>
           <fieldset><legend>Stats</legend>
@@ -153,6 +154,7 @@ h2 {
 <script>
   var app = new mea3D.ChromeExperiment();
   app.init(
+    document.getElementById("mea3D"),
     {
       rendererOptions:{
         width:  800,
