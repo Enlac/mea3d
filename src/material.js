@@ -3,8 +3,13 @@
 // Author: Mustafa Acer
 
 /**
-* @constructor
-*/
+ * @constructor
+ *
+ * @param {number=} reflectivity   Reflectivity of the material, optional
+ * @param {Object=} texture        Texture used for the material, optional
+ * @param {Object=} ambientColor   Ambient color of the material, optional
+ * @param {Object=} emitColor      The color emitted by the material, optional
+ */
 mea3D.Material = function(reflectivity, texture, ambientColor, emitColor) {
   
   this.ambientColor = ambientColor ? ambientColor : new mea3D.ColorRGBA(0,0,0);  

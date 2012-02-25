@@ -2,13 +2,16 @@
 //
 // Author: Mustafa Acer
 
+/** @enum {number}
+ */
 mea3D.LightType = {
-  NONE:      0, 
-  AMBIENT:   1,
-  SPOT:      2,
-  POINT:     3,
+  NONE:        0, 
+  AMBIENT:     1,
+  SPOT:        2,
+  POINT:       3,
   DIRECTIONAL: 4
 };
+
 /**
 * @constructor
 */
