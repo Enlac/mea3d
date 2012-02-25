@@ -427,7 +427,13 @@ mea3D.ChromeExperiment.prototype = {
     var frameCount = 0;
     mea3D.Logging.log("=================================================");
     mea3D.Logging.log("Benchmarking...");
-    for (var i=0; i<500; i++) {
+    this.renderer.reset();
+    this.renderer.camera.moveTo(new mea3D.Vector3(-50,25,-50));
+    this.renderer.camera.setEyeDir(new mea3D.Vector3(0.8,0,1));
+    this.renderer.camera.fovHorizontal = 1;
+    this.renderer.camera.fovVertical = 1;
+    this.renderer.camera.leftVector = new mea3D.Vector3(0.8, 0, -0.6).norm();
+    for (var i=0; i<100; i++) {
       this.renderer.update(this.scene);
       frameCount++;
     }    
