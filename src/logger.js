@@ -1,6 +1,6 @@
 // mea3D HTML5 Canvas 3D library
 //
-// Author: Mustafa Acer
+// Author: Mustafa Emre Acer
 
 mea3D.LogLevel = {
   LOG_ALL   :0,
@@ -12,7 +12,7 @@ mea3D.LogLevel = {
 
 mea3D.Logging = {
   log:function(s) {
-    if (typeof(window.console)!="undefined") {
+    if (window.console && window.console.log) {
       window.console.log(s);
     }
     var debugDiv = document.getElementById("debugDiv");

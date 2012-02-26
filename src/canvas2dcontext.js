@@ -1,7 +1,14 @@
+// mea3D HTML5 Canvas 3D library
+//
+// Author: Mustafa Emre Acer
 
 /** @constructor 
-*/
-mea3D.Canvas2DRenderer = function(canvas, viewport, options, renderStats) {
+ *  @implements {mea3D.RendererContextInterface}
+ *   
+ *  Canvas 2D context that handles various rendering operations.
+ *  
+ */
+mea3D.Canvas2DRendererContext = function(canvas, viewport, options, renderStats) {
   this.canvas = canvas;
   this.viewport = viewport;
   this.options = options;
@@ -12,7 +19,7 @@ mea3D.Canvas2DRenderer = function(canvas, viewport, options, renderStats) {
   this.currentStrokeColor = new mea3D.ColorRGBA(1,1,1);
   this.currentFillColor = new mea3D.ColorRGBA(0,0,0);
 }
-mea3D.Canvas2DRenderer.prototype = {
+mea3D.Canvas2DRendererContext.prototype = {
 
   init:function() {
     // TODO: IE 9 will fail here if DOCTYPE is not standards. Check it here.
@@ -25,6 +32,7 @@ mea3D.Canvas2DRenderer.prototype = {
     }
     this.context.lineWidth = 2;
     this.sceneProjection = new mea3D.SceneProjection(this.options, this.viewport, this.renderStats);
+    return true;
   },
   
   setStrokeColor:function(color) {
@@ -41,11 +49,11 @@ mea3D.Canvas2DRenderer.prototype = {
     }
   },
   
-  drawRect:function(x, y, w, h, color) {
+  drawRect2D:function(x, y, width, height, color) {
     if (color) {
       this.setFillColor(color);
     }
-    this.context.fillRect(x, y, w, h);
+    this.context.fillRect(x, y, width, height);
   },
   
   /** Draws a line in 2D coordinates 
@@ -64,7 +72,7 @@ mea3D.Canvas2DRenderer.prototype = {
     }
     if (lineWidth) {
       this.context.lineWidth = lineWidth;
-    }   
+    }
     this.context.beginPath();
     this.context.moveTo(x1,y1);
     this.context.lineTo(x2,y2);
@@ -83,8 +91,9 @@ mea3D.Canvas2DRenderer.prototype = {
   drawLine:function(v1, v2, color, lineWidth, drawEndPoints) {
     var p1 = this.sceneProjection.project(v1);
     var p2 = this.sceneProjection.project(v2);
-    if (!p1 || !p2) return;
-    
+    if (!p1 || !p2) {
+      return;
+    }
     var z1 = p1.copy();
     var z2 = p2.copy();
     function adjustVector(v, vOrg) {
@@ -100,8 +109,8 @@ mea3D.Canvas2DRenderer.prototype = {
 
     this.drawLine2D(p1.x, p1.y, p2.x, p2.y, color, lineWidth);
     if (drawEndPoints) {
-      this.drawRect(p1.x-3,p1.y-3, 6,6, new mea3D.ColorRGBA(1,0,0));
-      this.drawRect(p2.x-3,p2.y-3, 6,6, new mea3D.ColorRGBA(0,1,1));
+      this.drawRect2D(p1.x-3,p1.y-3, 6,6, color);
+      this.drawRect2D(p2.x-3,p2.y-3, 6,6, color);
     }
   },
   
@@ -112,7 +121,7 @@ mea3D.Canvas2DRenderer.prototype = {
    *  @param {mea3D.ColorRGBA=} color  Color of the point, optional
    */
   drawPoint2D:function(x, y, color) {
-    this.drawRect(x-2, y-2, 4, 4, color);
+    this.drawRect2D(x-2, y-2, 4, 4, color);
   },
   
   /** Draws a point in 3D
@@ -193,9 +202,8 @@ mea3D.Canvas2DRenderer.prototype = {
     this.context.fillText(text, projected.x, projected.y);
   },
   
-    // Draw a 2D circle at the given point and radius
+  // Draw a 2D circle at the given point and radius
   renderCircle2D:function(position, radius, color) {
-    //mea3D.Logging.log("Rendering surface at : " + position + ", radius: " + radius);
     if (color) {
       this.setFillColor(color);
     }
@@ -206,8 +214,11 @@ mea3D.Canvas2DRenderer.prototype = {
     this.context.stroke();
   },
   
+  endRender:function() {
+  },
+  
   clear:function() {
-    this.drawRect(
+    this.drawRect2D(
       0,0,
       this.viewport.width, 
       this.viewport.height, 
@@ -226,11 +237,15 @@ mea3D.Canvas2DRenderer.prototype = {
   },
   
   endDraw:function() {
+  
   },
   
-  beginRender:function() {
-    this.clear();
+  beginRender:function(clear) {
+    //if (clear) {
+      this.clear();
+    //}
   },
+  
   render:function() {
     
     // Render the buffer (draw farthest first)
@@ -267,11 +282,8 @@ mea3D.Canvas2DRenderer.prototype = {
     this.renderStats.polygonsRendered = faceCount;
     this.renderStats.framesRendered++;
   },
-  
-  endRender:function() {
-  
-  },
-  
+ 
+  // Projects and renders a polygon in 3D
   renderPolygon:function(v1, v2, v3, v4, color, texture) {
     
     switch (this.options.renderMode) {
@@ -282,8 +294,8 @@ mea3D.Canvas2DRenderer.prototype = {
           (texture && texture.image)? texture.image:null
         );
         break;
-            
-      case mea3D.RenderModes.RENDER_WIREFRAMES:      
+      
+      case mea3D.RenderModes.RENDER_WIREFRAMES:
         // Draw wireframes
         if (v4) { // 4 lines
           this.drawLine2D(v1.x, v1.y, v2.x, v2.y, color);
@@ -292,7 +304,7 @@ mea3D.Canvas2DRenderer.prototype = {
           this.drawLine2D(v4.x, v4.y, v1.x, v1.y);     
           
         } else {
-        // triangle
+          // triangle
           this.drawLine2D(v1.x, v1.y, v2.x, v2.y, color);
           this.drawLine2D(v1.x, v1.y, v3.x, v3.y); // no need to set color again
           this.drawLine2D(v2.x, v2.y, v3.x, v3.y);     
@@ -304,14 +316,19 @@ mea3D.Canvas2DRenderer.prototype = {
         // Draw points
         this.drawPoint2D(v1.x, v1.y, color);
         this.drawPoint2D(v2.x, v2.y); // no need to set color again
-        this.drawPoint2D(v3.x, v3.y);      
-        if (v4) this.drawPoint2D(v4.x, v4.y);
+        this.drawPoint2D(v3.x, v3.y);
+        if (v4) {
+          this.drawPoint2D(v4.x, v4.y);
+        }
         break;
     }
   },
- 
+  
   setTransformMatrix:function(matrixTransform) {
     this.sceneProjection.setTransformMatrix(matrixTransform);
+  },
+  setProjectionMatrix:function(matrixProjection){
+    // Nothing to do
   }
 }
 
@@ -499,9 +516,14 @@ mea3D.SceneProjection.prototype = {
   },
   
   drawScene:function(scene) {
+    if (!scene) {
+      return;
+    }
     // Draw 3D models
-    for (var i=0; i<scene.models.length; i++) {
-      this.drawModel(scene.models[i], scene.lights, scene.ambientColor);
+    if (scene.models) {
+      for (var i=0; i<scene.models.length; i++) {
+        this.drawModel(scene.models[i], scene.lights, scene.ambientColor);
+      }
     }
     
     // Sort buffer by z coordinates (painters algorithm)
@@ -525,4 +547,3 @@ mea3D.SceneProjection.prototype = {
     return projected;
   }
 }
-

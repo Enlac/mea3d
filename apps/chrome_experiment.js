@@ -1,4 +1,4 @@
-// Author: Mustafa Acer
+// Author: Mustafa Emre Acer
 
 (function(){
 
@@ -17,13 +17,11 @@ mea3D.ChromeExperiment = function() {
 mea3D.ChromeExperiment.prototype = {
 
   init:function(domElement, options) {
-    
-    if (typeof options=="undefined") {
-      options = {
-        rendererOptions:null, // null falls back to default values
-        rayTracerOptions:null // null falls back to default values
-      };
-    }
+      
+    options = options || {
+      rendererOptions:null, // null falls back to default values
+      rayTracerOptions:null // null falls back to default values
+    };
     
     this.renderer = new mea3D.Renderer(domElement, options.rendererOptions);
     if (!this.renderer.isInitialized()) {
@@ -36,17 +34,24 @@ mea3D.ChromeExperiment.prototype = {
     
     // Closure compiler breaks rendering options so we set these here:
     this.renderer.clearColor = new mea3D.ColorRGBA(0.1, 0.1, 0.2);
-    this.renderer.getCamera().moveTo(new mea3D.Vector3(-50,25,-50));
-    this.renderer.getCamera().setEyeDir(new mea3D.Vector3(0.8,0,1));
+    this.renderer.camera.moveTo(new mea3D.Vector3(-50,25,-50));
+    this.renderer.camera.setEyeDir(new mea3D.Vector3(0.8,0,1));
     
     this.sceneOffsetX = mea3D.Utils.getPageOffsetLeft(this.renderer.canvas);
     this.sceneOffsetY = mea3D.Utils.getPageOffsetTop(this.renderer.canvas);
       
     this.buildScene();
     this.bindInputEvents();
+    this.renderFrame();
+  },
+  
+  requestRender:function() {
+    var me = this;
+    window.requestAnimationFrame(function() { me.renderFrame() } );
+    setTimeout(function() { me.renderFrame() }, 1);
+  },
+  renderFrame:function() {
     this.renderer.update(this.scene);
-    this.updateInformation();
-    //this.animate();
   },
   
   buildScene:function() {
@@ -171,43 +176,36 @@ mea3D.ChromeExperiment.prototype = {
     
                 
     if (keyCode==mea3D.KeyCodes.KEYCODE_W) {   // Move forward
-      this.renderer.getCamera().moveForwardBackward(1.0);
+      this.renderer.camera.moveForwardBackward(1.0);
     }
 
     if (keyCode==mea3D.KeyCodes.KEYCODE_S) {   // Move backward
-      this.renderer.getCamera().moveForwardBackward(-1.0);
+      this.renderer.camera.moveForwardBackward(-1.0);
     }    
     
     if (keyCode==mea3D.KeyCodes.KEYCODE_LEFT) {  // Turn left
-      this.renderer.getCamera().rotateYaw(-Math.PI/15);
+      this.renderer.camera.rotateYaw(-Math.PI/15);
     }
     
     if (keyCode==mea3D.KeyCodes.KEYCODE_RIGHT) {  // Turn right    
-      this.renderer.getCamera().rotateYaw(Math.PI/15);
+      this.renderer.camera.rotateYaw(Math.PI/15);
     }
 
     if (keyCode==mea3D.KeyCodes.KEYCODE_UP) {  // Look up      
-      this.renderer.getCamera().rotatePitch(-Math.PI/15);
+      this.renderer.camera.rotatePitch(-Math.PI/15);
     }
     
     if (keyCode==mea3D.KeyCodes.KEYCODE_DOWN) {  // Look down
-      this.renderer.getCamera().rotatePitch(Math.PI/15);
+      this.renderer.camera.rotatePitch(Math.PI/15);
     }
     
     if (keyCode==mea3D.KeyCodes.KEYCODE_A) { // Strafe left
-      this.renderer.getCamera().moveLeftRight(-1.0);
+      this.renderer.camera.moveLeftRight(-1.0);
     }
     
     if (keyCode==mea3D.KeyCodes.KEYCODE_D) { // Strafe right
-      this.renderer.getCamera().moveLeftRight(1.0);
+      this.renderer.camera.moveLeftRight(1.0);
     }
-    
-    /*if (keyCode==mea3D.KeyCodes.KEYCODE_L) {
-      if (de("loggingLevel")) {
-        de("loggingLevel").selectedIndex = (de("loggingLevel").selectedIndex+1) % (LOG_NONE+1);
-        mea3D.Logging.log("Logging level is now " + de("loggingLevel").value, LOG_NONE+1);
-      }
-    }*/
     
     if (keyCode==mea3D.KeyCodes.KEYCODE_M) {
       this.renderer.options.enableMouseNavigation = !this.renderer.options.enableMouseNavigation;
@@ -233,10 +231,10 @@ mea3D.ChromeExperiment.prototype = {
     }
         
     if (keyCode==mea3D.KeyCodes.KEYCODE_Q) {
-      this.renderer.getCamera().moveUpDown(1);     // move the camera up
+      this.renderer.camera.moveUpDown(1);     // move the camera up
     }
     if (keyCode==mea3D.KeyCodes.KEYCODE_E) {
-      this.renderer.getCamera().moveUpDown(-1);    // move the camera down
+      this.renderer.camera.moveUpDown(-1);    // move the camera down
     }
     
     if (keyCode>=mea3D.KeyCodes.KEYCODE_1 && keyCode<=mea3D.KeyCodes.KEYCODE_6) {
@@ -247,37 +245,28 @@ mea3D.ChromeExperiment.prototype = {
       }
     }
     
-    var me = this;
-    setTimeout(function() {
-      me.renderer.updateTransformMatrix();
-      me.renderer.update(me.scene);
-      me.updateInformation();
-    }, 1);
+    this.requestRender();
     return false;
   },
   
   onWheel:function(mouseDelta) {
     var FOV_MAX = Math.PI*0.9;
     var FOV_MIN = Math.PI*0.001;
-    //mea3D.Logging.log("Wheel delta:" + mouseDelta);
-    this.renderer.getCamera().setFovHorizontal(
-      this.renderer.getCamera().getFovHorizontal() + mouseDelta/1000.0);
-    if (this.renderer.getCamera().getFovHorizontal()>FOV_MAX) {
-      this.renderer.getCamera().setFovHorizontal(FOV_MAX);
+    this.renderer.camera.setFovHorizontal(
+      this.renderer.camera.getFovHorizontal() + mouseDelta/1000.0);
+    if (this.renderer.camera.getFovHorizontal()>FOV_MAX) {
+      this.renderer.camera.setFovHorizontal(FOV_MAX);
     }
-    if (this.renderer.getCamera().getFovHorizontal()<FOV_MIN) {
-      this.renderer.getCamera().setFovHorizontal(FOV_MIN);
+    if (this.renderer.camera.getFovHorizontal()<FOV_MIN) {
+      this.renderer.camera.setFovHorizontal(FOV_MIN);
     }
     
-    this.renderer.getCamera().setFovVertical(this.renderer.getCamera().getFovHorizontal()/this.renderer.options.aspectRatio);
-    this.renderer.updateProjectionMatrix();
-    this.renderer.updateTransformMatrix();
-    this.renderer.update(this.scene);
-    
+    this.renderer.camera.setFovVertical(this.renderer.camera.getFovHorizontal()/this.renderer.options.aspectRatio);
+    this.requestRender();
     return false;
   },
   
-  updateInformation:function() {
+  updateStats:function() {
     
     if (de("numFaces")) de("numFaces").innerHTML = this.renderer.renderStats.polygonsRendered;
     if (de("numVertices")) de("numVertices").innerHTML = this.renderer.renderStats.verticesRendered;    
@@ -296,25 +285,13 @@ mea3D.ChromeExperiment.prototype = {
     document.addEventListener("mousewheel", function(ev) {
       if (ev.wheelDelta) {
         var ret = me.onWheel(ev.wheelDelta);
-        me.updateInformation();
+        //me.updateStats();
         return ret;
       }
     }, false);
     
-    /*document.onmousemove = function(ev) {
-      if (me.renderer.options.enableMouseNavigation) {
-        if (ev.pageX && ev.pageY) {
-          var ret = me.renderer.onMouseMove(
-            ev.pageX-me.sceneOffsetX, ev.pageY-me.sceneOffsetY
-          );
-          me.updateInformation();
-          return ret;
-        }
-      }
-    };*/
     var mouseHandler = new mea3D.MouseHandler(me);
     mouseHandler.bindEvents();
-    
     
     if (de("btnStartAnim")) {
       de("btnStartAnim").onclick = function(ev) {
@@ -343,8 +320,6 @@ mea3D.ChromeExperiment.prototype = {
     var me = this;
     var divFPS = de("framesPerSecond");
     var startTime = new Date();
-    var lastFPSCalculationTime = startTime;
-    var numFrames = 0;
     var angle = 0;    
     var currentLight = 0;
     var lastLightToggleTime = startTime;
@@ -357,7 +332,7 @@ mea3D.ChromeExperiment.prototype = {
     var fpsCalculator = new mea3D.FPSCalculator();
     
     // Reset camera's up vector:
-    this.renderer.getCamera().setUpVector(new mea3D.Vector3(0,1,0));
+    this.renderer.camera.setUpVector(new mea3D.Vector3(0,1,0));
     // Turn on plane's light:
     this.scene.lights[0].enabled = true;
     
@@ -391,11 +366,11 @@ mea3D.ChromeExperiment.prototype = {
       var s2 = Math.sin(angle/10.0);      
       var c2 = Math.cos(angle/10.0);
       var cameraRadius = 70 + s2 * 20;
-      me.renderer.getCamera().moveTo(new mea3D.Vector3(cameraRadius*c2, 50+20*s2, cameraRadius*s2));
-      me.renderer.getCamera().setEyeDir(planePos.scale(0.3).subt(me.renderer.getCamera().getEyePos()).norm());
+      me.renderer.camera.moveTo(new mea3D.Vector3(cameraRadius*c2, 50+20*s2, cameraRadius*s2));
+      me.renderer.camera.setEyeDir(planePos.scale(0.3).subt(me.renderer.camera.getEyePos()).norm());
       // Ride on the plane:      
-      //me.renderer.getCamera().moveTo( planePos.add(new mea3D.Vector3(0,3,0)));
-      //me.renderer.getCamera().setEyeDir( planePos.cross(new mea3D.Vector3(0,1,0)).scale(-1));
+      //me.renderer.camera.moveTo( planePos.add(new mea3D.Vector3(0,3,0)));
+      //me.renderer.camera.setEyeDir( planePos.cross(new mea3D.Vector3(0,1,0)).scale(-1));
       
       // Toggle lights
       if (currentTime-lastLightToggleTime>300) {
@@ -410,14 +385,13 @@ mea3D.ChromeExperiment.prototype = {
         divFPS.innerHTML = fpsCalculator.fps.toFixed(2);
       }
       
-      me.renderer.updateTransformMatrix();
-      me.renderer.update(me.scene);
-      numFrames++;
-      me.updateInformation();
-      
       if (me.runAnimation) {
-        setTimeout(updateScene, 1);
-     }
+        window.requestAnimationFrame(function() {
+          me.renderFrame();
+          me.updateStats();
+          updateScene();
+        });
+      }
     }
     updateScene();
   },
@@ -434,18 +408,12 @@ mea3D.ChromeExperiment.prototype = {
     this.renderer.camera.fovVertical = 1;
     this.renderer.camera.leftVector = new mea3D.Vector3(0.8, 0, -0.6).norm();
     for (var i=0; i<100; i++) {
-      this.renderer.update(this.scene);
+      this.renderFrame();
       frameCount++;
     }    
     mea3D.Logging.log("Frames Rendered: " + frameCount);
     mea3D.Logging.log("Time elapsed: " + (((new Date())-startTime)/1000.0) + " seconds");
   }
 };
-
-// Export Chrome Experiment object to make closure compiler happy:
-window["mea3D"] = mea3D;
-mea3D["ChromeExperiment"] = mea3D.ChromeExperiment;
-mea3D.ChromeExperiment.prototype["init"] = mea3D.ChromeExperiment.prototype.init;
-mea3D.ChromeExperiment.prototype["run"] =  mea3D.ChromeExperiment.prototype.run;
 
 })();
