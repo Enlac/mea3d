@@ -1,13 +1,31 @@
 // mea3D HTML5 Canvas 3D library
 //
-// Author: Mustafa Acer
+// Author: Mustafa Emre Acer
 
 mea3D.Math = {
 
-  // 4D Matrices
+  /** Returns the scaling matrix built by the given scaling parameters.
+   *  Resulting matrix is similar to DirectX rotation matrices.
+   *
+   * @param {number} sx  Scaling in X dimension
+   * @param {number} sy  Scaling in Y dimension
+   * @param {number} sz  Scaling in Z dimension
+   *
+   * @return {mea3D.Matrix4} Calculated scaling matrix
+   */
   getScaleMatrix4:function(sx,sy,sz) {
     return new mea3D.Matrix4( [[sx,0,0,0], [0,sy,0,0], [0,0,sz,0], [0,0,0,1]] );
   },
+  
+  /** Returns the translation matrix built by the given translation parameters.
+   *  Resulting matrix is similar to DirectX rotation matrices.
+   *
+   * @param {number} tx  Distance from X axis
+   * @param {number} ty  Distance from Y axis
+   * @param {number} tz  Distance from Z axis
+   *
+   * @return {mea3D.Matrix4} Calculated translation matrix
+   */
   getTranslationMatrix4:function(tx,ty,tz) {
     return new mea3D.Matrix4( 
       [[1,0,0,0],
@@ -17,8 +35,16 @@ mea3D.Math = {
     ]);
   },
   
-  // Verified with DirectX SDK:
-  getRotationMatrix4:function(angleX, angleY, angleZ) { // yaw, pitch, roll    
+  /** Returns the rotation matrix built by the given rotation parameters.
+   *  Resulting matrix is similar to DirectX rotation matrices.
+   *
+   * @param {number} angleX  Rotation around X axis in radians (Yaw)
+   * @param {number} angleY  Rotation around Y axis in radians (Pitch)
+   * @param {number} angleZ  Rotation around Z axis in radions (Roll)
+   *
+   * @return {mea3D.Matrix4} Calculated rotation matrix
+   */
+  getRotationMatrix4:function(angleX, angleY, angleZ) {
     var matX = mea3D.Math.getMatrixRotationX4(angleX);
     var matY = mea3D.Math.getMatrixRotationY4(angleY);
     var matZ = mea3D.Math.getMatrixRotationZ4(angleZ);    
@@ -27,7 +53,13 @@ mea3D.Math = {
     return mea3D.Math.mult4( mea3D.Math.mult4(matX, matY), matZ);
   },
   
-  // Verified with DirectX SDK:
+  /** Returns the rotation matrix representing a rotation around X axis.
+   *  Resulting matrix is similar to DirectX rotation matrices.
+   *
+   * @param {number} angle  Rotation around X axis in radians (Yaw)
+   *
+   * @return {mea3D.Matrix4} Calculated rotation matrix
+   */
   getMatrixRotationX4:function(angle) {
     var s = Math.sin(angle);
     var c = Math.cos(angle);
@@ -38,6 +70,14 @@ mea3D.Math = {
       [0, 0, 0,  1]
     ]);
   },
+  
+  /** Returns the rotation matrix representing a rotation around Y axis.
+   *  Resulting matrix is similar to DirectX rotation matrices.
+   *
+   * @param {number} angle  Rotation around Y axis in radians (Pitch)
+   *
+   * @return {mea3D.Matrix4} Calculated rotation matrix
+   */
   getMatrixRotationY4:function(angle) {
     var s = Math.sin(angle);
     var c = Math.cos(angle);
@@ -48,6 +88,14 @@ mea3D.Math = {
       [0, 0, 0,  1]
     ]);
   },
+  
+  /** Returns the rotation matrix representing a rotation around Z axis.
+   *  Resulting matrix is similar to DirectX rotation matrices.
+   *
+   * @param {number} angle  Rotation around Z axis in radians (Roll)
+   *
+   * @return {mea3D.Matrix4} Calculated rotation matrix
+   */
   getMatrixRotationZ4:function(angle) {
     var s = Math.sin(angle);
     var c = Math.cos(angle);
@@ -59,8 +107,15 @@ mea3D.Math = {
     ]);
   },
   
-  // Expanded 4x4 matrix multiplication. This might perform a little better than mea3D.Matrix4.mult(m)
-  mult4:function(a,b) {
+  /** Returns the multiplication of matrices a and b. Since this method uses expanded 4x4 matrix 
+   *  multiplication, it might perform a  better than mea3D.Matrix4.mult(m)
+   *
+   * @param {mea3D.Matrix4} a Matrix to be multiplied
+   * @param {mea3D.Matrix4} b Matrix to be multiplied
+   *
+   * @return {mea3D.Matrix4} Calculated product matrix
+   */
+  mult4:function(a, b) {
     var c = new mea3D.Matrix4();
     c.vals[0][0] = a.vals[0][0] * b.vals[0][0] + a.vals[0][1] * b.vals[1][0] + a.vals[0][2] * b.vals[2][0] + a.vals[0][3] * b.vals[3][0];
     c.vals[0][1] = a.vals[0][0] * b.vals[0][1] + a.vals[0][1] * b.vals[1][1] + a.vals[0][2] * b.vals[2][1] + a.vals[0][3] * b.vals[3][1];
@@ -81,7 +136,16 @@ mea3D.Math = {
     return c;
   },
   
-  // Verified with Direct3D's D3DXMatrixPerspectiveFovLH
+  /** Returns the projection matrix built using the given parameters. Identical to
+   * Direct3D D3DXMatrixPerspectiveFovLH method.
+   *
+   * @param {number} zNear  Near plane distance
+   * @param {number} zFar   Far plane distance
+   * @param {number} fovHor Horizontal field of view angle, in radians
+   * @param {number} fovVer Vertical field of view angle, in radians
+   *
+   * @return {mea3D.Matrix4} Calculated projection matrix
+   */
   getProjectionMatrix4:function(zNear, zFar, fovHor, fovVer) {
     var w = 1.0/Math.tan(fovHor*0.5);
     var h = 1.0/Math.tan(fovVer*0.5);
@@ -95,8 +159,17 @@ mea3D.Math = {
     return matrix;
   },
   
-  getCameraMatrix4:function(eyePos, lookAt, upVector) {
-    var zAxis = lookAt.subt(eyePos).norm();
+  /** Returns the camera matrix built using the given parameters. Identical to
+   * Direct3D D3DXMatrixPerspectiveFovLH method.
+   *
+   * @param {mea3D.Vector3} eyePos     Position of the eye (camera)
+   * @param {mea3D.Vector3} lookAtPos  Position to look at
+   * @param {mea3D.Vector3} upVector   Up vector of the camera, pointing in camera's Y axis
+   *
+   * @return {mea3D.Matrix4} Calculated camera matrix
+   */
+  getCameraMatrix4:function(eyePos, lookAtPos, upVector) {
+    var zAxis = lookAtPos.subt(eyePos).norm();
     var xAxis = upVector.cross(zAxis).norm();
     var yAxis = zAxis.cross(xAxis);
     
@@ -111,6 +184,18 @@ mea3D.Math = {
         [dotX,    dotY,    dotZ,    1]
       ]);
   },
+  
+  /** Returns the screen projection matrix built using the given parameters.
+   *
+   * @param {number} x      X position of the origin of the projection area
+   * @param {number} y      Y position of the origin of the projection area
+   * @param {number} width  Width of projection area
+   * @param {number} height Height of projection area
+   * @param {number} zMin   Mininum z distance for the projection
+   * @param {number} zMax   Maximum z distance for the projection
+   
+   * @return {mea3D.Matrix4} Calculated screen projection matrix
+   */
   getScreenProjectionMatrix4:function(x, y, width, height, zMin, zMax) {
     return new mea3D.Matrix4(
       [ [ width*0.5, 0, 0, 0],
@@ -119,16 +204,50 @@ mea3D.Math = {
         [ x+width*0.5, y+height*0.5, zMin, 1]
       ]);
   },
+  
+  /** Rotates a vector using given rotation parameters.
+   *
+   * @param {mea3D.Vector3} vec3   The vector to rotate
+   * @param {number} angleX        Rotation angle around X axis, in radians
+   * @param {number} angleY        Rotation angle around Y axis, in radians
+   * @param {number} angleZ        Rotation angle around Z axis, in radians
+   *
+   * @return {mea3D.Vector3} A newly created, rotated vector 
+   */
   rotateVector3:function(vec3, angleX, angleY, angleZ){
     var rotMatrix = mea3D.Math.getRotationMatrix4(angleX, angleY, angleZ);
     return mea3D.Math.transformPoint(vec3, rotMatrix);
   },
   
-  transformPoint:function(p, t) { // matrix, point
+  /** Transforms a point p using the given transformation matrix t and returns 
+   *  a new mea3D.Vector3 instance. This method does not mutate p.
+   *
+   * @param {mea3D.Vector3} p Point to transform
+   * @param {mea3D.Matrix4} t Matrix used to transform the point
+   *
+   * @return {mea3D.Vector3} A newly created, transformed vector
+   */
+  transformPoint:function(p, t) {
     return new mea3D.Vector3(
       t.vals[0][0]*p.x + t.vals[1][0]*p.y + t.vals[2][0]*p.z + t.vals[3][0],
       t.vals[0][1]*p.x + t.vals[1][1]*p.y + t.vals[2][1]*p.z + t.vals[3][1],
       t.vals[0][2]*p.x + t.vals[1][2]*p.y + t.vals[2][2]*p.z + t.vals[3][2]);
+  },
+  
+  /** Transforms a vector (point) p using the given transformation matrix t 
+   * into out parameter.
+   *
+   * @param {mea3D.Vector3} p   Vector to transform
+   * @param {mea3D.Matrix4} t   Matrix used to transform the point
+   * @param {mea3D.Vector3} out Transformed vector
+   *
+   * @return {mea3D.Vector3} The rotated out vector
+   */
+  transformPointInPlace:function(p, t, out) {
+    out.x = t.vals[0][0]*p.x + t.vals[1][0]*p.y + t.vals[2][0]*p.z + t.vals[3][0];
+    out.y = t.vals[0][1]*p.x + t.vals[1][1]*p.y + t.vals[2][1]*p.z + t.vals[3][1];
+    out.z = t.vals[0][2]*p.x + t.vals[1][2]*p.y + t.vals[2][2]*p.z + t.vals[3][2];
+    return out;
   },
 
   getFaceCenter:function(v1,v2,v3,v4) {
@@ -162,9 +281,14 @@ mea3D.Math = {
     return mea3D.Math.mult4(scaleRotateMatrix, translationMatrix);
   },
   
-  // Converts mouse coordinates to a direction vector on a sphere. 
-  // From http://viewport3d.com/trackball.htm
-  // x and y are [-1,1], with [0,0] being the center of the screen.
+  /** Converts mouse coordinates to a direction vector on a sphere. X and Y coordinates are normalized
+    * screen coordinates, ranging from -1 to 1, where (0,0) is the horizontal and vertical center 
+    * of the screen.
+    * Formulas from http://viewport3d.com/trackball.htm
+    *
+    * @param {number} x  A number in the range -1 to 1, where 0 is the horizontal center of the screen
+    * @param {number} y  A number in the range -1 to 1, where 0 is the vertical the center of the screen
+    */
   mouseCoordsToDirectionVector:function(x,y) {
     var z2 = 1-(x*x+y*y);
     var z = (z2>0) ? Math.sqrt(z2) : 0;
@@ -183,7 +307,7 @@ mea3D.Math = {
     } else {
       x_dir = new mea3D.Vector3(dir.z, 0, -dir.x);
       y_dir = new mea3D.Vector3(0,1,0);
-    };
+    }
 
 
     // x_dir and y_dir is orthogonal to dir and to eachother.
@@ -212,7 +336,13 @@ mea3D.Math = {
     return x0_x1.cross(x0_x2).mag2()/lineDir.mag2();
   },
   
-  // Axis is at the origin.
+  /** Returns the rotated vector by rotating the given vector around the given axis 
+    * by given angle degrees. Axis is a vector at the origin.
+    *
+    * @param {mea3D.Vector3} vector Vector to rotate
+    * @param {mea3D.Vector3} axis   Axis used to rotate the vector
+    * @param {number} angle         Angle to rotate, in radians 
+    */
   rotateVectorAroundAxis:function(vector, axis, angle) {
     // The formulas are from http://inside.mines.edu/~gmurray/ArbitraryAxisRotation/
     var u = axis.x;
@@ -232,5 +362,5 @@ mea3D.Math = {
     return rotated;
   }
   
-};
+}
 

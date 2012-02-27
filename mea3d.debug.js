@@ -385,6 +385,7 @@ mea3D.Line3.prototype = {
     return this.v2.subt(this.v1).norm();
   }
 };
+
 // mea3D HTML5 Canvas 3D library
 //
 // Author: Mustafa Acer
@@ -447,7 +448,7 @@ mea3D.Matrix4.prototype = {
         }
       }
     }
-    return new mea3D.Matrix4(vals);    
+    return new mea3D.Matrix4(vals);
   },
   
   multVector3:function(vector3) {
@@ -535,7 +536,7 @@ mea3D.Transformation.prototype = {
             "rotation: " + this.rotation.toString() +
             "scaling : " + this.scaling.toString();
   },
- 
+  
   copy:function() {
     var trans = new mea3D.Transformation(
       this.position.copy(),
@@ -605,16 +606,35 @@ mea3D.Transformation.prototype = {
     this.update();
   }
 };
+
 // mea3D HTML5 Canvas 3D library
 //
-// Author: Mustafa Acer
+// Author: Mustafa Emre Acer
 
 mea3D.Math = {
 
-  // 4D Matrices
+  /** Returns the scaling matrix built by the given scaling parameters.
+   *  Resulting matrix is similar to DirectX rotation matrices.
+   *
+   * @param {number} sx  Scaling in X dimension
+   * @param {number} sy  Scaling in Y dimension
+   * @param {number} sz  Scaling in Z dimension
+   *
+   * @return {mea3D.Matrix4} Calculated scaling matrix
+   */
   getScaleMatrix4:function(sx,sy,sz) {
     return new mea3D.Matrix4( [[sx,0,0,0], [0,sy,0,0], [0,0,sz,0], [0,0,0,1]] );
   },
+  
+  /** Returns the translation matrix built by the given translation parameters.
+   *  Resulting matrix is similar to DirectX rotation matrices.
+   *
+   * @param {number} tx  Distance from X axis
+   * @param {number} ty  Distance from Y axis
+   * @param {number} tz  Distance from Z axis
+   *
+   * @return {mea3D.Matrix4} Calculated translation matrix
+   */
   getTranslationMatrix4:function(tx,ty,tz) {
     return new mea3D.Matrix4( 
       [[1,0,0,0],
@@ -624,8 +644,16 @@ mea3D.Math = {
     ]);
   },
   
-  // Verified with DirectX SDK:
-  getRotationMatrix4:function(angleX, angleY, angleZ) { // yaw, pitch, roll    
+  /** Returns the rotation matrix built by the given rotation parameters.
+   *  Resulting matrix is similar to DirectX rotation matrices.
+   *
+   * @param {number} angleX  Rotation around X axis in radians (Yaw)
+   * @param {number} angleY  Rotation around Y axis in radians (Pitch)
+   * @param {number} angleZ  Rotation around Z axis in radions (Roll)
+   *
+   * @return {mea3D.Matrix4} Calculated rotation matrix
+   */
+  getRotationMatrix4:function(angleX, angleY, angleZ) {
     var matX = mea3D.Math.getMatrixRotationX4(angleX);
     var matY = mea3D.Math.getMatrixRotationY4(angleY);
     var matZ = mea3D.Math.getMatrixRotationZ4(angleZ);    
@@ -634,7 +662,13 @@ mea3D.Math = {
     return mea3D.Math.mult4( mea3D.Math.mult4(matX, matY), matZ);
   },
   
-  // Verified with DirectX SDK:
+  /** Returns the rotation matrix representing a rotation around X axis.
+   *  Resulting matrix is similar to DirectX rotation matrices.
+   *
+   * @param {number} angle  Rotation around X axis in radians (Yaw)
+   *
+   * @return {mea3D.Matrix4} Calculated rotation matrix
+   */
   getMatrixRotationX4:function(angle) {
     var s = Math.sin(angle);
     var c = Math.cos(angle);
@@ -645,6 +679,14 @@ mea3D.Math = {
       [0, 0, 0,  1]
     ]);
   },
+  
+  /** Returns the rotation matrix representing a rotation around Y axis.
+   *  Resulting matrix is similar to DirectX rotation matrices.
+   *
+   * @param {number} angle  Rotation around Y axis in radians (Pitch)
+   *
+   * @return {mea3D.Matrix4} Calculated rotation matrix
+   */
   getMatrixRotationY4:function(angle) {
     var s = Math.sin(angle);
     var c = Math.cos(angle);
@@ -655,6 +697,14 @@ mea3D.Math = {
       [0, 0, 0,  1]
     ]);
   },
+  
+  /** Returns the rotation matrix representing a rotation around Z axis.
+   *  Resulting matrix is similar to DirectX rotation matrices.
+   *
+   * @param {number} angle  Rotation around Z axis in radians (Roll)
+   *
+   * @return {mea3D.Matrix4} Calculated rotation matrix
+   */
   getMatrixRotationZ4:function(angle) {
     var s = Math.sin(angle);
     var c = Math.cos(angle);
@@ -666,8 +716,15 @@ mea3D.Math = {
     ]);
   },
   
-  // Expanded 4x4 matrix multiplication. This might perform a little better than mea3D.Matrix4.mult(m)
-  mult4:function(a,b) {
+  /** Returns the multiplication of matrices a and b. Since this method uses expanded 4x4 matrix 
+   *  multiplication, it might perform a  better than mea3D.Matrix4.mult(m)
+   *
+   * @param {mea3D.Matrix4} a Matrix to be multiplied
+   * @param {mea3D.Matrix4} b Matrix to be multiplied
+   *
+   * @return {mea3D.Matrix4} Calculated product matrix
+   */
+  mult4:function(a, b) {
     var c = new mea3D.Matrix4();
     c.vals[0][0] = a.vals[0][0] * b.vals[0][0] + a.vals[0][1] * b.vals[1][0] + a.vals[0][2] * b.vals[2][0] + a.vals[0][3] * b.vals[3][0];
     c.vals[0][1] = a.vals[0][0] * b.vals[0][1] + a.vals[0][1] * b.vals[1][1] + a.vals[0][2] * b.vals[2][1] + a.vals[0][3] * b.vals[3][1];
@@ -688,7 +745,16 @@ mea3D.Math = {
     return c;
   },
   
-  // Verified with Direct3D's D3DXMatrixPerspectiveFovLH
+  /** Returns the projection matrix built using the given parameters. Identical to
+   * Direct3D D3DXMatrixPerspectiveFovLH method.
+   *
+   * @param {number} zNear  Near plane distance
+   * @param {number} zFar   Far plane distance
+   * @param {number} fovHor Horizontal field of view angle, in radians
+   * @param {number} fovVer Vertical field of view angle, in radians
+   *
+   * @return {mea3D.Matrix4} Calculated projection matrix
+   */
   getProjectionMatrix4:function(zNear, zFar, fovHor, fovVer) {
     var w = 1.0/Math.tan(fovHor*0.5);
     var h = 1.0/Math.tan(fovVer*0.5);
@@ -702,8 +768,17 @@ mea3D.Math = {
     return matrix;
   },
   
-  getCameraMatrix4:function(eyePos, lookAt, upVector) {
-    var zAxis = lookAt.subt(eyePos).norm();
+  /** Returns the camera matrix built using the given parameters. Identical to
+   * Direct3D D3DXMatrixPerspectiveFovLH method.
+   *
+   * @param {mea3D.Vector3} eyePos     Position of the eye (camera)
+   * @param {mea3D.Vector3} lookAtPos  Position to look at
+   * @param {mea3D.Vector3} upVector   Up vector of the camera, pointing in camera's Y axis
+   *
+   * @return {mea3D.Matrix4} Calculated camera matrix
+   */
+  getCameraMatrix4:function(eyePos, lookAtPos, upVector) {
+    var zAxis = lookAtPos.subt(eyePos).norm();
     var xAxis = upVector.cross(zAxis).norm();
     var yAxis = zAxis.cross(xAxis);
     
@@ -718,6 +793,18 @@ mea3D.Math = {
         [dotX,    dotY,    dotZ,    1]
       ]);
   },
+  
+  /** Returns the screen projection matrix built using the given parameters.
+   *
+   * @param {number} x      X position of the origin of the projection area
+   * @param {number} y      Y position of the origin of the projection area
+   * @param {number} width  Width of projection area
+   * @param {number} height Height of projection area
+   * @param {number} zMin   Mininum z distance for the projection
+   * @param {number} zMax   Maximum z distance for the projection
+   
+   * @return {mea3D.Matrix4} Calculated screen projection matrix
+   */
   getScreenProjectionMatrix4:function(x, y, width, height, zMin, zMax) {
     return new mea3D.Matrix4(
       [ [ width*0.5, 0, 0, 0],
@@ -726,16 +813,50 @@ mea3D.Math = {
         [ x+width*0.5, y+height*0.5, zMin, 1]
       ]);
   },
+  
+  /** Rotates a vector using given rotation parameters.
+   *
+   * @param {mea3D.Vector3} vec3   The vector to rotate
+   * @param {number} angleX        Rotation angle around X axis, in radians
+   * @param {number} angleY        Rotation angle around Y axis, in radians
+   * @param {number} angleZ        Rotation angle around Z axis, in radians
+   *
+   * @return {mea3D.Vector3} A newly created, rotated vector 
+   */
   rotateVector3:function(vec3, angleX, angleY, angleZ){
     var rotMatrix = mea3D.Math.getRotationMatrix4(angleX, angleY, angleZ);
     return mea3D.Math.transformPoint(vec3, rotMatrix);
   },
   
-  transformPoint:function(p, t) { // matrix, point
+  /** Transforms a point p using the given transformation matrix t and returns 
+   *  a new mea3D.Vector3 instance. This method does not mutate p.
+   *
+   * @param {mea3D.Vector3} p Point to transform
+   * @param {mea3D.Matrix4} t Matrix used to transform the point
+   *
+   * @return {mea3D.Vector3} A newly created, transformed vector
+   */
+  transformPoint:function(p, t) {
     return new mea3D.Vector3(
       t.vals[0][0]*p.x + t.vals[1][0]*p.y + t.vals[2][0]*p.z + t.vals[3][0],
       t.vals[0][1]*p.x + t.vals[1][1]*p.y + t.vals[2][1]*p.z + t.vals[3][1],
       t.vals[0][2]*p.x + t.vals[1][2]*p.y + t.vals[2][2]*p.z + t.vals[3][2]);
+  },
+  
+  /** Transforms a vector (point) p using the given transformation matrix t 
+   * into out parameter.
+   *
+   * @param {mea3D.Vector3} p   Vector to transform
+   * @param {mea3D.Matrix4} t   Matrix used to transform the point
+   * @param {mea3D.Vector3} out Transformed vector
+   *
+   * @return {mea3D.Vector3} The rotated out vector
+   */
+  transformPointInPlace:function(p, t, out) {
+    out.x = t.vals[0][0]*p.x + t.vals[1][0]*p.y + t.vals[2][0]*p.z + t.vals[3][0];
+    out.y = t.vals[0][1]*p.x + t.vals[1][1]*p.y + t.vals[2][1]*p.z + t.vals[3][1];
+    out.z = t.vals[0][2]*p.x + t.vals[1][2]*p.y + t.vals[2][2]*p.z + t.vals[3][2];
+    return out;
   },
 
   getFaceCenter:function(v1,v2,v3,v4) {
@@ -769,9 +890,14 @@ mea3D.Math = {
     return mea3D.Math.mult4(scaleRotateMatrix, translationMatrix);
   },
   
-  // Converts mouse coordinates to a direction vector on a sphere. 
-  // From http://viewport3d.com/trackball.htm
-  // x and y are [-1,1], with [0,0] being the center of the screen.
+  /** Converts mouse coordinates to a direction vector on a sphere. X and Y coordinates are normalized
+    * screen coordinates, ranging from -1 to 1, where (0,0) is the horizontal and vertical center 
+    * of the screen.
+    * Formulas from http://viewport3d.com/trackball.htm
+    *
+    * @param {number} x  A number in the range -1 to 1, where 0 is the horizontal center of the screen
+    * @param {number} y  A number in the range -1 to 1, where 0 is the vertical the center of the screen
+    */
   mouseCoordsToDirectionVector:function(x,y) {
     var z2 = 1-(x*x+y*y);
     var z = (z2>0) ? Math.sqrt(z2) : 0;
@@ -790,7 +916,7 @@ mea3D.Math = {
     } else {
       x_dir = new mea3D.Vector3(dir.z, 0, -dir.x);
       y_dir = new mea3D.Vector3(0,1,0);
-    };
+    }
 
 
     // x_dir and y_dir is orthogonal to dir and to eachother.
@@ -819,27 +945,33 @@ mea3D.Math = {
     return x0_x1.cross(x0_x2).mag2()/lineDir.mag2();
   },
   
-  // Axis is at the origin.
+  /** Returns the rotated vector by rotating the given vector around the given axis 
+    * by given angle degrees. Axis is a vector at the origin.
+    *
+    * @param {mea3D.Vector3} vector Vector to rotate
+    * @param {mea3D.Vector3} axis   Axis used to rotate the vector
+    * @param {number} angle         Angle to rotate, in radians 
+    */
   rotateVectorAroundAxis:function(vector, axis, angle) {
     // The formulas are from http://inside.mines.edu/~gmurray/ArbitraryAxisRotation/
     var u = axis.x;
     var v = axis.y;
-    var w = axis.z;    
+    var w = axis.z;
     var x = vector.x;
     var y = vector.y;
-    var z = vector.z;    
+    var z = vector.z;
     var sin = Math.sin(angle);
-    var cos = Math.cos(angle);    
+    var cos = Math.cos(angle);
     var rotated = new mea3D.Vector3(0,0,0);
     var dot = vector.dot(axis);
-    var lenAxis = axis.mag();    
+    var lenAxis = axis.mag();
     rotated.x = u * dot + (x*(v*v + w*w) - u*(v*y+w*z))*cos + lenAxis*(-w*y + v*z)*sin;
     rotated.y = v * dot + (y*(u*u + w*w) - v*(u*x+w*z))*cos + lenAxis*(w*x - u*z) *sin;
     rotated.z = w * dot + (z*(u*u + v*v) - w*(u*x+v*y))*cos + lenAxis*(-v*x + u*y)*sin;
     return rotated;
   }
   
-};
+}
 
 //
 // mea3D HTML5 Canvas 3D library
@@ -1474,7 +1606,7 @@ mea3D.Polygon.prototype = {
     }
     return "(v1:" + this.v1.pos + ", v2:" + this.v2.pos + ", v3:" + this.v3.pos + ")";
   },
-   
+  
   //calculateNormals:function() {
   calculateNormalsAndCenters:function() {
    
@@ -1635,7 +1767,7 @@ mea3D.Light = function(type, color, position, direction, range, attenuation, ena
   this.position = position;
   this.direction = direction ? direction.norm():null;
   this.range = range;
-  this.enabled = (typeof enabled=="undefined")? true:enabled;
+  this.enabled = (typeof(enabled)=="undefined" ? true: !!enabled);
   if (range) this.rangeSquared = range*range; // precalculated 
   this.attenuation = attenuation;
 }
@@ -1955,7 +2087,6 @@ mea3D.Mesh.prototype = {
     this.numFaces = this.faceIndices.length;       
     
     this.updateTransformation();
-    //mea3D.Logging.log("Mesh loaded with " + this.numVertices + " vertices, " + this.numFaces + " faces.");
   },
   
   // Scales the vertices and sets the scaling value as 1.
@@ -2004,35 +2135,32 @@ mea3D.Mesh.prototype = {
   updateCentersAndNormals:function() {
     
     this.worldTransformVertices();
-    for (var i=0; i<this.numFaces; ++i) {      
+    for (var i=0; i<this.numFaces; ++i) {
       var polygon = this.polygons[i];
-      polygon.calculateNormalsAndCenters();      
+      polygon.calculateNormalsAndCenters();
     }
   },
   
   projectVertices:function(matrix, viewportWidth, viewportHeight) {
     
+    var halfViewportWidth = viewportWidth/2;
+    var halfViewportHeight = viewportHeight/2;
+    
     // Project all points and store them in this.projectedVertices
     var projected;
-    for (var i=0; i<this.numVertices; i++) {      
+    for (var i=0; i<this.numVertices; i++) {
       
-      // Calculate 2D projection of the world transformed point:
-      projected = mea3D.Math.transformPoint(
-        this.worldTransformedVertices[i], matrix
-      );
+      projected = this.projectedVertices[i];
+      mea3D.Math.transformPointInPlace(this.worldTransformedVertices[i], matrix, projected);
+      
       // Perspective division:
       projected.x /= (projected.z);
       projected.y /= (projected.z);
       
       // Transform into viewport coords:
-      projected.x =  ((projected.x * viewportWidth)  / (2.0*projected.w)) + viewportWidth/2;
-      projected.y = -((projected.y * viewportHeight) / (2.0*projected.w)) + viewportHeight/2;    
-      
-      // Assign fields one by one in order to not lose the reference to
-      // this.projectedVertices[i].
-      this.projectedVertices[i].x = projected.x;
-      this.projectedVertices[i].y = projected.y;
-      this.projectedVertices[i].z = projected.z;
+      var doubleProjectedW = 2.0*projected.w;
+      projected.x =  ((projected.x * viewportWidth)  / doubleProjectedW) + halfViewportWidth;
+      projected.y = -((projected.y * viewportHeight) / doubleProjectedW) + halfViewportHeight;
     }
   },
   
@@ -2057,7 +2185,6 @@ mea3D.Mesh.prototype = {
   
     if (this.type==mea3D.MeshType.MESH_SURFACE ||
         this.type=="surface") {
-      mea3D.Logging.log("Bounding surface radius: " + this.radius);      
       return {radius:this.radius, position:new mea3D.Vector3(0,0,0)};
     }
     
@@ -2106,8 +2233,6 @@ mea3D.Mesh.prototype = {
         centerOfGravity.x /= usedVertices.length;
         centerOfGravity.y /= usedVertices.length;
         centerOfGravity.z /= usedVertices.length;
-      
-        //mea3D.Logging.log("Center of gravity: " + centerOfGravity);
         
         // Find maximum distance:
         var maxDistSquared = 0;
@@ -2144,7 +2269,6 @@ mea3D.Mesh.prototype = {
         ownerMesh : this
       }
     );
-    mea3D.Logging.log("Bounding shape calculated : " + this.boundingShape);
   },
   
   
@@ -2165,6 +2289,7 @@ mea3D.Mesh.prototype = {
     this.transformation.scale3(sx,sy,sz);
   }
 };
+
 // mea3D HTML5 Canvas 3D library
 //
 // Author: Mustafa Acer
@@ -2504,6 +2629,37 @@ mea3D.Scene.prototype = {
     return boundingShape;
   }
 };
+
+/** @interface
+ */
+mea3D.Renderable2D = function() {
+  this.projectedCenter = null;
+}
+
+/** @constructor
+ *  @implements {mea3D.Renderable2D}
+ */
+mea3D.Renderable2D.Quad = function(v1, v2, v3, v4, projectedCenter, renderColor) {
+  this.type = mea3D.RenderableType.POLYGON;
+  this.v1 = v1;
+  this.v2 = v2;
+  this.v3 = v3;
+  this.v4 = v4;
+  this.projectedCenter = projectedCenter;
+  this.renderColor = renderColor;
+}
+
+/** @constructor
+ *  @implements {mea3D.Renderable2D}
+ */
+mea3D.Renderable2D.Text = function(projectedPos, projectedCenter, text, fontSize, renderColor) {
+  this.type = mea3D.RenderableType.TEXT;
+  this.position = projectedPos;
+  this.projectedCenter = projectedCenter;
+  this.text = text;
+  this.fontSize = fontSize;
+  this.renderColor = renderColor;
+}
 // mea3D HTML5 Canvas 3D library
 //
 // Author: Mustafa Emre Acer
@@ -2698,14 +2854,8 @@ mea3D.Canvas2DRendererContext.prototype = {
   
   // Renders text in 3d
   renderText:function(text, position, fontSize, color) {
-    if (color) {
-      this.setFillColor(color);
-    }
-    if (fontSize) {
-      this.context.font = fontSize + "pt Arial";
-    }
     var projected = this.sceneProjection.project(position);
-    this.context.fillText(text, projected.x, projected.y);
+    this.renderText2D(text, projected, fontSize, color);
   },
   
   // Draw a 2D circle at the given point and radius
@@ -2720,9 +2870,6 @@ mea3D.Canvas2DRendererContext.prototype = {
     this.context.stroke();
   },
   
-  endRender:function() {
-  },
-  
   clear:function() {
     this.drawRect2D(
       0,0,
@@ -2730,12 +2877,10 @@ mea3D.Canvas2DRendererContext.prototype = {
       this.viewport.height, 
       this.options.clearColor
     );
-    
   },
   
   beginDraw:function() {
     this.sceneProjection.clear();
-    
   },
   
   drawScene:function(scene) {
@@ -2743,13 +2888,9 @@ mea3D.Canvas2DRendererContext.prototype = {
   },
   
   endDraw:function() {
-  
   },
   
-  beginRender:function(clear) {
-    //if (clear) {
-      this.clear();
-    //}
+  beginRender:function() {
   },
   
   render:function() {
@@ -2758,30 +2899,31 @@ mea3D.Canvas2DRendererContext.prototype = {
     var renderBuffer = this.sceneProjection.renderBuffer;
     var faceCount = renderBuffer.length;
     for (var i=faceCount-1; i>=0; i--) {
-      var polygon = renderBuffer[i];
       
-      switch (polygon.type) {
+      var renderable = renderBuffer[i];
+      
+      switch (renderable.type) {
       
         case mea3D.RenderableType.POLYGON:
-           // 2D mea3D.Polygon
-          this.renderPolygon(
-            polygon.projectedVertices.v1,
-            polygon.projectedVertices.v2,
-            polygon.projectedVertices.v3,
-            polygon.projectedVertices.v4,
-            polygon.computedColor,
-            (polygon.material && polygon.material.texture) ? polygon.material.texture:null
+          // Draw faces
+          this.drawPolygon2D(
+            renderable.v1,
+            renderable.v2,
+            renderable.v3,
+            renderable.v4,
+            renderable.renderColor, 
+            null
           );
           break;
         
         case mea3D.RenderableType.SURFACE:
           // 2D Surface
-          this.renderCircle2D(polygon.position, polygon.radius, polygon.color);
+          this.renderCircle2D(renderable.position, renderable.radius, renderable.color);
           break;
         
         case mea3D.RenderableType.TEXT:
           // Text mesh
-          this.renderText2D(polygon.text, polygon.position, polygon.fontSize, polygon.color);
+          this.renderText2D(renderable.text, renderable.position, renderable.fontSize, renderable.renderColor);
           break;
       }
     }  
@@ -2789,6 +2931,9 @@ mea3D.Canvas2DRendererContext.prototype = {
     this.renderStats.framesRendered++;
   },
  
+  endRender:function() {
+  },
+  
   // Projects and renders a polygon in 3D
   renderPolygon:function(v1, v2, v3, v4, color, texture) {
     
@@ -2855,7 +3000,8 @@ mea3D.SceneProjection.prototype = {
   },
   
   drawSurfaceMesh:function(mesh, lights, ambientColor) {
-    // TODO: Ugly, refactor.
+    throw "not implemented";
+    /*// TODO: Ugly, refactor.
     // Here we are drawing a circle for a sphere.
     // Draw a 3D Sphere
     var projected = mea3D.Math.transformPoint(mesh.finalTransformation.position, this.matrixTransform);
@@ -2887,7 +3033,7 @@ mea3D.SceneProjection.prototype = {
       color:new mea3D.ColorRGBA(1,1,0),
       type: mea3D.RenderableType.SURFACE,
       projectedCenter:projected
-    });
+    });*/
   },
   
   drawTextMesh:function(mesh, lights, ambientColor) {
@@ -2914,14 +3060,13 @@ mea3D.SceneProjection.prototype = {
     var projectedRadius2 = new mea3D.Vector2(projected.x-projectedRadius.x, projected.y-projectedRadius.y);      
     var radius = projectedRadius2.mag();
     
-    this.renderBuffer.push({
-      position: projected,
-      text:     mesh.text,
-      fontSize: radius,
-      color:    mesh.material.ambientColor,
-      type:     mea3D.RenderableType.TEXT,
-      projectedCenter:projected
-    });
+    this.renderBuffer.push(new mea3D.Renderable2D.Text(
+      projected,  // position
+      projected,  // center
+      mesh.text,  // text
+      radius,     // fontsize
+      mesh.material.ambientColor // renderColor
+    ));
   },
   
   drawMesh:function(mesh, lights, ambientColor) {
@@ -2933,7 +3078,7 @@ mea3D.SceneProjection.prototype = {
       case mea3D.MeshType.MESH_SURFACE:
         this.drawSurfaceMesh(mesh, lights, ambientColor);
         break;
-            
+      
       case mea3D.MeshType.MESH_TEXT:
         this.drawTextMesh(mesh, lights, ambientColor);
         break;
@@ -2962,10 +3107,10 @@ mea3D.SceneProjection.prototype = {
   drawPolygonList:function(polygonList, lights, ambientColor) {
       
     // Loop through the face indices
-    var numFaces = polygonList.length;    
+    var numFaces = polygonList.length;
     for (var i=0; i<numFaces; ++i) {
       
-      var polygon = polygonList[i];      
+      var polygon = polygonList[i];
       var p1 = polygon.projectedVertices.v1;
       var p2 = polygon.projectedVertices.v2;
       var p3 = polygon.projectedVertices.v3;
@@ -3004,9 +3149,17 @@ mea3D.SceneProjection.prototype = {
           lights,
           ambientColor
         );
-      }      
+      }
+      
       // Add the computed polygon to render buffer.
-      this.renderBuffer.push(polygon);   
+      var renderable = new mea3D.Renderable2D.Quad(
+        polygon.projectedVertices.v1,
+        polygon.projectedVertices.v2,
+        polygon.projectedVertices.v3,
+        polygon.projectedVertices.v4,
+        polygon.projectedCenter,
+        polygon.computedColor);
+      this.renderBuffer.push(renderable);
     }
   },
   
@@ -3080,14 +3233,13 @@ mea3D.RenderStats = function() {
   */
 mea3D.RendererContextInterface = function(canvas, viewport, options, renderStats) {};
 mea3D.RendererContextInterface.prototype = {
+
   init:function(){},
-  
   
   drawLine2D:function(x1, y1, x2, y2, color, lineWidth){},
   drawPoint2D:function(x, y, color){},
   drawPolygon2D:function(v1, v2, v3, v4, color, img){},
-  drawRect2D:function(x, y, w, h, color){},
-  
+  drawRect2D:function(x, y, width, height, color){},
   
   drawLine:function(v1, v2, color, lineWidth) {},
   drawPoint:function(point, color){},
@@ -3101,9 +3253,10 @@ mea3D.RendererContextInterface.prototype = {
   drawScene:function(scene){},
   endDraw:function(){},
   
-  beginRender:function(clear){},
+  beginRender:function(){},
   render:function(){},
   endRender:function(){},
+  
   clear:function(){},
   
   setProjectionMatrix:function(matrixProjection){},
@@ -3136,6 +3289,7 @@ mea3D.Renderer = function(container, options) {
     aspectRatio:     this.width/this.height,          // viewport aspect ratio
     fovVertical:     Math.PI/(this.aspectRatio)       // vertical field of view
   };
+  
   // Get the options
   this.options = mea3D.getOptions(options, defaultOptions);
   this.options.aspectRatio = (this.options.width/this.options.height);  
@@ -3177,9 +3331,8 @@ mea3D.Renderer.prototype = {
     if (!this.canvas) {
       this.canvas = mea3D.Utils.createCanvas(this.container, this.viewport.width, this.viewport.height);
     }
-    
-    this.context = new mea3D.Canvas2DRendererContext(
-      this.canvas, this.viewport, this.options, this.renderStats);
+    var contextType = mea3D.Canvas2DRendererContext;
+    this.context = new contextType(this.canvas, this.viewport, this.options, this.renderStats);
     this.initialized = this.context.init();
     return this.initialized;
   },
@@ -3188,7 +3341,7 @@ mea3D.Renderer.prototype = {
     return this.initialized;
   },
   
-  reset:function() {    
+  reset:function() {
     if (!(this.isInitialized())) {
       return false;
     }

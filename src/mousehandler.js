@@ -53,11 +53,12 @@ mea3D.MouseHandler.prototype = {
     this.prevMouseY = screenY;
 
     // Render the new page:
-    this.app.renderer.update(app.scene);
+    if (this.app.renderFrame) {
+      this.app.renderFrame.call(this.app);
+    }
 
-    // TEST: Mouse hit test:
-    if (this.app.renderer.getMouseSelection) {
-      this.app.renderer.getMouseSelection(app.scene, screenX, screenY);
+    if (this.app.onMouseMove) {
+      this.app.onMouseMove.call(this.app, screenX, screenY);
     }
     return false;
   }

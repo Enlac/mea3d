@@ -192,14 +192,8 @@ mea3D.Canvas2DRendererContext.prototype = {
   
   // Renders text in 3d
   renderText:function(text, position, fontSize, color) {
-    if (color) {
-      this.setFillColor(color);
-    }
-    if (fontSize) {
-      this.context.font = fontSize + "pt Arial";
-    }
     var projected = this.sceneProjection.project(position);
-    this.context.fillText(text, projected.x, projected.y);
+    this.renderText2D(text, projected, fontSize, color);
   },
   
   // Draw a 2D circle at the given point and radius
@@ -214,9 +208,6 @@ mea3D.Canvas2DRendererContext.prototype = {
     this.context.stroke();
   },
   
-  endRender:function() {
-  },
-  
   clear:function() {
     this.drawRect2D(
       0,0,
@@ -224,12 +215,10 @@ mea3D.Canvas2DRendererContext.prototype = {
       this.viewport.height, 
       this.options.clearColor
     );
-    
   },
   
   beginDraw:function() {
     this.sceneProjection.clear();
-    
   },
   
   drawScene:function(scene) {
@@ -237,13 +226,9 @@ mea3D.Canvas2DRendererContext.prototype = {
   },
   
   endDraw:function() {
-  
   },
   
-  beginRender:function(clear) {
-    //if (clear) {
-      this.clear();
-    //}
+  beginRender:function() {
   },
   
   render:function() {
@@ -252,30 +237,31 @@ mea3D.Canvas2DRendererContext.prototype = {
     var renderBuffer = this.sceneProjection.renderBuffer;
     var faceCount = renderBuffer.length;
     for (var i=faceCount-1; i>=0; i--) {
-      var polygon = renderBuffer[i];
       
-      switch (polygon.type) {
+      var renderable = renderBuffer[i];
+      
+      switch (renderable.type) {
       
         case mea3D.RenderableType.POLYGON:
-           // 2D mea3D.Polygon
-          this.renderPolygon(
-            polygon.projectedVertices.v1,
-            polygon.projectedVertices.v2,
-            polygon.projectedVertices.v3,
-            polygon.projectedVertices.v4,
-            polygon.computedColor,
-            (polygon.material && polygon.material.texture) ? polygon.material.texture:null
+          // Draw faces
+          this.drawPolygon2D(
+            renderable.v1,
+            renderable.v2,
+            renderable.v3,
+            renderable.v4,
+            renderable.renderColor, 
+            null
           );
           break;
         
         case mea3D.RenderableType.SURFACE:
           // 2D Surface
-          this.renderCircle2D(polygon.position, polygon.radius, polygon.color);
+          this.renderCircle2D(renderable.position, renderable.radius, renderable.color);
           break;
         
         case mea3D.RenderableType.TEXT:
           // Text mesh
-          this.renderText2D(polygon.text, polygon.position, polygon.fontSize, polygon.color);
+          this.renderText2D(renderable.text, renderable.position, renderable.fontSize, renderable.renderColor);
           break;
       }
     }  
@@ -283,6 +269,9 @@ mea3D.Canvas2DRendererContext.prototype = {
     this.renderStats.framesRendered++;
   },
  
+  endRender:function() {
+  },
+  
   // Projects and renders a polygon in 3D
   renderPolygon:function(v1, v2, v3, v4, color, texture) {
     
@@ -349,7 +338,8 @@ mea3D.SceneProjection.prototype = {
   },
   
   drawSurfaceMesh:function(mesh, lights, ambientColor) {
-    // TODO: Ugly, refactor.
+    throw "not implemented";
+    /*// TODO: Ugly, refactor.
     // Here we are drawing a circle for a sphere.
     // Draw a 3D Sphere
     var projected = mea3D.Math.transformPoint(mesh.finalTransformation.position, this.matrixTransform);
@@ -381,7 +371,7 @@ mea3D.SceneProjection.prototype = {
       color:new mea3D.ColorRGBA(1,1,0),
       type: mea3D.RenderableType.SURFACE,
       projectedCenter:projected
-    });
+    });*/
   },
   
   drawTextMesh:function(mesh, lights, ambientColor) {
@@ -408,14 +398,13 @@ mea3D.SceneProjection.prototype = {
     var projectedRadius2 = new mea3D.Vector2(projected.x-projectedRadius.x, projected.y-projectedRadius.y);      
     var radius = projectedRadius2.mag();
     
-    this.renderBuffer.push({
-      position: projected,
-      text:     mesh.text,
-      fontSize: radius,
-      color:    mesh.material.ambientColor,
-      type:     mea3D.RenderableType.TEXT,
-      projectedCenter:projected
-    });
+    this.renderBuffer.push(new mea3D.Renderable2D.Text(
+      projected,  // position
+      projected,  // center
+      mesh.text,  // text
+      radius,     // fontsize
+      mesh.material.ambientColor // renderColor
+    ));
   },
   
   drawMesh:function(mesh, lights, ambientColor) {
@@ -427,7 +416,7 @@ mea3D.SceneProjection.prototype = {
       case mea3D.MeshType.MESH_SURFACE:
         this.drawSurfaceMesh(mesh, lights, ambientColor);
         break;
-            
+      
       case mea3D.MeshType.MESH_TEXT:
         this.drawTextMesh(mesh, lights, ambientColor);
         break;
@@ -456,10 +445,10 @@ mea3D.SceneProjection.prototype = {
   drawPolygonList:function(polygonList, lights, ambientColor) {
       
     // Loop through the face indices
-    var numFaces = polygonList.length;    
+    var numFaces = polygonList.length;
     for (var i=0; i<numFaces; ++i) {
       
-      var polygon = polygonList[i];      
+      var polygon = polygonList[i];
       var p1 = polygon.projectedVertices.v1;
       var p2 = polygon.projectedVertices.v2;
       var p3 = polygon.projectedVertices.v3;
@@ -498,9 +487,17 @@ mea3D.SceneProjection.prototype = {
           lights,
           ambientColor
         );
-      }      
+      }
+      
       // Add the computed polygon to render buffer.
-      this.renderBuffer.push(polygon);   
+      var renderable = new mea3D.Renderable2D.Quad(
+        polygon.projectedVertices.v1,
+        polygon.projectedVertices.v2,
+        polygon.projectedVertices.v3,
+        polygon.projectedVertices.v4,
+        polygon.projectedCenter,
+        polygon.computedColor);
+      this.renderBuffer.push(renderable);
     }
   },
   

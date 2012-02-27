@@ -48,6 +48,7 @@
 
         <file name="src/keycodes.js" />
         <file name="src/scene.js" />
+        <file name="src/renderable.js"/>
         <file name="src/canvas2dcontext.js" />
         <file name="src/renderer.js" />
         <file name="src/fps.js" />
@@ -98,6 +99,7 @@
 
       <arg value="--js"/>  <arg value="src/keycodes.js" />
       <arg value="--js"/>  <arg value="src/scene.js" />
+      <arg value="--js"/>  <arg value="src/renderable.js"/>
       <arg value="--js"/>  <arg value="src/canvas2dcontext.js" />
       <arg value="--js"/>  <arg value="src/renderer.js" />
       <arg value="--js"/>  <arg value="src/fps.js" />

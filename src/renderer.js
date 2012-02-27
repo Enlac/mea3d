@@ -25,14 +25,13 @@ mea3D.RenderStats = function() {
   */
 mea3D.RendererContextInterface = function(canvas, viewport, options, renderStats) {};
 mea3D.RendererContextInterface.prototype = {
+
   init:function(){},
-  
   
   drawLine2D:function(x1, y1, x2, y2, color, lineWidth){},
   drawPoint2D:function(x, y, color){},
   drawPolygon2D:function(v1, v2, v3, v4, color, img){},
-  drawRect2D:function(x, y, w, h, color){},
-  
+  drawRect2D:function(x, y, width, height, color){},
   
   drawLine:function(v1, v2, color, lineWidth) {},
   drawPoint:function(point, color){},
@@ -46,9 +45,10 @@ mea3D.RendererContextInterface.prototype = {
   drawScene:function(scene){},
   endDraw:function(){},
   
-  beginRender:function(clear){},
+  beginRender:function(){},
   render:function(){},
   endRender:function(){},
+  
   clear:function(){},
   
   setProjectionMatrix:function(matrixProjection){},
@@ -81,6 +81,7 @@ mea3D.Renderer = function(container, options) {
     aspectRatio:     this.width/this.height,          // viewport aspect ratio
     fovVertical:     Math.PI/(this.aspectRatio)       // vertical field of view
   };
+  
   // Get the options
   this.options = mea3D.getOptions(options, defaultOptions);
   this.options.aspectRatio = (this.options.width/this.options.height);  
@@ -122,9 +123,8 @@ mea3D.Renderer.prototype = {
     if (!this.canvas) {
       this.canvas = mea3D.Utils.createCanvas(this.container, this.viewport.width, this.viewport.height);
     }
-    
-    this.context = new mea3D.Canvas2DRendererContext(
-      this.canvas, this.viewport, this.options, this.renderStats);
+    var contextType = mea3D.Canvas2DRendererContext;
+    this.context = new contextType(this.canvas, this.viewport, this.options, this.renderStats);
     this.initialized = this.context.init();
     return this.initialized;
   },

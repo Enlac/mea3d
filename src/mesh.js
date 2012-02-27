@@ -205,7 +205,6 @@ mea3D.Mesh.prototype = {
     this.numFaces = this.faceIndices.length;       
     
     this.updateTransformation();
-    //mea3D.Logging.log("Mesh loaded with " + this.numVertices + " vertices, " + this.numFaces + " faces.");
   },
   
   // Scales the vertices and sets the scaling value as 1.
@@ -254,35 +253,32 @@ mea3D.Mesh.prototype = {
   updateCentersAndNormals:function() {
     
     this.worldTransformVertices();
-    for (var i=0; i<this.numFaces; ++i) {      
+    for (var i=0; i<this.numFaces; ++i) {
       var polygon = this.polygons[i];
-      polygon.calculateNormalsAndCenters();      
+      polygon.calculateNormalsAndCenters();
     }
   },
   
   projectVertices:function(matrix, viewportWidth, viewportHeight) {
     
+    var halfViewportWidth = viewportWidth/2;
+    var halfViewportHeight = viewportHeight/2;
+    
     // Project all points and store them in this.projectedVertices
     var projected;
-    for (var i=0; i<this.numVertices; i++) {      
+    for (var i=0; i<this.numVertices; i++) {
       
-      // Calculate 2D projection of the world transformed point:
-      projected = mea3D.Math.transformPoint(
-        this.worldTransformedVertices[i], matrix
-      );
+      projected = this.projectedVertices[i];
+      mea3D.Math.transformPointInPlace(this.worldTransformedVertices[i], matrix, projected);
+      
       // Perspective division:
       projected.x /= (projected.z);
       projected.y /= (projected.z);
       
       // Transform into viewport coords:
-      projected.x =  ((projected.x * viewportWidth)  / (2.0*projected.w)) + viewportWidth/2;
-      projected.y = -((projected.y * viewportHeight) / (2.0*projected.w)) + viewportHeight/2;    
-      
-      // Assign fields one by one in order to not lose the reference to
-      // this.projectedVertices[i].
-      this.projectedVertices[i].x = projected.x;
-      this.projectedVertices[i].y = projected.y;
-      this.projectedVertices[i].z = projected.z;
+      var doubleProjectedW = 2.0*projected.w;
+      projected.x =  ((projected.x * viewportWidth)  / doubleProjectedW) + halfViewportWidth;
+      projected.y = -((projected.y * viewportHeight) / doubleProjectedW) + halfViewportHeight;
     }
   },
   
@@ -307,7 +303,6 @@ mea3D.Mesh.prototype = {
   
     if (this.type==mea3D.MeshType.MESH_SURFACE ||
         this.type=="surface") {
-      mea3D.Logging.log("Bounding surface radius: " + this.radius);      
       return {radius:this.radius, position:new mea3D.Vector3(0,0,0)};
     }
     
@@ -356,8 +351,6 @@ mea3D.Mesh.prototype = {
         centerOfGravity.x /= usedVertices.length;
         centerOfGravity.y /= usedVertices.length;
         centerOfGravity.z /= usedVertices.length;
-      
-        //mea3D.Logging.log("Center of gravity: " + centerOfGravity);
         
         // Find maximum distance:
         var maxDistSquared = 0;
@@ -394,7 +387,6 @@ mea3D.Mesh.prototype = {
         ownerMesh : this
       }
     );
-    mea3D.Logging.log("Bounding shape calculated : " + this.boundingShape);
   },
   
   
