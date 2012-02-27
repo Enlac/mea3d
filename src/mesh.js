@@ -415,3 +415,4 @@ mea3D.Mesh.prototype = {
     this.transformation.scale3(sx,sy,sz);
   }
 };
+

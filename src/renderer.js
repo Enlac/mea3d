@@ -133,7 +133,7 @@ mea3D.Renderer.prototype = {
     return this.initialized;
   },
   
-  reset:function() {    
+  reset:function() {
     if (!(this.isInitialized())) {
       return false;
     }

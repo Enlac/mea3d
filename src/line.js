@@ -24,3 +24,4 @@ mea3D.Line3.prototype = {
     return this.v2.subt(this.v1).norm();
   }
 };
+

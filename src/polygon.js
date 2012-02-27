@@ -65,7 +65,7 @@ mea3D.Polygon.prototype = {
     }
     return "(v1:" + this.v1.pos + ", v2:" + this.v2.pos + ", v3:" + this.v3.pos + ")";
   },
-   
+  
   //calculateNormals:function() {
   calculateNormalsAndCenters:function() {
    

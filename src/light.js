@@ -22,7 +22,7 @@ mea3D.Light = function(type, color, position, direction, range, attenuation, ena
   this.position = position;
   this.direction = direction ? direction.norm():null;
   this.range = range;
-  this.enabled = (typeof enabled=="undefined")? true:enabled;
+  this.enabled = !!enabled;
   if (range) this.rangeSquared = range*range; // precalculated 
   this.attenuation = attenuation;
 }

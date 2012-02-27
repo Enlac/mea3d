@@ -60,7 +60,7 @@ mea3D.Matrix4.prototype = {
         }
       }
     }
-    return new mea3D.Matrix4(vals);    
+    return new mea3D.Matrix4(vals);
   },
   
   multVector3:function(vector3) {

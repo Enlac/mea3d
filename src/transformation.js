@@ -21,7 +21,7 @@ mea3D.Transformation.prototype = {
             "rotation: " + this.rotation.toString() +
             "scaling : " + this.scaling.toString();
   },
- 
+  
   copy:function() {
     var trans = new mea3D.Transformation(
       this.position.copy(),
@@ -91,3 +91,4 @@ mea3D.Transformation.prototype = {
     this.update();
   }
 };
+

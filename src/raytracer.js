@@ -30,7 +30,7 @@ mea3D.RayTracer.prototype = {
       return false;
     }
     this.canvas.width  = this.width * this.pixelSize;
-    this.canvas.height = this.height* this.pixelSize;    
+    this.canvas.height = this.height* this.pixelSize;
     this.context = this.canvas.getContext("2d");
     this.initiated = true;
     return true;
